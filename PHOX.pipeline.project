@@ -1,0 +1,18 @@
+#TABARI coding file for Phoenix pipeline, 5 Feb 2014 
+<verbsfile> 	CAMEO.091003.master.verbs
+<actorsfile> 	nouns_adj_null.110124.txt
+<actorsfile> 	Phoenix.Countries.140130.actors.txt
+<actorsfile> 	Phoenix.Internatnl.140130.actors.txt
+<actorsfile> 	Phoenix.MNSA.140131.actors.txt
+<agentfile>   	Phoenix.140127.agents.txt
+<optionsfile> pipeline.options
+#<textfile> eventrecords.140129.txt  # provided in command line
+#<outputfile> 	Output.DOCTEST.txt  # provided in command line
+<coder> PHOX
+<session 1> <coder PHOX> <date Wed 05 Feb 2014> <start 15:57 EST> <end 15:57 EST> <records 1449> <actorchanges 0> <verbchanges 0> <last 0>
+<session 2> <coder PHOX> <date Wed 05 Feb 2014> <start 16:09 EST> <end 16:09 EST> <records 1152> <actorchanges 0> <verbchanges 0> <last 0>
+<session 3> <coder PHOX> <date Wed 05 Feb 2014> <start 16:29 EST> <end 16:29 EST> <records 1152> <actorchanges 0> <verbchanges 0> <last 0>
+<session 4> <coder PHOX> <date Wed 05 Feb 2014> <start 16:34 EST> <end 16:34 EST> <records 1152> <actorchanges 0> <verbchanges 0> <last 0>
+<session 5> <coder PHOX> <date Wed 05 Feb 2014> <start 16:35 EST> <end 16:36 EST> <records 1152> <actorchanges 0> <verbchanges 0> <last 0>
+<session 6> <coder PHOX> <date Wed 05 Feb 2014> <start 16:45 EST> <end 16:45 EST> <records 1152> <actorchanges 0> <verbchanges 0> <last 0>
+<session 7> <coder PHOX> <date Wed 05 Feb 2014> <start 16:49 EST> <end 16:49 EST> <records 1152> <actorchanges 0> <verbchanges 0> <last 0>
