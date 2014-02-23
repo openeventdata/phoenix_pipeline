@@ -10,9 +10,10 @@ downloaded by scraper_connection.py to coded event data which is uploaded to a w
 designated in the config file. The system processes a single day of information, but this 
 can be derived from multiple text files.
 
------------ config.ini ----------- 
+####config.ini
 This file should be in the working directory
 
+```
 [Server]
 server_name = <server name for http: site>
 username =  <user name for ftp login to server_name>
@@ -25,27 +26,37 @@ recordfile_stem =  <stem for output of monger_formatter.py>
 eventfile_stem =  <stem for output of TABARI.0.8.4b1>
 dupfile_stem =  <stem for output of oneaday_formatter.py>
 outputfile_stem =  <stem for files uploaded by phox_uploader.py>
+```
 
->> INSERT EXAMPLE FROM openeventdata.org WITHOUT THE USERNAME AND PASSWORD <<
+INSERT EXAMPLE FROM openeventdata.org WITHOUT THE USERNAME AND PASSWORD <<
 
 In the examples below, 'datestr' refers to a 6-digit YYMMDD date
 
------------ scraper_connection.py ----------- 
+####scraper_connection.py
+
 Downloads formatted stories from a Mongo DB
+
+```
 Input: none
 Output: files with the name scraper_stem + datestr + '.txt'
+```
 
 
------------ monger_formatter.py ----------- 
+####monger_formatter.py
+
 Downloads formatted stories from a Mongo DB
+
+```
 Command-line: 
 Input: output files from scraper_connection.py
 Output: TABARI-formatted records in a file with the name recordfile_stem + datestr + '.txt'
+```
 
 
------------ TABARI.0.8.4b1 ----------- 
+####TABARI.0.8.4b1
 TABARI is a fully automated event data coder: details can be found at 
 
+```
 Command-line: 
 Input, static: These are dictionary and configuration files used by the program
 	CAMEO.091003.master.verbs
@@ -60,30 +71,43 @@ Input, dynamic:
 	PHOX.pipeline.project [this is updated with each run of the program]
 
 Output: Coded events in a file with the name eventfile_stem + datestr + '.txt'
+```
 
 
------------ oneaday_formatter.py ----------- 
+####oneaday_formatter.py
+
 Deduplication on the basis of unique date-source-target-event tuples
+
+```
 Command-line: 
 Input: TABARI event records
 Output: Deduplicated events in a file with the name dupfile_stem + datestr + '.txt'
+```
 
 
------------ phox_uploader.py ----------- 
+####phox_uploader.py
+
 This uploads the file to a web site that has daily, monthly and annual files: see details 
 on the assumed site structure in the program header. 
+
+```
 Command-line: date string
 Input, static: default_config.ini [configuration file with information on the destination
    for the uploads
 Input, dynamic: output files from  oneaday_formatter.py  
 Output: log file 
+```
 
 
------------ phox_pipeline.py ----------- 
+####phox_pipeline.py
+
 This is the glue program that put all of the above together.
+
+```
 Command-line: 
 Input, static: default_config.ini 
 Output: log file 
+```
 
 
 Source Code Location: https://github.com/openeventdata/phoenix_pipeline
