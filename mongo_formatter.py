@@ -54,6 +54,7 @@
 # REVISION HISTORY:
 # 01-Feb-14:	Initial version
 # 17-Feb-14:	Revised sentence segmenter
+# 22-Feb-14:    Revision by MYI
 ##
 # ------------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ import sys
 import time
 import textwrap
 import re
+from dateutil import parser
 
 # ======== global initializations ========= #
 
@@ -83,36 +85,48 @@ ABBREV_LIST = ['mrs.', 'ms.', 'mr.', 'dr.', 'gov.', 'sr.', 'rev.',  'r.n.', 'pre
 	'long.', 'mg.', 'mm.,, m.p.g.', 'm.p.h.', 'cc.', 'qr.', 'qt.', 'sq.', 't.', 'vol.', 
 	'w.', 'wt.']
 
+sources = {'csmonitor.com':'CSM', 'bbc.co.uk':'BBC', 'reuters.com':'REU', 'xinhuanet.com':'XIN', 
+  'www.upi.com':'UPI', 'nytimes.com':'NYT', 'todayszaman.com':'TZA', 'hosted2.ap.org':'APP', 
+  'theguardian.com':'GUA', 'todayszaman.com':'TZA', 'insightcrime.org':'ISC', 'france24.com':'FRA', 
+  'yahoo.com':'YAH', 'allafrica.com':'ALA', 'voanews.com':'VOA', 'aljazeera.com':'AJZ', 'AlAkhbarEnglish':'AKB', 
+  'usatoday.com':'USA', 'latimes.com':'LAT', 'foxnews.com':'FOX','IRINnews.org':'IRI', 'rfi.fr':'RFI', 'cnn.com':'CNN',  
+  'abcnews':'ABC', 'wsj.com':'WSJ', 'nydailynews.com':'NYD','washingtonpost.com':'WAS', 'chicagotribune.com': 'CHT'}
+
 scraperstem = 'scraper_results_20'
 recordfilestem = 'eventrecords.'
+newsourcestem = 'newsources.'
 
 # ======== functions ========= #
 
 
-def get_plaindate():  # processes date of the form 2014-01-28
-    global field
-    return field[1][2:4] + field[1][5:7] + field[1][8:10]
-
-# processes date of the form 	Tue, 28 Jan 2014 23:40:04 +0530
-
-
-def get_fmtdate():
-    global field, source
-    tifld = field[1].split()  # convert the date to YYMMDD
-    tistr = ' '.join(tifld[1:4])
-#		print tistr
-    try:
-        strctim = time.strptime(tistr, '%d %b %Y')
-        return time.strftime('%y%m%d', strctim)
-    except ValueError:
-        print 'Cannot interpret date', field[1], 'in', thisURL
-        source = ''
+def get_date(field):
+    if 'csmonitor.com' in field[-1]:
+        csmdate = field[-1].split('/20')[1].split('/')
+        return csmdate[0]+csmdate[1]
+    elif 'latimes.com' in field[-1]:
+        latdate = field[-1].split('-20')[-1].split(',')
+        return latdate[0]
+    elif 'foxnews.com' in field[-1]:
+        foxdate = field[-1].split('http://')[-1].split('/')[2:5]
+        return ''.join(foxdate)[2:]
+    elif 'rfi.fr' in field[-1]:
+        rfidate = field[-1].split('/')[-1].split('-')[0]
+        return rfidate[2:]
+    elif 'cnn.com' in field[-1]:
+        if 'interactive/' in field[-1]:
+            date_obj = parser.parse(field[1])
+            return str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
+        else:
+            cnndate = field[-1].split('/20')[-1].split('/')
+            return cnndate[0]+ cnndate[1] + cnndate[2]
+    elif field[1]:
+        date_obj = parser.parse(field[1])
+        return str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
+    else:
         return '000000'
 
 
-def write_record():
-    global thisdate, thisURL, source, story, fout, sourcecount
-
+def write_record(source, sourcecount, thisdate, thisURL, story, fout):
     if source in sourcecount:  # count of the stories by source
         sourcecount[source] += 1
     else:
@@ -124,14 +138,14 @@ def write_record():
     for sent in sentlist:
         if sent[0] != '"':  # skip sentences beginning with quotes
             print thisdate, source, thisURL
-            fout.write(thisdate + ' ' + source + '-' +
-                       str(sourcecount[source]).zfill(4) + '-' + str(nsent) + ' ' + thisURL + '\n')
+            print >> fout, thisdate + ' ' + source + '-' + str(sourcecount[source]).zfill(4) + '-' + str(nsent) + ' ' + thisURL #+ '\n'
+
             lines = textwrap.wrap(sent, 80)
             for txt in lines:
-                fout.write(txt + ' \n')
-#				print txt
-            fout.write('\n')
-#			print '\n',
+                print >> fout, txt
+            
+            print >> fout, '\n'
+
         nsent += 1
         if nsent > MAX_LEDE: break
 
@@ -191,104 +205,45 @@ def sentence_segmenter(paragr):
 
 
 
-def format_csmonit():
-    global story, source, thisdate
-#	global cssplit
-#	m = cssplit.match(story)
-#	print '==', m.group(0),  m.group(1), m.group(2)
-#	story = cssplit.sub('\1. \2',story)
-    source = 'CSM'
-    tifld = thisURL.split('/')  # convert the date to YYMMDD
-    ka = 1
-    while not tifld[ka].startswith('20'):
-        ka += 1
-    tistr = tifld[ka] + ' ' + tifld[ka + 1][:2] + ' ' + tifld[ka + 1][2:]
-#		print tistr
-    strctim = time.strptime(tistr, '%Y %m %d')
-    thisdate = time.strftime('%y%m%d', strctim)
-#	print story
+def get_source(field):
+  source_url = field[-1].strip()
+  source = source_url.split('http://')[-1]
+  
+  try:
+      key = [i for i, s in enumerate(sources.keys()) if s in source]
+      if key:
+          return sources[sources.keys()[key[0]]]
+      else:
+          return '999'
+  except AttributeError:
+      return '999'
 
-
-def format_plain(srcstr):
-    global source, thisdate
-    thisdate = get_plaindate()
-    source = srcstr
-
-
-def format_fmt(srcstr):
-    global source, thisdate
-    thisdate = get_fmtdate()
-    source = srcstr
-
-
-def format_google():
-    global story, source, thisdate
-    thisdate = get_fmtdate()
-    if '(Reuters)' in story:
-        story = story[story.find('(Reuters)') + 11:]
-        source = 'REU'
-    else:
-        source = 'GOG'
-
-def format_bbc():
-    global source, thisdate
-    if story.startswith('This page is best viewed in an'):
-        source = ''
-    else:
-        thisdate = get_fmtdate()
-        source = 'BBC'
-
-
-def format_nyt():
-    global source, thisdate, story
-    thisdate = get_fmtdate()
-    source = 'NYT'
-# unhappy with the non-ASCII char
-
-
-def format_reuters():
-    global source, thisdate, story
-    thisdate = get_fmtdate()
-    source = 'REU'
-    if '(Reuters)' in story:
-        story = story[story.find('(Reuters)') + 13:]
-
-def format_yahoo():
-    global source, thisdate, story
-    thisdate = get_fmtdate()
-    source = 'YAH'
-    if '(IANS)' in story:
-        story = story[story.find('(IANS)') + 7:]
-    elif '(ANI)' in story:
-        story = story[story.find('(ANI)') + 6:]
-
-
-def format_xinhua():
-    global source, thisdate, story
-    thisdate = get_plaindate()
-    source = 'XIN'
-    if '(Xinhua) -- ' in story:
-        story = story[story.find('(Xinhua) -- ') + 13:]
-
-
-def format_upi():
-    global source, thisdate, story
-    thisdate = get_fmtdate()
-    source = 'UPI'
-    if '(UPI) -- ' in story:
-        story = story[story.find('(UPI) -- ') + 9:]
+def get_story(story):
+  if '(Reuters)' in story:
+    return story[story.find('(Reuters)') + 12:]
+  elif '(IANS)' in story:
+    return story[story.find('(IANS)') + 7:]
+  elif '(ANI)' in story:
+    return story[story.find('(ANI)') + 7:]
+  elif '(Xinhua) -- ' in story:
+    return story[story.find('(Xinhua) -- ') + 12:]
+  elif '(UPI) -- ' in story:
+    return story[story.find('(UPI) -- ') + 9:]
+  else:
+    return story
 
 
 # ============ main program =============== #
 
 def main(thisday):
-    global field, story, source, thisdate, thisURL, sourcecount, fout
-
     scraperfilename = scraperstem + thisday + '.txt'
     print "Mongo: Scraper file name:", scraperfilename
 
     recordfilename = recordfilestem + thisday + '.txt'
     print "Mongo: Record file name:", recordfilename
+
+    newsourcefile = newsourcestem + thisday + '.txt'
+    print "Mongo: New Sources file name:", newsourcefile
 
     try:
         fin = open(scraperfilename, 'r')
@@ -296,70 +251,27 @@ def main(thisday):
         print "\aError: Could not find the event file"
         sys.exit()
 
+    finlist = fin.readlines()
     fout = open(recordfilename, 'w')
+    newout = open(newsourcefile, 'w')
     sourcecount = {}
 
     storyno = 1
     csno = 1
-    line = fin.readline()
-    while len(line) > 0:  # loop through the file
-        field = line.split('\t')
-#        print field
+
+    for line in range(0, len(finlist)):
+      if 'http' in finlist[line]:
+        field = finlist[line].split('\t')
         thisURL = field[2][:-1]
-#    	print thisURL
-        story = fin.readline()  # *usually* the entire story will be in one line
-        line = fin.readline()  # skip blank line
-        while len(line) > 0 and '\thttp://' not in line:  #  but add additional lines to story: this is occurring in some cases
-        	if len(line) > 2:
-        		story += ' ' + line 
-        	line = fin.readline()    # line will be a header
+            
+        thisstory = get_story(finlist[line+1])
+        thisdate = get_date(field)
+        thissource = get_source(field)  
 
-        if 'www.csmonitor.com' in thisURL:
-            format_csmonit()
-        elif 'www.bbc.co.uk' in thisURL:
-            format_bbc()
-        elif 'feeds.reuters.com' in thisURL:
-            format_reuters()
-        elif 'news.xinhuanet.com' in thisURL:
-            format_xinhua()
-        elif 'www.upi.com' in thisURL:
-            format_upi()
-        elif ('www.nytimes.com' in thisURL or
-              'thelede.blogs.nytimes.com' in thisURL):
-            format_nyt()
-        elif ('news.google.com' in thisURL or
-              'feedproxy.google.com' in thisURL):
-            format_google()
-        elif 'www.todayszaman.com' in thisURL:
-            format_plain('TZA')
-        elif 'hosted2.ap.org' in thisURL:
-            format_plain('APP')
-        elif 'www.theguardian.com' in thisURL:
-            format_plain('GUA')
-        elif 'www.todayszaman.com' in thisURL:
-            format_plain('TZA')
-        elif 'www.insightcrime.org' in thisURL:
-            format_fmt('ISC')
-        elif 'www.france24.com' in thisURL:
-            format_fmt('FRA')
-        elif 'in.news.yahoo.com' in thisURL:
-            format_yahoo()
-        elif 'allafrica.com' in thisURL:
-            format_fmt('ALA')
-        elif 'xxx-africa.com' in thisURL:
-            format_fmt('XXA')
-        elif 'xxx-africa.com' in thisURL:
-            format_fmt('XXA')
-        elif 'xxx-africa.com' in thisURL:
-            format_fmt('XXA')
-        else:
-            source = ''  # general trigger for a skip
-            		
-        if (len(source) > 0) and (thisday == thisdate):
-            write_record()
-
-    #	storyno += 1
-    #	if storyno > 8: sys.exit()
+        if thissource == '999':
+          print >> newout, thisURL    #Adds sources not included in sources dictionary to 'newsource_results_20..' file output
+        
+        write_record(thissource, sourcecount, thisdate, thisURL, thisstory, fout)
 
     fin.close()
     fout.close()
