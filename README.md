@@ -29,8 +29,9 @@ dupfile_stem =  <stem for duplicate file output of oneaday_formatter.py>
 outputfile_stem =  <stem for files uploaded by phox_uploader.py>
 ```
 
-EXAMPLE OF PHOX_config.ini
+#####Example of PHOX_config.ini
 
+```
 [Server]
 server_name = openeventdata.org
 username = myusername
@@ -44,6 +45,7 @@ fullfile_stem = events.full.
 eventfile_stem = Phoenix.events.
 dupfile_stem = Phoenix.dupindex.
 outputfile_stem = Phoenix.events.20
+```
 
 In the examples below, 'datestr' refers to a 6-digit YYMMDD date
 
