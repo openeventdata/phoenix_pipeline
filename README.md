@@ -1,7 +1,7 @@
 phoenix_pipeline
 ================
 
-[Note 19 Feb 2014: Still incomplete, but less so than it was at first... <pas>]
+[Note 24 Feb 2014: Still incomplete, but less so than it was at first... <pas>]
 
 Turning news into events since 2014.
 
@@ -10,7 +10,7 @@ downloaded by scraper_connection.py to coded event data which is uploaded to a w
 designated in the config file. The system processes a single day of information, but this 
 can be derived from multiple text files.
 
-####config.ini
+####PHOX_config.ini
 This file should be in the working directory
 
 ```
@@ -23,12 +23,29 @@ server_dir = <path to directory on the server where subdirectories are located>
 [Pipeline]
 scraper_stem =  <stem for scrapped output>
 recordfile_stem =  <stem for output of monger_formatter.py>
-eventfile_stem =  <stem for output of TABARI.0.8.4b1>
-dupfile_stem =  <stem for output of oneaday_formatter.py>
+fullfile_stem =  <stem for output of TABARI.0.8.4b1>
+eventfile_stem =  <stem for event output of oneaday_formatter.py>
+dupfile_stem =  <stem for duplicate file output of oneaday_formatter.py>
 outputfile_stem =  <stem for files uploaded by phox_uploader.py>
 ```
 
-INSERT EXAMPLE FROM openeventdata.org WITHOUT THE USERNAME AND PASSWORD <<
+#####Example of PHOX_config.ini
+
+```
+[Server]
+server_name = openeventdata.org
+username = myusername
+password = myweakpassword12345
+server_dir = public_html/datasets/phoenix/
+
+[Pipeline]
+scraper_stem = scraper_results_20
+recordfile_stem = eventrecords.
+fullfile_stem = events.full.
+eventfile_stem = Phoenix.events.
+dupfile_stem = Phoenix.dupindex.
+outputfile_stem = Phoenix.events.20
+```
 
 In the examples below, 'datestr' refers to a 6-digit YYMMDD date
 
@@ -112,7 +129,7 @@ Output: log file
 
 Source Code Location: https://github.com/openeventdata/phoenix_pipeline
 
-Last update : 19 February 2014
+Last update : 24 February 2014
 
 Copyright (c) 2014 Open Event Data Alliance 
  

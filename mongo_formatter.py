@@ -2,33 +2,45 @@
 
 # mongo_formatter.py
 ##
-# This converts the first MAXLEDE sentences of scraper_results_* files (which in turn were 
+# This converts the first MAXLEDE sentences of scraper_results_* files (which in turn were
 # produced from a Mongo DB, hence the name of the program) into TABARI-formatted records.
-# The header has the format 
-#    YYMMDD AAA-MMMM-NN URL
+# The header has the format
+#	 YYMMDD AAA-MMMM-NN URL
 #  where
-#    YYMMDD: date
-#    AAA:    source abbreviation
-#    MMMM:   zero-filled sequence of the story within the source-day
-#    N:     sentence number within the story
-#    URL:    source story URL
-#  Lines are wrapped to 80 characters 
+#	 YYMMDD: date
+#	 AAA:	 source abbreviation
+#	 MMMM:	 zero-filled sequence of the story within the source-day
+#	 N:		sentence number within the story
+#	 URL:	 source story URL
+#  Lines are wrapped to 80 characters
 ##
 # TO RUN PROGRAM:
 ##
-# python mongo_formatter.py MMDD
+# python mongo_formatter.py <date_string> -s
+#	   where <date_string> is of the form YYMMDD.
+#	   Second command line option triggers standalong run: see notes
 #
-# where MMDD is the month and day that will be appended to scraper_stem
 ##
-# INPUT FILES: scraperstem+MMDD+.txt  (e.g. scraper_results_20140215.txt)
+# INPUT FILES: phox_utilities.Scraper_Stem + date_string + '.txt'
+#		output file from scraper_connection.main()
 ##
-# OUTPUT FILES: recordfilestem+MMDD+.txt (e.g. eventrecords.1402015.txt
+# OUTPUT FILES:
+#	phox_utilities.Recordfile_Stem + date_string + '.txt'
+#		TABARI-formatted event records
+#	newsourcestem + thisday + '.txt'
+#		[still needs to be documented
 ##
-# PROGRAMMING NOTES: 
+# PROGRAMMING NOTES:
 #
-#  1. See notes in sentence_segmenter() on the conditions for segmenting sentences. The
-#     list of abbreviations can be extended in the global ABBREV_LIST. The nltk segmenter
-#     punkt could also be substituted here.
+# 1. See notes in sentence_segmenter() on the conditions for segmenting sentences. The
+#	  list of abbreviations can be extended in the global ABBREV_LIST. The nltk segmenter
+#	  punkt could also be substituted here.
+#
+# 2. This program eventually goes into the Phoenix pipeline and is called using
+#	 oneaday_formatter.main(date_string). In standalone mode for development, use a
+#	 second command line option (anything): this will set up the logger and phox_utilities
+#
+# 3. URL is currently truncated at MAX_URLLENGTH due to TABARI limitations
 #
 ##
 # SYSTEM REQUIREMENTS
@@ -40,6 +52,8 @@
 #				Parus Analytical Systems
 #				schrodt735@gmail.com
 #				http://eventdata.parsuanalytics.edu
+#
+#   Additional modifications by Muhammed Idris, Political Science, Penn State
 #
 # Copyright (c) 2014	Philip A. Schrodt.	All rights reserved.
 ##
@@ -54,46 +68,72 @@
 # REVISION HISTORY:
 # 01-Feb-14:	Initial version
 # 17-Feb-14:	Revised sentence segmenter
-# 22-Feb-14:    Revision by MYI
+# 22-Feb-14:	Revision by MYI
+# 23-Feb-14:	Incorporates phox_utilities to handle file names (pas)
 ##
 # ------------------------------------------------------------------------
 
+import re
 import sys
 import time
 import textwrap
-import re
+import phox_utilities
 from dateutil import parser
 
 # ======== global initializations ========= #
 
 
 MAX_LEDE = 4   # number of sentences to output
-MIN_SENTLENGTH = 100   # this is relatively high because we are only looking for sentences that will have subject and object
+# this is relatively high because we are only looking for sentences that
+# will have subject and object
+MIN_SENTLENGTH = 100
 MAX_SENTLENGTH = 512
 
-terpat = re.compile('[\.\?!]\s+[A-Z\"]')	# sentence termination pattern used in sentence_segmenter(paragr)
+MAX_URLLENGTH = 192   # temporary to accommodate TABARI input limits
 
-#source: LbjNerTagger1.11.release/Data/KnownLists/known_title.lst from University of Illinois with editing
-ABBREV_LIST = ['mrs.', 'ms.', 'mr.', 'dr.', 'gov.', 'sr.', 'rev.',  'r.n.', 'pres.', 
-	'treas.', 'sect.', 'maj.', 'ph.d.', 'ed. psy.', 'proc.', 'fr.', 'asst.', 'p.f.c.', 'prof.', 
-	'admr.', 'engr.', 'mgr.', 'supt.', 'admin.', 'assoc.', 'voc.', 'hon.', 'm.d.', 'dpty.', 
-	'sec.', 'capt.', 'c.e.o.', 'c.f.o.', 'c.i.o.', 'c.o.o.', 'c.p.a.', 'c.n.a.', 'acct.', 
-	'llc.', 'inc.', 'dir.', 'esq.', 'lt.', 'd.d.', 'ed.', 'revd.', 'psy.d.', 'v.p.', 
-	'senr.', 'gen.', 'prov.', 'cmdr.', 'sgt.', 'sen.', 'col.', 'lieut.', 'cpl.', 'pfc.', 
-	'k.p.h.', 'cent.', 'deg.', 'doz.', 'Fahr.', 'Cel.', 'F.', 'C.', 'K.', 'ft.', 'fur.', 
-	'gal.', 'gr.', 'in.', 'kg.', 'km.', 'kw.', 'l.', 'lat.', 'lb.', 'lb per sq in.', 
-	'long.', 'mg.', 'mm.,, m.p.g.', 'm.p.h.', 'cc.', 'qr.', 'qt.', 'sq.', 't.', 'vol.', 
-	'w.', 'wt.']
+# sentence termination pattern used in sentence_segmenter(paragr)
+terpat = re.compile('[\.\?!]\s+[A-Z\"]')
 
-sources = {'csmonitor.com':'CSM', 'bbc.co.uk':'BBC', 'reuters.com':'REU', 'xinhuanet.com':'XIN', 
-  'www.upi.com':'UPI', 'nytimes.com':'NYT', 'todayszaman.com':'TZA', 'hosted2.ap.org':'APP', 
-  'theguardian.com':'GUA', 'todayszaman.com':'TZA', 'insightcrime.org':'ISC', 'france24.com':'FRA', 
-  'yahoo.com':'YAH', 'allafrica.com':'ALA', 'voanews.com':'VOA', 'aljazeera.com':'AJZ', 'AlAkhbarEnglish':'AKB', 
-  'usatoday.com':'USA', 'latimes.com':'LAT', 'foxnews.com':'FOX','IRINnews.org':'IRI', 'rfi.fr':'RFI', 'cnn.com':'CNN',  
-  'abcnews':'ABC', 'wsj.com':'WSJ', 'nydailynews.com':'NYD','washingtonpost.com':'WAS', 'chicagotribune.com': 'CHT'}
+# source: LbjNerTagger1.11.release/Data/KnownLists/known_title.lst from
+# University of Illinois with editing
+ABBREV_LIST = [
+    'mrs.', 'ms.', 'mr.', 'dr.', 'gov.', 'sr.', 'rev.', 'r.n.', 'pres.',
+    'treas.', 'sect.', 'maj.', 'ph.d.', 'ed. psy.', 'proc.', 'fr.', 'asst.', 'p.f.c.', 'prof.',
+    'admr.', 'engr.', 'mgr.', 'supt.', 'admin.', 'assoc.', 'voc.', 'hon.', 'm.d.', 'dpty.',
+    'sec.', 'capt.', 'c.e.o.', 'c.f.o.', 'c.i.o.', 'c.o.o.', 'c.p.a.', 'c.n.a.', 'acct.',
+    'llc.', 'inc.', 'dir.', 'esq.', 'lt.', 'd.d.', 'ed.', 'revd.', 'psy.d.', 'v.p.',
+    'senr.', 'gen.', 'prov.', 'cmdr.', 'sgt.', 'sen.', 'col.', 'lieut.', 'cpl.', 'pfc.',
+    'k.p.h.', 'cent.', 'deg.', 'doz.', 'Fahr.', 'Cel.', 'F.', 'C.', 'K.', 'ft.', 'fur.',
+    'gal.', 'gr.', 'in.', 'kg.', 'km.', 'kw.', 'l.', 'lat.', 'lb.', 'lb per sq in.',
+    'long.', 'mg.', 'mm.,, m.p.g.', 'm.p.h.', 'cc.', 'qr.', 'qt.', 'sq.', 't.', 'vol.',
+    'w.', 'wt.']
 
-scraperstem = 'scraper_results_20'
-recordfilestem = 'eventrecords.'
+sources = {
+    'csmonitor.com': 'CSM',
+    'bbc.co.uk': 'BBC',
+    'reuters.com': 'REU',
+    'xinhuanet.com': 'XIN',
+    'www.upi.com': 'UPI',
+    'nytimes.com': 'NYT',
+    'todayszaman.com': 'TZA',
+    'hosted2.ap.org': 'APP',
+    'theguardian.com': 'GUA',
+    'todayszaman.com': 'TZA',
+    'insightcrime.org': 'ISC',
+    'france24.com': 'FRA',
+    'yahoo.com': 'YAH',
+    'allafrica.com': 'ALA',
+    'voanews.com': 'VOA',
+    'aljazeera.com': 'AJZ',
+    'AlAkhbarEnglish': 'AKB',
+    'usatoday.com': 'USA',
+    'latimes.com': 'LAT',
+    'foxnews.com': 'FOX',
+    'IRINnews.org': 'IRI',
+    'rfi.fr': 'RFI',
+    'cnn.com': 'CNN',
+    'abcnews': 'ABC', 'wsj.com': 'WSJ', 'nydailynews.com': 'NYD', 'washingtonpost.com': 'WAS', 'chicagotribune.com': 'CHT'}
+
 newsourcestem = 'newsources.'
 
 # ======== functions ========= #
@@ -102,7 +142,7 @@ newsourcestem = 'newsources.'
 def get_date(field):
     if 'csmonitor.com' in field[-1]:
         csmdate = field[-1].split('/20')[1].split('/')
-        return csmdate[0]+csmdate[1]
+        return csmdate[0] + csmdate[1]
     elif 'latimes.com' in field[-1]:
         latdate = field[-1].split('-20')[-1].split(',')
         return latdate[0]
@@ -115,10 +155,12 @@ def get_date(field):
     elif 'cnn.com' in field[-1]:
         if 'interactive/' in field[-1]:
             date_obj = parser.parse(field[1])
-            return str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
+            return (
+                str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
+            )
         else:
             cnndate = field[-1].split('/20')[-1].split('/')
-            return cnndate[0]+ cnndate[1] + cnndate[2]
+            return cnndate[0] + cnndate[1] + cnndate[2]
     elif field[1]:
         date_obj = parser.parse(field[1])
         return str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
@@ -133,113 +175,121 @@ def write_record(source, sourcecount, thisdate, thisURL, story, fout):
         sourcecount[source] = 1
 
     sentlist = sentence_segmenter(story)
-    
+
     nsent = 1
     for sent in sentlist:
         if sent[0] != '"':  # skip sentences beginning with quotes
             print thisdate, source, thisURL
-            print >> fout, thisdate + ' ' + source + '-' + str(sourcecount[source]).zfill(4) + '-' + str(nsent) + ' ' + thisURL #+ '\n'
+            print >> fout, thisdate + ' ' + source + '-' + \
+                str(sourcecount[source]).zfill(4) + '-' + \
+                str(nsent) + ' ' + thisURL  # + '\n'
 
             lines = textwrap.wrap(sent, 80)
             for txt in lines:
                 print >> fout, txt
-            
+
             print >> fout, '\n'
 
         nsent += 1
-        if nsent > MAX_LEDE: break
+        if nsent > MAX_LEDE:
+            break
+
 
 def sentence_segmenter(paragr):
-	""" Breaks the string 'paragraph' into a list of sentences based on the following rules
-	1. Look for terminal [.,?,!] followed by a space and [A-Z]
-	2. If ., check against abbreviation list ABBREV_LIST: Get the string between the . and the
-	   previous blank, lower-case it, and see if it is in the list. Also check for single-
-	   letter initials. If true, continue search for terminal punctuation
-	3. Extend selection to balance (...) and "...". Reapply termination rules
-	4. Add to sentlist if the length of the string is between MIN_SENTLENGTH and MAX_SENTLENGTH 
-	5. Returns sentlist """
+    """ Breaks the string 'paragraph' into a list of sentences based on the following rules
+    1. Look for terminal [.,?,!] followed by a space and [A-Z]
+    2. If ., check against abbreviation list ABBREV_LIST: Get the string between the . and the
+       previous blank, lower-case it, and see if it is in the list. Also check for single-
+       letter initials. If true, continue search for terminal punctuation
+    3. Extend selection to balance (...) and "...". Reapply termination rules
+    4. Add to sentlist if the length of the string is between MIN_SENTLENGTH and MAX_SENTLENGTH
+    5. Returns sentlist """
 
 #	ka = 0
 #	print '\nSentSeg-Mk1'
-	sentlist = []
-	searchstart = 0  # controls skipping over non-terminal conditions
-	terloc = terpat.search(paragr)
-	while terloc:
+    sentlist = []
+    searchstart = 0	 # controls skipping over non-terminal conditions
+    terloc = terpat.search(paragr)
+    while terloc:
 #		print 'Mk2-0:', paragr[:terloc.start()+2]
-		isok = True
-		if paragr[terloc.start()] == '.':
-			if (paragr[terloc.start()-1].isupper() and 
-				paragr[terloc.start()-2] == ' '):  isok = False   # single initials
-			else:
-				loc = paragr.rfind(' ',0,terloc.start()-1)   # check abbreviations
-				if loc > 0:
+        isok = True
+        if paragr[terloc.start()] == '.':
+            if (paragr[terloc.start() - 1].isupper() and
+                    paragr[terloc.start() - 2] == ' '):
+                        isok = False	  # single initials
+            else:
+                # check abbreviations
+                loc = paragr.rfind(' ', 0, terloc.start() - 1)
+                if loc > 0:
 #					print 'SentSeg-Mk1: checking',paragr[loc+1:terloc.start()+1]
-					if paragr[loc+1:terloc.start()+1].lower() in ABBREV_LIST: 
+                    if paragr[loc + 1:terloc.start() + 1].lower() in ABBREV_LIST:
 #						print 'SentSeg-Mk2: found',paragr[loc+1:terloc.start()+1]
-						isok = False
-		if paragr[:terloc.start()].count('(') != paragr[:terloc.start()].count(')') :  
+                        isok = False
+        if paragr[:terloc.start()].count('(') != paragr[:terloc.start()].count(')'):
 #			print 'SentSeg-Mk2: unbalanced ()'
-			isok = False
-		if paragr[:terloc.start()].count('"') % 2 != 0  :
+            isok = False
+        if paragr[:terloc.start()].count('"') % 2 != 0	:
 #			print 'SentSeg-Mk2: unbalanced ""'
-			isok = False
-		if isok:
-			if (len(paragr[:terloc.start()]) > MIN_SENTLENGTH and   
-				len(paragr[:terloc.start()]) < MAX_SENTLENGTH) :
-				sentlist.append(paragr[:terloc.start()+2])
+            isok = False
+        if isok:
+            if (len(paragr[:terloc.start()]) > MIN_SENTLENGTH and
+                    len(paragr[:terloc.start()]) < MAX_SENTLENGTH):
+                sentlist.append(paragr[:terloc.start() + 2])
 #				print 'SentSeg-Mk3: added',paragr[:terloc.start()+2]
-			paragr = paragr[terloc.end()-1:]
-			searchstart = 0
-		else: searchstart = terloc.start()+2 
- 
+            paragr = paragr[terloc.end() - 1:]
+            searchstart = 0
+        else:
+            searchstart = terloc.start() + 2
+
 #		print 'SentSeg-Mk4:',paragr[:64]
-#		print '            ',paragr[searchstart:searchstart+64]
-		terloc = terpat.search(paragr,searchstart)
+#		print '			   ',paragr[searchstart:searchstart+64]
+        terloc = terpat.search(paragr, searchstart)
 #		ka += 1
 #		if ka > 16: sys.exit()
 
-	if (len(paragr) > MIN_SENTLENGTH and len(paragr) < MAX_SENTLENGTH) :  # add final sentence 
-		sentlist.append(paragr) 
-		
-	return sentlist
+    # add final sentence
+    if (len(paragr) > MIN_SENTLENGTH and len(paragr) < MAX_SENTLENGTH):
+        sentlist.append(paragr)
 
+    return sentlist
 
 
 def get_source(field):
-  source_url = field[-1].strip()
-  source = source_url.split('http://')[-1]
-  
-  try:
-      key = [i for i, s in enumerate(sources.keys()) if s in source]
-      if key:
-          return sources[sources.keys()[key[0]]]
-      else:
-          return '999'
-  except AttributeError:
-      return '999'
+    source_url = field[-1].strip()
+    source = source_url.split('http://')[-1]
+
+    try:
+        key = [i for i, s in enumerate(sources.keys()) if s in source]
+        if key:
+            return sources[sources.keys()[key[0]]]
+        else:
+            return '999'
+    except AttributeError:
+        return '999'
+
 
 def get_story(story):
-  if '(Reuters)' in story:
-    return story[story.find('(Reuters)') + 12:]
-  elif '(IANS)' in story:
-    return story[story.find('(IANS)') + 7:]
-  elif '(ANI)' in story:
-    return story[story.find('(ANI)') + 7:]
-  elif '(Xinhua) -- ' in story:
-    return story[story.find('(Xinhua) -- ') + 12:]
-  elif '(UPI) -- ' in story:
-    return story[story.find('(UPI) -- ') + 9:]
-  else:
-    return story
+    if '(Reuters)' in story:
+        return story[story.find('(Reuters)') + 12:]
+    elif '(IANS)' in story:
+        return story[story.find('(IANS)') + 7:]
+    elif '(ANI)' in story:
+        return story[story.find('(ANI)') + 7:]
+    elif '(Xinhua) -- ' in story:
+        return story[story.find('(Xinhua) -- ') + 12:]
+    elif '(UPI) -- ' in story:
+        return story[story.find('(UPI) -- ') + 9:]
+    else:
+        return story
 
 
 # ============ main program =============== #
 
 def main(thisday):
-    scraperfilename = scraperstem + thisday + '.txt'
+    scraperfilename = phox_utilities.Scraper_Stem + thisday + '.txt'
     print "Mongo: Scraper file name:", scraperfilename
 
-    recordfilename = recordfilestem + thisday + '.txt'
+    recordfilename = phox_utilities.Recordfile_Stem + thisday + '.txt'
     print "Mongo: Record file name:", recordfilename
 
     newsourcefile = newsourcestem + thisday + '.txt'
@@ -248,8 +298,9 @@ def main(thisday):
     try:
         fin = open(scraperfilename, 'r')
     except IOError:
-        print "\aError: Could not find the event file"
-        sys.exit()
+        phox_utilities.do_RuntimeError(
+            'Could not find the scraper file for',
+            thisday)
 
     finlist = fin.readlines()
     fout = open(recordfilename, 'w')
@@ -260,28 +311,43 @@ def main(thisday):
     csno = 1
 
     for line in range(0, len(finlist)):
-      if 'http' in finlist[line]:
-        field = finlist[line].split('\t')
-        thisURL = field[2][:-1]
-            
-        thisstory = get_story(finlist[line+1])
-        thisdate = get_date(field)
-        thissource = get_source(field)  
+        if 'http' in finlist[line]:
+            field = finlist[line].split('\t')
+            thisURL = field[2][:-1]
+            # temporary to accommodate TABARI input limits
+            thisURL = thisURL[:MAX_URLLENGTH]
 
-        if thissource == '999':
-          print >> newout, thisURL    #Adds sources not included in sources dictionary to 'newsource_results_20..' file output
-        
-        write_record(thissource, sourcecount, thisdate, thisURL, thisstory, fout)
+            thisstory = get_story(finlist[line + 1])
+            thisdate = get_date(field)
+            thissource = get_source(field)
+
+            if thissource == '999':
+                # Adds sources not included in sources dictionary to
+                # 'newsource_results_20..' file output
+                print >> newout, thisURL
+
+            write_record(
+                thissource,
+                sourcecount,
+                thisdate,
+                thisURL,
+                thisstory,
+                fout)
 
     fin.close()
     fout.close()
     print "Finished"
 
 if __name__ == '__main__':
+    if len(sys.argv) > 2:  # initializations for stand-alone tests
+        phox_utilities.init_logger('test_pipeline.log')
+        logger = phox_utilities.logger  # get a local copy for the pipeline
+        # initialize the various phox_utilities globals
+        phox_utilities.parse_config('test_config.ini')
+
     if len(sys.argv) > 1:
         thisday = sys.argv[1]
     else:
-        print 'Error: No date suffix in Mongo.formatter.py'
-        sys.exit()
+        phox_utilities.do_RuntimeError('No date suffix in Mongo.formatter.py')
 
     main(thisday)
