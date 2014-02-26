@@ -23,7 +23,7 @@ def query_all(collection, less_than_date, greater_than_date):
 
     for num, post in enumerate(posts):
         try:
-            print 'Processing entry {}...'.format(num)
+            #print 'Processing entry {}...'.format(num)
             content = post['content'].encode('utf-8')
             if post['source'] == 'aljazeera':
                 content = content.replace("""Caution iconAttention The browser or device you are using is out of date.  It has known security flaws and a limited feature set.  You will not see all the features of some websites.  Please update your browser.""", '')
