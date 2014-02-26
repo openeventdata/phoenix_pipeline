@@ -25,7 +25,7 @@ def query_all(collection, less_than_date, greater_than_date):
         try:
             print 'Processing entry {}...'.format(num)
             content = post['content'].encode('utf-8')
-            if post['website'] == 'aljazeera':
+            if post['source'] == 'aljazeera':
                 content = content.replace("""Caution iconAttention The browser or device you are using is out of date.  It has known security flaws and a limited feature set.  You will not see all the features of some websites.  Please update your browser.""", '')
             header = '  '.join(sent_detector.tokenize(content.strip())[:4])
             string = '{}\t{}\t{}\n{}\n'.format(num, post['date'], post['url'],
