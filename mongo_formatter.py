@@ -70,6 +70,7 @@
 # 17-Feb-14:	Revised sentence segmenter
 # 22-Feb-14:	Revision by MYI
 # 23-Feb-14:	Incorporates phox_utilities to handle file names (pas)
+# 05-Mar-14:    Removal of dateline if "m-dash" in first 32 char of story
 ##
 # ------------------------------------------------------------------------
 
@@ -279,6 +280,8 @@ def get_story(story):
         return story[story.find('(Xinhua) -- ') + 12:]
     elif '(UPI) -- ' in story:
         return story[story.find('(UPI) -- ') + 9:]
+    if bool(re.search("\xe2\x80\x93", story[0:32])):
+        return story.split("\xe2\x80\x93 ", 1)[1]
     else:
         return story
 
