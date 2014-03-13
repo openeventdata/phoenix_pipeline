@@ -16,16 +16,16 @@ logger = logging.getLogger('pipeline_log')
 # initialize the various phox_utilities globals
 server_details, file_details = phox_utilities.parse_config('PHOX_config.ini')
 
-print '\nPHOX.pipeline run:', datetime.datetime.now()
+print '\nPHOX.pipeline run:', datetime.datetime.utcnow()
 
 if len(sys.argv) > 1:
     date_string = sys.argv[1]
-    logger.info('Date string: ' + date_string + '\n')
+    logger.info('Date string: {}'.format(date_string))
     print 'Date string:', date_string
 else:
     now = datetime.datetime.utcnow()
     date_string = '{:02d}{:02d}{:02d}'.format(now.year, now.month, now.day)
-    logger.info('Date string: ' + date_string + '\n')
+    logger.info('Date string: {}'.format(date_string))
     print 'Date string:', date_string
 
 # this is actually generated inside Mongo.formatter.py
@@ -34,7 +34,7 @@ scraperfilename = scraper_connection.main(file_details.scraper_stem)
 logger.info("Scraper file name: " + scraperfilename)
 print "Scraper file name:", scraperfilename
 
-logger.info("Running Mongo.formatter.py \n ")
+logger.info("Running Mongo.formatter.py")
 print "Running Mongo.formatter.py"
 mongo_formatter.main(date_string)
 
@@ -47,11 +47,11 @@ subprocess.call(
     file_details.fullfile_stem + date_string + ".txt",
     shell=True)
 
-logger.info("Running oneaday_formatter.py ")
+logger.info("Running oneaday_formatter.py")
 print "Running oneaday_formatter.py"
 oneaday_formatter.main(date_string)
 
-logger.info("Running phox_uploader.py ")
+logger.info("Running phox_uploader.py")
 print "Running phox_uploader.py"
 phox_uploader.main(date_string)
 
