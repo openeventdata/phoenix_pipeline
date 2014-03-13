@@ -75,7 +75,6 @@
 
 import re
 import sys
-import time
 import textwrap
 import phox_utilities
 from dateutil import parser
@@ -91,22 +90,6 @@ MAX_SENTLENGTH = 512
 
 MAX_URLLENGTH = 192   # temporary to accommodate TABARI input limits
 
-# sentence termination pattern used in sentence_segmenter(paragr)
-terpat = re.compile('[\.\?!]\s+[A-Z\"]')
-
-# source: LbjNerTagger1.11.release/Data/KnownLists/known_title.lst from
-# University of Illinois with editing
-ABBREV_LIST = [
-    'mrs.', 'ms.', 'mr.', 'dr.', 'gov.', 'sr.', 'rev.', 'r.n.', 'pres.',
-    'treas.', 'sect.', 'maj.', 'ph.d.', 'ed. psy.', 'proc.', 'fr.', 'asst.', 'p.f.c.', 'prof.',
-    'admr.', 'engr.', 'mgr.', 'supt.', 'admin.', 'assoc.', 'voc.', 'hon.', 'm.d.', 'dpty.',
-    'sec.', 'capt.', 'c.e.o.', 'c.f.o.', 'c.i.o.', 'c.o.o.', 'c.p.a.', 'c.n.a.', 'acct.',
-    'llc.', 'inc.', 'dir.', 'esq.', 'lt.', 'd.d.', 'ed.', 'revd.', 'psy.d.', 'v.p.',
-    'senr.', 'gen.', 'prov.', 'cmdr.', 'sgt.', 'sen.', 'col.', 'lieut.', 'cpl.', 'pfc.',
-    'k.p.h.', 'cent.', 'deg.', 'doz.', 'Fahr.', 'Cel.', 'F.', 'C.', 'K.', 'ft.', 'fur.',
-    'gal.', 'gr.', 'in.', 'kg.', 'km.', 'kw.', 'l.', 'lat.', 'lb.', 'lb per sq in.',
-    'long.', 'mg.', 'mm.,, m.p.g.', 'm.p.h.', 'cc.', 'qr.', 'qt.', 'sq.', 't.', 'vol.',
-    'w.', 'wt.']
 
 sources = {
     'csmonitor.com': 'CSM',
@@ -207,6 +190,23 @@ def sentence_segmenter(paragr):
 
 #	ka = 0
 #	print '\nSentSeg-Mk1'
+# sentence termination pattern used in sentence_segmenter(paragr)
+    terpat = re.compile('[\.\?!]\s+[A-Z\"]')
+
+    # source: LbjNerTagger1.11.release/Data/KnownLists/known_title.lst from
+    # University of Illinois with editing
+    ABBREV_LIST = [
+        'mrs.', 'ms.', 'mr.', 'dr.', 'gov.', 'sr.', 'rev.', 'r.n.', 'pres.',
+        'treas.', 'sect.', 'maj.', 'ph.d.', 'ed. psy.', 'proc.', 'fr.', 'asst.', 'p.f.c.', 'prof.',
+        'admr.', 'engr.', 'mgr.', 'supt.', 'admin.', 'assoc.', 'voc.', 'hon.', 'm.d.', 'dpty.',
+        'sec.', 'capt.', 'c.e.o.', 'c.f.o.', 'c.i.o.', 'c.o.o.', 'c.p.a.', 'c.n.a.', 'acct.',
+        'llc.', 'inc.', 'dir.', 'esq.', 'lt.', 'd.d.', 'ed.', 'revd.', 'psy.d.', 'v.p.',
+        'senr.', 'gen.', 'prov.', 'cmdr.', 'sgt.', 'sen.', 'col.', 'lieut.', 'cpl.', 'pfc.',
+        'k.p.h.', 'cent.', 'deg.', 'doz.', 'Fahr.', 'Cel.', 'F.', 'C.', 'K.', 'ft.', 'fur.',
+        'gal.', 'gr.', 'in.', 'kg.', 'km.', 'kw.', 'l.', 'lat.', 'lb.', 'lb per sq in.',
+        'long.', 'mg.', 'mm.,, m.p.g.', 'm.p.h.', 'cc.', 'qr.', 'qt.', 'sq.', 't.', 'vol.',
+        'w.', 'wt.']
+
     sentlist = []
     searchstart = 0	 # controls skipping over non-terminal conditions
     terloc = terpat.search(paragr)
@@ -307,8 +307,8 @@ def main(thisday):
     newout = open(newsourcefile, 'w')
     sourcecount = {}
 
-    storyno = 1
-    csno = 1
+    #storyno = 1
+    #csno = 1
 
     for line in range(0, len(finlist)):
         if 'http' in finlist[line]:
