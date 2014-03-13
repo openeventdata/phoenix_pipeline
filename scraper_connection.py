@@ -31,8 +31,8 @@ def query_all(collection, less_than_date, greater_than_date):
             string = '{}\t{}\t{}\n{}\n'.format(num, post['date'], post['url'],
                                                header)
             output.append(string)
-        except Exception:
-            print 'Error on entry {}...'.format(num)
+        except Exception as e:
+            print 'Error on entry {}: {}.'.format(num, e)
     final_out = '\n'.join(output)
     return final_out
 
