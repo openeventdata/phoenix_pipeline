@@ -31,13 +31,13 @@ def query_all(collection, less_than_date, greater_than_date):
             string = '{}\t{}\t{}\n{}\n'.format(num, post['date'], post['url'],
                                                header)
             output.append(string)
-        except Exception:
-            print 'Error on entry {}...'.format(num)
+        except Exception as e:
+            print 'Error on entry {}: {}.'.format(num, e)
     final_out = '\n'.join(output)
     return final_out
 
 
-def main():
+def main(file_stem):
     conn = make_conn()
 
     curr = datetime.datetime.utcnow()
@@ -48,9 +48,10 @@ def main():
     text = query_all(conn, less_than, greater_than)
     text = text.decode('utf-8')
 
-    filename = 'scraper_results_{:02d}{:02d}{:02d}.txt'.format(desired_date.year,
-                                                               desired_date.month,
-                                                               desired_date.day)
+    filename = '{}{:02d}{:02d}{:02d}.txt'.format(file_stem,
+                                                 desired_date.year,
+                                                 desired_date.month,
+                                                 desired_date.day)
     with codecs.open(filename, 'w', encoding='utf-8') as f:
         f.write(text)
 

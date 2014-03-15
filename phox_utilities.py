@@ -29,70 +29,65 @@
 ##
 # ------------------------------------------------------------------------
 
-import os
-import glob
 import logging
 from ConfigParser import ConfigParser
+from collections import namedtuple
 
-global Server_List
-global Scraper_Stem, Recordfile_Stem, Fullfile_Stem
-global Eventfile_Stem, Dupfile_Stem, Outputfile_Stem
 global logger
 
 
 def parse_config(config_filename):
     """
-    Parse config_filename and put the resulting ftp directory information in Server_List
-    and the various file name stems in the named globals. This is called once at the
-    beginning of the pipeline to extract the information, afterwhich the various routines
-    use phox_utilities.<var>.
+    Parse config_filename and put the resulting ftp directory information in
+    Server_List and the various file name stems in the named globals. This is
+    called once at the beginning of the pipeline to extract the information,
+    afterwhich the various routines use phox_utilities.<var>.
     """
-    global Server_List
-    global Scraper_Stem, Recordfile_Stem, Fullfile_Stem
-    global Eventfile_Stem, Dupfile_Stem, Outputfile_Stem
-
-    config_file = glob.glob(config_filename)
     parser = ConfigParser()
-    if config_file:
-        logger.info('Found a config file in working directory')
-        parser.read(config_file)
-        try:
-            serv_name = parser.get('Server', 'server_name')
-            username = parser.get('Server', 'username')
-            password = parser.get('Server', 'password')
-            server_dir = parser.get('Server', 'server_dir')
+    parser.read(config_filename)
 
-            Server_List = [serv_name, username, password, server_dir]
+    logger = logging.getLogger('pipeline_log')
+    logger.info('Found a config file in working directory')
+    try:
+        serv_name = parser.get('Server', 'server_name')
+        username = parser.get('Server', 'username')
+        password = parser.get('Server', 'password')
+        server_dir = parser.get('Server', 'server_dir')
 
-            # these are listed in the order generated
-            Scraper_Stem = parser.get('Pipeline', 'scraper_stem')
-            Recordfile_Stem = parser.get('Pipeline', 'recordfile_stem')
-            Fullfile_Stem = parser.get('Pipeline', 'fullfile_stem')
-            Eventfile_Stem = parser.get('Pipeline', 'eventfile_stem')
-            Dupfile_Stem = parser.get('Pipeline', 'dupfile_stem')
-            Outputfile_Stem = parser.get('Pipeline', 'outputfile_stem')
+        server_attrs = namedtuple('ServerAttributes', ['serv_name',
+                                                       'username',
+                                                       'password',
+                                                       'server_dir'])
+        server_list = server_attrs(serv_name, username, password,
+                                   server_dir)
 
-        except Exception as e:
-            print 'There was an error. Check the log file for more information.'
-            logger.warning('Problem parsing config file. {}'.format(e))
-    else:
-        cwd = os.path.abspath(os.path.dirname(__file__))
-        config_file = os.path.join(cwd, 'default_config.ini')
-        parser.read(config_file)
-        logger.info('No config found. Using default.')
-        try:
-            collection = parser.get('Database', 'collection_list')
-            whitelist = parser.get('URLS', 'file')
-            return collection, whitelist
-        except Exception as e:
-            print 'There was an error. Check the log file for more information.'
-            logger.warning('Problem parsing config file. {}'.format(e))
+        # these are listed in the order generated
+        scraper_stem = parser.get('Pipeline', 'scraper_stem')
+        recordfile_stem = parser.get('Pipeline', 'recordfile_stem')
+        fullfile_stem = parser.get('Pipeline', 'fullfile_stem')
+        eventfile_stem = parser.get('Pipeline', 'eventfile_stem')
+        dupfile_stem = parser.get('Pipeline', 'dupfile_stem')
+        outputfile_stem = parser.get('Pipeline', 'outputfile_stem')
+
+        file_attrs = namedtuple('FileAttributes', ['scraper_stem',
+                                                   'recordfile_stem',
+                                                   'fullfile_stem',
+                                                   'eventfile_stem',
+                                                   'dupfile_stem',
+                                                   'outputfile_stem'])
+        file_list = file_attrs(scraper_stem, recordfile_stem,
+                               fullfile_stem, eventfile_stem,
+                               dupfile_stem, outputfile_stem)
+
+        return server_list, file_list
+    except Exception as e:
+        print 'There was an error. Check the log file for more information.'
+        logger.warning('Problem parsing config file. {}'.format(e))
 
 
 def init_logger(logger_filename):
-    global logger
 
-    logger = logging.getLogger(logger_filename)
+    logger = logging.getLogger('pipeline_log')
     logger.setLevel(logging.INFO)
 
     fh = logging.FileHandler(logger_filename, 'w')
@@ -112,7 +107,7 @@ def do_RuntimeError(st1, filename='', st2=''):
     once. As long as it isn't caught explicitly, the error appears to propagate out to the
     calling program, which can deal with it.
     """
-    global logger
+    logger = logging.getLogger('pipeline_log')
     print st1, filename, st2
     logger.error(st1 + ' ' + filename + ' ' + st2 + '\n')
     raise RuntimeError(st1 + ' ' + filename + ' ' + st2)
