@@ -1,86 +1,8 @@
-# coding: utf-8
-
-# mongo_formatter.py
-##
-# This converts the first MAXLEDE sentences of scraper_results_* files (which in turn were
-# produced from a Mongo DB, hence the name of the program) into TABARI-formatted records.
-# The header has the format
-#	 YYMMDD AAA-MMMM-NN URL
-#  where
-#	 YYMMDD: date
-#	 AAA:	 source abbreviation
-#	 MMMM:	 zero-filled sequence of the story within the source-day
-#	 N:		sentence number within the story
-#	 URL:	 source story URL
-#  Lines are wrapped to 80 characters
-##
-# TO RUN PROGRAM:
-##
-# python mongo_formatter.py <date_string> -s
-#	   where <date_string> is of the form YYMMDD.
-#	   Second command line option triggers standalong run: see notes
-#
-##
-# INPUT FILES: phox_utilities.Scraper_Stem + date_string + '.txt'
-#		output file from scraper_connection.main()
-##
-# OUTPUT FILES:
-#	phox_utilities.Recordfile_Stem + date_string + '.txt'
-#		TABARI-formatted event records
-#	newsourcestem + thisday + '.txt'
-#		[still needs to be documented
-##
-# PROGRAMMING NOTES:
-#
-# 1. See notes in sentence_segmenter() on the conditions for segmenting sentences. The
-#	  list of abbreviations can be extended in the global ABBREV_LIST. The nltk segmenter
-#	  punkt could also be substituted here.
-#
-# 2. This program eventually goes into the Phoenix pipeline and is called using
-#	 oneaday_formatter.main(date_string). In standalone mode for development, use a
-#	 second command line option (anything): this will set up the logger and phox_utilities
-#
-# 3. URL is currently truncated at MAX_URLLENGTH due to TABARI limitations
-#
-##
-# SYSTEM REQUIREMENTS
-# This program has been successfully run under Mac OS 10.6; it is standard Python 2.5
-# so it should also run in Unix or Windows.
-##
-#	PROVENANCE:
-#	Programmer: Philip A. Schrodt
-#				Parus Analytical Systems
-#				schrodt735@gmail.com
-#				http://eventdata.parsuanalytics.edu
-#
-#   Additional modifications by Muhammed Idris, Political Science, Penn State
-#
-# Copyright (c) 2014	Philip A. Schrodt.	All rights reserved.
-##
-# This project was funded in part by National Science Foundation grant
-# SES-1004414
-##
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted under the terms of the MIT License: http://opensource.org/licenses/MIT
-##
-# Report bugs to: schrodt735@gmail.com
-##
-# REVISION HISTORY:
-# 01-Feb-14:	Initial version
-# 17-Feb-14:	Revised sentence segmenter
-# 22-Feb-14:	Revision by MYI
-# 23-Feb-14:	Incorporates phox_utilities to handle file names (pas)
-# 05-Mar-14:    Removal of dateline if "m-dash" in first 32 char of story
-##
-# ------------------------------------------------------------------------
-
 import re
 import sys
 import textwrap
 import phox_utilities
 from dateutil import parser
-
-# ======== global initializations ========= #
 
 
 MAX_LEDE = 4   # number of sentences to output
@@ -91,6 +13,7 @@ MAX_SENTLENGTH = 512
 
 MAX_URLLENGTH = 192   # temporary to accommodate TABARI input limits
 
+newsourcestem = 'newsources.'
 
 sources = {
     'csmonitor.com': 'CSM',
@@ -116,43 +39,81 @@ sources = {
     'IRINnews.org': 'IRI',
     'rfi.fr': 'RFI',
     'cnn.com': 'CNN',
-    'abcnews': 'ABC', 'wsj.com': 'WSJ', 'nydailynews.com': 'NYD', 'washingtonpost.com': 'WAS', 'chicagotribune.com': 'CHT'}
-
-newsourcestem = 'newsources.'
-
-# ======== functions ========= #
-
+    'abcnews': 'ABC', 
+    'wsj.com': 'WSJ', 
+    'nydailynews.com': 'NYD', 
+    'washingtonpost.com': 'WAS', 
+    'chicagotribune.com': 'CHT'}
 
 def get_date(field):
+    """
+    Function to extract date from story header in scraper_results.
+
+    Parameters
+    ------
+    field: String
+            Story header.
+
+    Returns
+    -------
+
+    date : String
+            Date string in the form YYMMDD
+    """
     if 'csmonitor.com' in field[-1]:
         csmdate = field[-1].split('/20')[1].split('/')
-        return csmdate[0] + csmdate[1]
+        date = csmdate[0] + csmdate[1]
     elif 'latimes.com' in field[-1]:
         latdate = field[-1].split('-20')[-1].split(',')
-        return latdate[0]
+        date = latdate[0]
     elif 'foxnews.com' in field[-1]:
         foxdate = field[-1].split('http://')[-1].split('/')[2:5]
-        return ''.join(foxdate)[2:]
+        date = ''.join(foxdate)[2:]
     elif 'rfi.fr' in field[-1]:
         rfidate = field[-1].split('/')[-1].split('-')[0]
-        return rfidate[2:]
+        date = rfidate[2:]
     elif 'cnn.com' in field[-1]:
         if 'interactive/' in field[-1]:
             date_obj = parser.parse(field[1])
-            return (
+            date = (
                 str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
             )
         else:
             cnndate = field[-1].split('/20')[-1].split('/')
-            return cnndate[0] + cnndate[1] + cnndate[2]
+            date = cnndate[0] + cnndate[1] + cnndate[2]
     elif field[1]:
         date_obj = parser.parse(field[1])
-        return str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
+        date = str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
     else:
-        return '000000'
+        date = '000000'
+
+    return date
 
 
 def write_record(source, sourcecount, thisdate, thisURL, story, fout):
+    """
+    Function to write TABARI-formatted story record.
+
+    Parameters
+    ------
+    source: String
+            Story news source.
+
+    sourcecount: Dictionary
+            Dictionary of counts of stories by source
+
+    thisdate: String
+            Date string in the form YYMMDD
+
+    thisURL: String
+            String of URL to story at source
+
+    story: String
+            News article story
+
+    fout: file
+            File for TABARI-formatted output
+    """
     if source in sourcecount:  # count of the stories by source
         sourcecount[source] += 1
     else:
@@ -180,15 +141,22 @@ def write_record(source, sourcecount, thisdate, thisURL, story, fout):
 
 
 def sentence_segmenter(paragr):
-    """ Breaks the string 'paragraph' into a list of sentences based on the following rules
+    """ 
+    Function to break a string 'paragraph' into a list of sentences based on the following rules:
+
     1. Look for terminal [.,?,!] followed by a space and [A-Z]
     2. If ., check against abbreviation list ABBREV_LIST: Get the string between the . and the
        previous blank, lower-case it, and see if it is in the list. Also check for single-
        letter initials. If true, continue search for terminal punctuation
     3. Extend selection to balance (...) and "...". Reapply termination rules
     4. Add to sentlist if the length of the string is between MIN_SENTLENGTH and MAX_SENTLENGTH
-    5. Returns sentlist """
+    5. Returns sentlist 
 
+    Parameters
+    ------
+    paragr: String
+            
+    """
 #	ka = 0
 #	print '\nSentSeg-Mk1'
 # sentence termination pattern used in sentence_segmenter(paragr)
@@ -256,39 +224,73 @@ def sentence_segmenter(paragr):
 
 
 def get_source(field):
+    """
+    Function to extract source from URL in story header.
+
+    Parameters
+    ------
+    field: String
+            Story header.
+
+    Returns
+    -------
+
+    source : String
+            3 char source code from sources dictionary
+    """
     source_url = field[-1].strip()
-    source = source_url.split('http://')[-1]
+    sourced = source_url.split('http://')[-1]
 
     try:
-        key = [i for i, s in enumerate(sources.keys()) if s in source]
+        key = [i for i, s in enumerate(sources.keys()) if s in sourced]
         if key:
-            return sources[sources.keys()[key[0]]]
+            source = sources[sources.keys()[key[0]]]
         else:
-            return '999'
+            source = '999'
     except AttributeError:
-        return '999'
+        source = '999'
+
+    return source
 
 
-def get_story(story):
-    if '(Reuters)' in story:
-        return story[story.find('(Reuters)') + 12:]
-    elif '(IANS)' in story:
-        return story[story.find('(IANS)') + 7:]
-    elif '(ANI)' in story:
-        return story[story.find('(ANI)') + 7:]
-    elif '(Xinhua) -- ' in story:
-        return story[story.find('(Xinhua) -- ') + 12:]
-    elif '(UPI) -- ' in story:
-        return story[story.find('(UPI) -- ') + 9:]
-    if bool(re.search("\xe2\x80\x93", story[0:32])):
-        return story.split("\xe2\x80\x93 ", 1)[1]
+def get_story(story_all):
+    """
+    Function to extract story text without date and source line.
+
+    Parameters
+    ------
+    story_all: String
+            All story text.
+
+    Returns
+    -------
+
+    story : String
+            3 char source code from sources dictionary
+    """
+
+    if '(Reuters)' in story_all:
+        story = story_all[story_all.find('(Reuters)') + 12:]
+    elif '(IANS)' in story_all:
+        story = story_all[story_all.find('(IANS)') + 7:]
+    elif '(ANI)' in story_all:
+        story = story_all[story_all.find('(ANI)') + 7:]
+    elif '(Xinhua) -- ' in story_all:
+        story = story_all[story_all.find('(Xinhua) -- ') + 12:]
+    elif '(UPI) -- ' in story_all:
+        story = story_all[story_all.find('(UPI) -- ') + 9:]
+    if bool(re.search("\xe2\x80\x93", story_all[0:32])):
+        story = story_all.split("\xe2\x80\x93 ", 1)[1]
     else:
-        return story
+        story = story_all
 
+    return story
 
-# ============ main program =============== #
 
 def main(thisday):
+    """
+    Main function to parse scraper_results to TABARI-formatted output.
+    """
     scraperfilename = phox_utilities.Scraper_Stem + thisday + '.txt'
     print "Mongo: Scraper file name:", scraperfilename
 
