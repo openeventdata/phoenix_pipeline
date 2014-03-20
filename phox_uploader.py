@@ -114,7 +114,7 @@ def main(datestr, server_info, file_info):
 		ftp.cwd(server_info.server_dir)               # change into PHOX directory
 		print 'Logged into: {}/{}'.format(server_info.serv_name,
                                     server_info.server_dir)
-    except:
+	except:
 		phox_utilities.do_RuntimeError('Login to {} unsuccessful.'.format(server_info.serv_name))
 
 	# upload the daily event and duplicate index files
