@@ -115,7 +115,7 @@ def main(datestr, server_info, file_info):
 		print 'Logged into: {}/{}'.format(server_info.serv_name,
                                     server_info.server_dir)
     except:
-		phox_utilities.do_RuntimeError('Login to {} unsuccessful.'.format(server_info.serv_name))
+    	phox_utilities.do_RuntimeError('Login to {} unsuccessful.'.format(server_info.serv_name))
 
 	# upload the daily event and duplicate index files
 	try:
