@@ -190,6 +190,6 @@ if __name__ == '__main__':
 		sys.exit()
 
 	try:
-        main(datestr)
+		main(datestr)
 	except RuntimeError as why:
 		print 'phox_uploader.main() raised the RuntimeError:',why
