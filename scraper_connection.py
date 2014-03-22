@@ -15,7 +15,7 @@ def make_conn():
 
 def query_all(collection, less_than_date, greater_than_date):
     output = []
-    posts = collection.find({"$and": [{"date_added": {"$lt": less_than_date}},
+    posts = collection.find({"$and": [{"date_added": {"$lte": less_than_date}},
                                       {"date_added": {"$gt": greater_than_date}}
                                       ]})
 
