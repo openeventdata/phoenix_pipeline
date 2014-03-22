@@ -332,7 +332,10 @@ def get_story(story_all):
     elif '(UPI) -- ' in story_all:
         story = story_all[story_all.find('(UPI) -- ') + 9:]
     if bool(re.search("\xe2\x80\x93", story_all[0:32])):
-        story = story_all.split("\xe2\x80\x93 ", 1)[1]
+        try:
+            story = story_all.split("\xe2\x80\x93 ", 1)[1]
+        except IndexError:
+            story = story_all
     else:
         story = story_all
 
