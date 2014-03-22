@@ -131,10 +131,10 @@ def get_date(field):
         date = csmdate[0] + csmdate[1]
     elif field[1]:
         try:
-        date_obj = parser.parse(field[1])
+            date_obj = parser.parse(field[1])
             date = str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
-    except:
-        date = '000000'
+        except:
+            date = '000000'
     else:
         date = '000000'
 
@@ -179,7 +179,7 @@ def write_record(source, sourcecount, thisdate, thisURL, story, fout):
            # print >> fout, thisdate + ' ' + source + '-' + \
            #     str(sourcecount[source]).zfill(4) + '-' + \
            #     str(nsent) + ' ' + thisURL  # + '\n'
-        print >> fout, thisdate + ' ' + thisURL
+            print >> fout, thisdate + ' ' + thisURL
             lines = textwrap.wrap(sent, 80)
             for txt in lines:
                 print >> fout, txt
@@ -357,7 +357,7 @@ def main(thisday):
         fin = open(scraperfilename, 'r')
     except IOError:
         print scraperfilename
-    phox_utilities.do_RuntimeError(
+        phox_utilities.do_RuntimeError(
             'Could not find the scraper file for',
             thisday)
 
@@ -372,7 +372,7 @@ def main(thisday):
     for line in range(0, len(finlist)):
         if '\thttp' in finlist[line]:
             field = finlist[line].split('\t')
-        thisURL = field[2][:-1]
+            thisURL = field[2][:-1]
             # temporary to accommodate TABARI input limits
             thisURL = thisURL[:MAX_URLLENGTH]
 
