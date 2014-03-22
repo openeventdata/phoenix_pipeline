@@ -1,53 +1,3 @@
-# oneaday_formatter.py
-##
-# One-A-Day filter with count of duplicates and list of their IDs
-##
-# TO RUN PROGRAM AS STANDALONE:
-##
-# python oneaday_formatter.py <date_string> -s
-#      where <date_string> is of the form YYMMDD.
-#      Second command line option triggers standalong run: see notes
-##
-# INPUT FILES: phox_utilities.Fullfile_Stem + date_string + '.txt'
-#      Unfiltered events in TABARI format
-##
-# OUTPUT FILES:
-# 	Events: phox_utilities.Eventfile_Stem + datestr + '.txt'
-#      	Filtered events in TABARI format
-#
-#   Duplicates: phox_utilities.Dupfile_Stem + datestr + '.txt'.index.<day>.txt"
-#		Index for duplicates for each day found in the file: see Phoenix documentation
-##
-# PROGRAMMING NOTES:
-# 1. This program eventually goes into the Phoenix pipeline and is called using
-#    oneaday_formatter.main(date_string). In standalone mode for development, use a
-#    second command line option (anything): this will set up the logger and phox_utilities
-##
-# SYSTEM REQUIREMENTS
-# This program has been successfully run under Mac OS 10.6; it is standard Python 2.5
-# so it should also run in Unix or Windows.
-##
-# PROVENANCE:
-#	Programmer: Philip A. Schrodt
-#				Parus Analytical Systems
-#				schrodt735@gmail.com
-#				http://eventdata.parsuanalytics.edu
-#
-# Copyright (c) 2014	Philip A. Schrodt.	All rights reserved.
-##
-# This project was funded in part by National Science Foundation grant SES-1004414
-##
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted under the terms of the MIT License: http://opensource.org/licenses/MIT
-##
-# Report bugs to: schrodt735@gmail.com
-##
-# REVISION HISTORY:
-# 01-Feb-14:	Initial version
-# 23-Feb-14:	Incorporates phox_utilities to handle file names (pas)
-##
-# ------------------------------------------------------------------------
-
 import sys
 import phox_utilities
 
@@ -100,16 +50,17 @@ def writeevents():
 
 def writedups(datestr):
     global evtdict, evtdup, curday
-    fdup = open(phox_utilities.Dupfile_Stem + datestr + '.txt', 'w')
+    server_list, file_list = phox_utilities.parse_config('PHOX_config.ini')
+    fdup = open(file_list.dupfile_stem + datestr + '.txt', 'w')
     for locevt, loclist in evtdup.iteritems():
         if len(loclist) > 0:
             fstr = '\t'.join(evtdict[locevt][:DUPCOUNT])
             fdup.write(fstr + "\n")
             for ka in range(len(loclist)):
-#				print '++',ka, loclist
+#               print '++',ka, loclist
                 fdup.write("\t" + loclist[ka][0] + " " + str(loclist[ka][1]))
                 for kb in range(len(loclist[ka][2:])):
-#					print '--',kb, loclist[ka][kb+2]
+#                   print '--',kb, loclist[ka][kb+2]
                     fdup.write(" " + loclist[ka][kb + 2])
                 fdup.write("\n")
             fdup.write("\n")
@@ -118,14 +69,15 @@ def writedups(datestr):
 
 def main(datestr):
     global fout, evtdict, DUPCOUNT, evtdup, curday
+    server_list, file_list = phox_utilities.parse_config('PHOX_config.ini')
     try:
-        fin = open(phox_utilities.Fullfile_Stem + datestr + '.txt', 'r')
+        fin = open(file_list.fullfile_stem + datestr + '.txt', 'r')
     except IOError:
         phox_utilities.do_RuntimeError(
             'Could not find the full event file for',
             datestr)
 
-    eventfilename = phox_utilities.Eventfile_Stem + datestr + '.txt'
+    eventfilename = file_list.eventfile_stem + datestr + '.txt'
     fout = open(eventfilename, 'w')
     print 'Writing', eventfilename
 
@@ -134,7 +86,7 @@ def main(datestr):
     line = fin.readline()
     while len(line) > 0:  # loop through the file
         field = line[:-1].split('\t')
-#		print '--',field
+#       print '--',field
         if field[0] != curday:
             writeevents()
             if curday != '000000':
@@ -148,11 +100,11 @@ def main(datestr):
         src = field[5][0:3]
         field[6] = field[6][:16]  # debug -- readability
         field.append(1)
-#		print evt
+#       print evt
         if evt in evtdict:  # duplicate
-#			print '++',field
+#           print '++',field
             evtdict[evt][DUPCOUNT] += 1
-    #		print evt, evtdict[evt][5], evtdict[evt][6]
+    #       print evt, evtdict[evt][5], evtdict[evt][6]
             gotsrc = False
             for ka in range(len(evtdup[evt])):
                 if evtdup[evt][ka][0] == src:

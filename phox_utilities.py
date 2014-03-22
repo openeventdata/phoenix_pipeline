@@ -1,34 +1,3 @@
-# phox_utilities.py
-##
-# This module provides the config, logging and run-time-error functions for the Phoenix
-# pipeline system.
-##
-# PROGRAMMING NOTES: None
-##
-# SYSTEM REQUIREMENTS
-# This program has been successfully run under Mac OS 10.6 and Ubuntu 12.2 (Linode).
-##
-#	PROVENANCE:
-#	Programmer: Philip A. Schrodt
-#				Parus Analytical Systems
-#				schrodt735@gmail.com
-#				http://eventdata.parsuanalytics.com
-#
-# Copyright (c) 2014	Philip A. Schrodt.	All rights reserved.
-##
-# This project was funded in part by National Science Foundation grant SES-1004414
-##
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted under the terms of the MIT License: http://opensource.org/licenses/MIT
-##
-# Report bugs to: schrodt735@gmail.com
-# Source Code Location: https://github.com/openeventdata/phoenix_pipeline
-##
-# REVISION HISTORY:
-# 22-Feb-14:	Initial version
-##
-# ------------------------------------------------------------------------
-
 import logging
 from ConfigParser import ConfigParser
 from collections import namedtuple
