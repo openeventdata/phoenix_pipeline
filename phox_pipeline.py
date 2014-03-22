@@ -23,7 +23,7 @@ if len(sys.argv) > 1:
     logger.info('Date string: {}'.format(date_string))
     print 'Date string:', date_string
 else:
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.utcnow() - datetime.timedelta(days=1)
     date_string = '{:02d}{:02d}{:02d}'.format(now.year, now.month, now.day)
     logger.info('Date string: {}'.format(date_string))
     print 'Date string:', date_string

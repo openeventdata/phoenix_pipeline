@@ -39,77 +39,78 @@ sources = {
     'IRINnews.org': 'IRI',
     'rfi.fr': 'RFI',
     'cnn.com': 'CNN',
-    'abcnews': 'ABC', 
-    'wsj.com': 'WSJ', 
-    'nydailynews.com': 'NYD', 
-    'washingtonpost.com': 'WAS', 
+    'abcnews': 'ABC',
+    'wsj.com': 'WSJ',
+    'nydailynews.com': 'NYD',
+    'washingtonpost.com': 'WAS',
     'chicagotribune.com': 'CHT',
-    'miamiherald.com':'MIA',
-    'thestar.com.my':'STA',
-    'al-monitor.com':'MON',
-    'un.org':'UNN',
-    'pakistantelegraph.com':'PAK',
-    'africaleader.com':'AFR',
-    'theuknews.com':'UKN',
-    'indiagazette.com':'ING',
-    'mexicostar.com':'MES',
-    'japanherald.com':'JAH',
-    'chinanationalnews.com':'CHN',
-    'jpost.com':'JPO',
-    'middleeaststar.com':'MEA',
-    'beijingbulletin.com':'BEB',
-    'arabherald.com':'ARH',
-    'russiaherald.com':'RUH',
-    'iraqsun.com':'IRA',
-    'malaysiasun.com':'MAL',
-    'thehindu.com':'HIN',
-    'shanghaisun.com':'SHA',
-    'dawn.com':'DAW',
-    'singaporestar.com':'SNG',
-    'southeastasiapost.com':'SEA',
-    'afghanistansun.com':'AFG',
-    'australianherald.com':'AUS',
-    'thenational.ae':'NAT',
-    'europesun.com':'EUS',
-    'greekherald.com':'GKH',
-    'irishsun.com':'IRS',
-    'iranherald.com':'IAH',
-    'parisguardian.com':'PAG',
-    'brazilsun.com':'BZS',
-    'asiabulletin.com':'ASB',
-    'nigeriasun.com':'NIG',
-    'haitisun.com':'HAI',
-    'philippinetimes.com':'PHI',
-    'venezuelastar.com':'VEN',
-    'caribbeanherald.com':'CAR',
-    'zimbabwestar.com':'ZIM',
-    'torontotelegraph.com':'TOR',
-    'bangladeshsun.com':'BAN',
-    'sydneysun.com':'SYD',
-    'menafn.com':'MEN',
-    'thelocal.se':'TLO',
-    'nepalnational.com':'NEP',
-    'kenyastar.com':'KEN',
-    'sierraleonetimes.com':'SIE',
-    'hurriyetdailynews.com':'HDN',
-    'pajhwok.com':'PAJ',
-    'thelocal.it':'LIT',
-    'thelocal.fr':'LFR',
-    'thelocal.es':'LES',
-    'thelocal.ch':'LCH',
-    'ipsnews.net':'IPS',
-    'jamaicantimes.com':'JAM',
-    'argentinastar.com':'ARG',
-    'srilankasource.com':'SRI',
-    'centralasiatimes.com':'CEN',
-    'thelocal.no':'LNO',
-    'theeastafrican.co.ke':'ESF',
-    'taiwansun.com':'TAI',
-    'cambodiantimes.com':'CAM',
-    'payvand.com':'PAY',
-    'trinidadtimes.com':'TRD',
-    'yementimes.com':'YEM',
-    'hongkongherald.com':'HNK'}
+    'miamiherald.com': 'MIA',
+    'thestar.com.my': 'STA',
+    'al-monitor.com': 'MON',
+    'un.org': 'UNN',
+    'pakistantelegraph.com': 'PAK',
+    'africaleader.com': 'AFR',
+    'theuknews.com': 'UKN',
+    'indiagazette.com': 'ING',
+    'mexicostar.com': 'MES',
+    'japanherald.com': 'JAH',
+    'chinanationalnews.com': 'CHN',
+    'jpost.com': 'JPO',
+    'middleeaststar.com': 'MEA',
+    'beijingbulletin.com': 'BEB',
+    'arabherald.com': 'ARH',
+    'russiaherald.com': 'RUH',
+    'iraqsun.com': 'IRA',
+    'malaysiasun.com': 'MAL',
+    'thehindu.com': 'HIN',
+    'shanghaisun.com': 'SHA',
+    'dawn.com': 'DAW',
+    'singaporestar.com': 'SNG',
+    'southeastasiapost.com': 'SEA',
+    'afghanistansun.com': 'AFG',
+    'australianherald.com': 'AUS',
+    'thenational.ae': 'NAT',
+    'europesun.com': 'EUS',
+    'greekherald.com': 'GKH',
+    'irishsun.com': 'IRS',
+    'iranherald.com': 'IAH',
+    'parisguardian.com': 'PAG',
+    'brazilsun.com': 'BZS',
+    'asiabulletin.com': 'ASB',
+    'nigeriasun.com': 'NIG',
+    'haitisun.com': 'HAI',
+    'philippinetimes.com': 'PHI',
+    'venezuelastar.com': 'VEN',
+    'caribbeanherald.com': 'CAR',
+    'zimbabwestar.com': 'ZIM',
+    'torontotelegraph.com': 'TOR',
+    'bangladeshsun.com': 'BAN',
+    'sydneysun.com': 'SYD',
+    'menafn.com': 'MEN',
+    'thelocal.se': 'TLO',
+    'nepalnational.com': 'NEP',
+    'kenyastar.com': 'KEN',
+    'sierraleonetimes.com': 'SIE',
+    'hurriyetdailynews.com': 'HDN',
+    'pajhwok.com': 'PAJ',
+    'thelocal.it': 'LIT',
+    'thelocal.fr': 'LFR',
+    'thelocal.es': 'LES',
+    'thelocal.ch': 'LCH',
+    'ipsnews.net': 'IPS',
+    'jamaicantimes.com': 'JAM',
+    'argentinastar.com': 'ARG',
+    'srilankasource.com': 'SRI',
+    'centralasiatimes.com': 'CEN',
+    'thelocal.no': 'LNO',
+    'theeastafrican.co.ke': 'ESF',
+    'taiwansun.com': 'TAI',
+    'cambodiantimes.com': 'CAM',
+    'payvand.com': 'PAY',
+    'trinidadtimes.com': 'TRD',
+    'yementimes.com': 'YEM',
+    'hongkongherald.com': 'HNK'}
+
 
 def get_date(field):
     """
@@ -175,7 +176,7 @@ def write_record(source, sourcecount, thisdate, thisURL, story, fout):
     nsent = 1
     for sent in sentlist:
         if sent[0] != '"':  # skip sentences beginning with quotes
-            print thisdate, source, thisURL
+            #print thisdate, source, thisURL
            # print >> fout, thisdate + ' ' + source + '-' + \
            #     str(sourcecount[source]).zfill(4) + '-' + \
            #     str(nsent) + ' ' + thisURL  # + '\n'
@@ -192,21 +193,24 @@ def write_record(source, sourcecount, thisdate, thisURL, story, fout):
 
 
 def sentence_segmenter(paragr):
-    """ 
-    Function to break a string 'paragraph' into a list of sentences based on the following rules:
+    """
+    Function to break a string 'paragraph' into a list of sentences based on
+    the following rules:
 
     1. Look for terminal [.,?,!] followed by a space and [A-Z]
-    2. If ., check against abbreviation list ABBREV_LIST: Get the string between the . and the
-       previous blank, lower-case it, and see if it is in the list. Also check for single-
-       letter initials. If true, continue search for terminal punctuation
+    2. If ., check against abbreviation list ABBREV_LIST: Get the string
+    between the . and the previous blank, lower-case it, and see if it is in
+    the list. Also check for single-letter initials. If true, continue search
+    for terminal punctuation
     3. Extend selection to balance (...) and "...". Reapply termination rules
-    4. Add to sentlist if the length of the string is between MIN_SENTLENGTH and MAX_SENTLENGTH
-    5. Returns sentlist 
+    4. Add to sentlist if the length of the string is between MIN_SENTLENGTH
+    and MAX_SENTLENGTH
+    5. Returns sentlist
 
     Parameters
     ------
     paragr: String
-            
+
     """
 #   ka = 0
 #   print '\nSentSeg-Mk1'
@@ -215,17 +219,20 @@ def sentence_segmenter(paragr):
 
     # source: LbjNerTagger1.11.release/Data/KnownLists/known_title.lst from
     # University of Illinois with editing
-    ABBREV_LIST = [
-        'mrs.', 'ms.', 'mr.', 'dr.', 'gov.', 'sr.', 'rev.', 'r.n.', 'pres.',
-        'treas.', 'sect.', 'maj.', 'ph.d.', 'ed. psy.', 'proc.', 'fr.', 'asst.', 'p.f.c.', 'prof.',
-        'admr.', 'engr.', 'mgr.', 'supt.', 'admin.', 'assoc.', 'voc.', 'hon.', 'm.d.', 'dpty.',
-        'sec.', 'capt.', 'c.e.o.', 'c.f.o.', 'c.i.o.', 'c.o.o.', 'c.p.a.', 'c.n.a.', 'acct.',
-        'llc.', 'inc.', 'dir.', 'esq.', 'lt.', 'd.d.', 'ed.', 'revd.', 'psy.d.', 'v.p.',
-        'senr.', 'gen.', 'prov.', 'cmdr.', 'sgt.', 'sen.', 'col.', 'lieut.', 'cpl.', 'pfc.',
-        'k.p.h.', 'cent.', 'deg.', 'doz.', 'Fahr.', 'Cel.', 'F.', 'C.', 'K.', 'ft.', 'fur.',
-        'gal.', 'gr.', 'in.', 'kg.', 'km.', 'kw.', 'l.', 'lat.', 'lb.', 'lb per sq in.',
-        'long.', 'mg.', 'mm.,, m.p.g.', 'm.p.h.', 'cc.', 'qr.', 'qt.', 'sq.', 't.', 'vol.',
-        'w.', 'wt.']
+    ABBREV_LIST = ['mrs.', 'ms.', 'mr.', 'dr.', 'gov.', 'sr.', 'rev.', 'r.n.',
+                   'pres.', 'treas.', 'sect.', 'maj.', 'ph.d.', 'ed. psy.',
+                   'proc.', 'fr.', 'asst.', 'p.f.c.', 'prof.', 'admr.',
+                   'engr.', 'mgr.', 'supt.', 'admin.', 'assoc.', 'voc.',
+                   'hon.', 'm.d.', 'dpty.',  'sec.', 'capt.', 'c.e.o.',
+                   'c.f.o.', 'c.i.o.', 'c.o.o.', 'c.p.a.', 'c.n.a.', 'acct.',
+                   'llc.', 'inc.', 'dir.', 'esq.', 'lt.', 'd.d.', 'ed.',
+                   'revd.', 'psy.d.', 'v.p.',  'senr.', 'gen.', 'prov.',
+                   'cmdr.', 'sgt.', 'sen.', 'col.', 'lieut.', 'cpl.', 'pfc.',
+                   'k.p.h.', 'cent.', 'deg.', 'doz.', 'Fahr.', 'Cel.', 'F.',
+                   'C.', 'K.', 'ft.', 'fur.',  'gal.', 'gr.', 'in.', 'kg.',
+                   'km.', 'kw.', 'l.', 'lat.', 'lb.', 'lb per sq in.', 'long.',
+                   'mg.', 'mm.,, m.p.g.', 'm.p.h.', 'cc.', 'qr.', 'qt.', 'sq.',
+                   't.', 'vol.',  'w.', 'wt.']
 
     sentlist = []
     searchstart = 0  # controls skipping over non-terminal conditions
