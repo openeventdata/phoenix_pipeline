@@ -41,7 +41,7 @@ mongo_formatter.main(date_string)
 logger.info("Running TABARI")
 print "Running TABARI"
 subprocess.call(
-    "./TABARI.0.8.4b1 -ad PHOX.pipeline.project -t "
+    "./TABARI.0.8.4b2 -ad PHOX.pipeline.project -t "
     + file_details.recordfile_stem + date_string +
     ".txt -o " +
     file_details.fullfile_stem + date_string + ".txt",
@@ -53,7 +53,7 @@ oneaday_formatter.main(date_string)
 
 logger.info("Running phox_uploader.py")
 print "Running phox_uploader.py"
-phox_uploader.main(date_string)
+phox_uploader.main(date_string, server_details, file_details)
 
 logger.info('PHOX.pipeline end')
 print 'PHOX.pipeline end:', datetime.datetime.utcnow()

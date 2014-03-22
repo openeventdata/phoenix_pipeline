@@ -63,27 +63,12 @@ def get_date(field):
     if 'csmonitor.com' in field[-1]:
         csmdate = field[-1].split('/20')[1].split('/')
         date = csmdate[0] + csmdate[1]
-    elif 'latimes.com' in field[-1]:
-        latdate = field[-1].split('-20')[-1].split(',')
-        date = latdate[0]
-    elif 'foxnews.com' in field[-1]:
-        foxdate = field[-1].split('http://')[-1].split('/')[2:5]
-        date = ''.join(foxdate)[2:]
-    elif 'rfi.fr' in field[-1]:
-        rfidate = field[-1].split('/')[-1].split('-')[0]
-        date = rfidate[2:]
-    elif 'cnn.com' in field[-1]:
-        if 'interactive/' in field[-1]:
-            date_obj = parser.parse(field[1])
-            date = (
-                str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
-            )
-        else:
-            cnndate = field[-1].split('/20')[-1].split('/')
-            date = cnndate[0] + cnndate[1] + cnndate[2]
     elif field[1]:
+        try:
         date_obj = parser.parse(field[1])
-        date = str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
+            date = str(date_obj)[2:4] + str(date_obj)[5:7] + str(date_obj)[8:10]
+    except:
+        date = '000000'
     else:
         date = '000000'
 
@@ -125,10 +110,10 @@ def write_record(source, sourcecount, thisdate, thisURL, story, fout):
     for sent in sentlist:
         if sent[0] != '"':  # skip sentences beginning with quotes
             print thisdate, source, thisURL
-            print >> fout, thisdate + ' ' + source + '-' + \
-                str(sourcecount[source]).zfill(4) + '-' + \
-                str(nsent) + ' ' + thisURL  # + '\n'
-
+           # print >> fout, thisdate + ' ' + source + '-' + \
+           #     str(sourcecount[source]).zfill(4) + '-' + \
+           #     str(nsent) + ' ' + thisURL  # + '\n'
+        print >> fout, thisdate + ' ' + thisURL
             lines = textwrap.wrap(sent, 80)
             for txt in lines:
                 print >> fout, txt
@@ -157,8 +142,8 @@ def sentence_segmenter(paragr):
     paragr: String
             
     """
-#	ka = 0
-#	print '\nSentSeg-Mk1'
+#   ka = 0
+#   print '\nSentSeg-Mk1'
 # sentence termination pattern used in sentence_segmenter(paragr)
     terpat = re.compile('[\.\?!]\s+[A-Z\"]')
 
@@ -177,44 +162,44 @@ def sentence_segmenter(paragr):
         'w.', 'wt.']
 
     sentlist = []
-    searchstart = 0	 # controls skipping over non-terminal conditions
+    searchstart = 0  # controls skipping over non-terminal conditions
     terloc = terpat.search(paragr)
     while terloc:
-#		print 'Mk2-0:', paragr[:terloc.start()+2]
+#       print 'Mk2-0:', paragr[:terloc.start()+2]
         isok = True
         if paragr[terloc.start()] == '.':
             if (paragr[terloc.start() - 1].isupper() and
                     paragr[terloc.start() - 2] == ' '):
-                        isok = False	  # single initials
+                        isok = False      # single initials
             else:
                 # check abbreviations
                 loc = paragr.rfind(' ', 0, terloc.start() - 1)
                 if loc > 0:
-#					print 'SentSeg-Mk1: checking',paragr[loc+1:terloc.start()+1]
+#                   print 'SentSeg-Mk1: checking',paragr[loc+1:terloc.start()+1]
                     if paragr[loc + 1:terloc.start() + 1].lower() in ABBREV_LIST:
-#						print 'SentSeg-Mk2: found',paragr[loc+1:terloc.start()+1]
+#                       print 'SentSeg-Mk2: found',paragr[loc+1:terloc.start()+1]
                         isok = False
         if paragr[:terloc.start()].count('(') != paragr[:terloc.start()].count(')'):
-#			print 'SentSeg-Mk2: unbalanced ()'
+#           print 'SentSeg-Mk2: unbalanced ()'
             isok = False
-        if paragr[:terloc.start()].count('"') % 2 != 0	:
-#			print 'SentSeg-Mk2: unbalanced ""'
+        if paragr[:terloc.start()].count('"') % 2 != 0  :
+#           print 'SentSeg-Mk2: unbalanced ""'
             isok = False
         if isok:
             if (len(paragr[:terloc.start()]) > MIN_SENTLENGTH and
                     len(paragr[:terloc.start()]) < MAX_SENTLENGTH):
                 sentlist.append(paragr[:terloc.start() + 2])
-#				print 'SentSeg-Mk3: added',paragr[:terloc.start()+2]
+#               print 'SentSeg-Mk3: added',paragr[:terloc.start()+2]
             paragr = paragr[terloc.end() - 1:]
             searchstart = 0
         else:
             searchstart = terloc.start() + 2
 
-#		print 'SentSeg-Mk4:',paragr[:64]
-#		print '			   ',paragr[searchstart:searchstart+64]
+#       print 'SentSeg-Mk4:',paragr[:64]
+#       print '            ',paragr[searchstart:searchstart+64]
         terloc = terpat.search(paragr, searchstart)
-#		ka += 1
-#		if ka > 16: sys.exit()
+#       ka += 1
+#       if ka > 16: sys.exit()
 
     # add final sentence
     if (len(paragr) > MIN_SENTLENGTH and len(paragr) < MAX_SENTLENGTH):
@@ -263,6 +248,7 @@ def get_story(story_all):
             All story text.
 
     Returns
+
     -------
 
     story : String
@@ -291,10 +277,11 @@ def main(thisday):
     """
     Main function to parse scraper_results to TABARI-formatted output.
     """
-    scraperfilename = phox_utilities.Scraper_Stem + thisday + '.txt'
+    server_list, file_list =  phox_utilities.parse_config('PHOX_config.ini')
+    scraperfilename = file_list.scraper_stem + thisday + '.txt'
     print "Mongo: Scraper file name:", scraperfilename
 
-    recordfilename = phox_utilities.Recordfile_Stem + thisday + '.txt'
+    recordfilename = file_list.recordfile_stem + thisday + '.txt'
     print "Mongo: Record file name:", recordfilename
 
     newsourcefile = newsourcestem + thisday + '.txt'
@@ -303,7 +290,8 @@ def main(thisday):
     try:
         fin = open(scraperfilename, 'r')
     except IOError:
-        phox_utilities.do_RuntimeError(
+        print scraperfilename
+    phox_utilities.do_RuntimeError(
             'Could not find the scraper file for',
             thisday)
 
@@ -316,9 +304,9 @@ def main(thisday):
     #csno = 1
 
     for line in range(0, len(finlist)):
-        if 'http' in finlist[line]:
+        if '\thttp' in finlist[line]:
             field = finlist[line].split('\t')
-            thisURL = field[2][:-1]
+        thisURL = field[2][:-1]
             # temporary to accommodate TABARI input limits
             thisURL = thisURL[:MAX_URLLENGTH]
 

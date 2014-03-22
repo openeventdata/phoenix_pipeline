@@ -1,58 +1,3 @@
-# phox_uploader.py
-##
-# This uses ftp to update and upload the new daily events to a web site that has daily,
-# monthly and annual files. The destination site is reached via the path serverdir and
-# is assumed to have subdirectories labelled "Daily", "Daily/Duplicates","Monthly" and
-# "Annual." The daily and duplicate files are simply zipped and uploaded. The daily data
-# are appended to existing monthly and yearly files without the DOC DOC 999 records
-# except on the first day of the month or  year, when the event file becomes the new file
-# (with the documentation). The first names are determined by names in the config.ini file
-# and the date string.
-#
-# This was developed to run as part of the phoenix_pipeline system.
-#
-##
-# TO RUN PROGRAM: python phox_uploader.py YYMMDD
-#
-# where YYMMDD is the year, month and day that will be used in the file names
-##
-# INPUT FILES:
-#	eventfile_stem+YYMMDD+.txt  (e.g. Phoenix.events.140215.txt)
-#	dupfile_stem+YYMMDD+.txt  (e.g. Phoenix.dupindex.140215.txt)
-##
-# OUTPUT FILES: none, but the following files are modified or created on the server
-#   outputfile_stem+YY+'-'+MM+'.txt.zip'
-#   outputfile_stem+YY+'.txt.zip'
-##
-# PROGRAMMING NOTES:
-# 1. This leaves the various zipped files on the server as well as transferring them
-#    to the web site; this may or may not be a good idea, and they probably should be
-#    transferred to some subdirectory.
-##
-# SYSTEM REQUIREMENTS
-# This program has been successfully run under Mac OS 10.6 and Ubuntu 12.2 (Linode).
-##
-#	PROVENANCE:
-#	Programmer: Philip A. Schrodt
-#				Parus Analytical Systems
-#				schrodt735@gmail.com
-#				http://eventdata.parsuanalytics.com
-#
-# Copyright (c) 2014	Philip A. Schrodt.	All rights reserved.
-##
-# This project was funded in part by National Science Foundation grant SES-1004414
-##
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted under the terms of the MIT License: http://opensource.org/licenses/MIT
-##
-# Report bugs to: schrodt735@gmail.com
-# Source Code Location: https://github.com/openeventdata/phoenix_pipeline
-##
-# REVISION HISTORY:
-# 18-Feb-14:	Initial version
-##
-# ------------------------------------------------------------------------
-
 import sys
 import subprocess
 import phox_utilities
@@ -190,6 +135,6 @@ if __name__ == '__main__':
 		sys.exit()
 
 	try:
-		main(datestr)
+	        main(datestr)
 	except RuntimeError as why:
 		print 'phox_uploader.main() raised the RuntimeError:',why
