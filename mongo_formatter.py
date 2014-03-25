@@ -255,7 +255,7 @@ def sentence_segmenter(paragr):
         if paragr[:terloc.start()].count('(') != paragr[:terloc.start()].count(')'):
 #           print 'SentSeg-Mk2: unbalanced ()'
             isok = False
-        if paragr[:terloc.start()].count('"') % 2 != 0  :
+        if paragr[:terloc.start()].count('"') % 2 != 0:
 #           print 'SentSeg-Mk2: unbalanced ""'
             isok = False
         if isok:
@@ -349,15 +349,14 @@ def get_story(story_all):
     return story
 
 
-def main(thisday):
+def main(thisday, server_list, file_details):
     """
     Main function to parse scraper_results to TABARI-formatted output.
     """
-    server_list, file_list =  phox_utilities.parse_config('PHOX_config.ini')
-    scraperfilename = file_list.scraper_stem + thisday + '.txt'
+    scraperfilename = file_details.scraper_stem + thisday + '.txt'
     print "Mongo: Scraper file name:", scraperfilename
 
-    recordfilename = file_list.recordfile_stem + thisday + '.txt'
+    recordfilename = file_details.recordfile_stem + thisday + '.txt'
     print "Mongo: Record file name:", recordfilename
 
     newsourcefile = newsourcestem + thisday + '.txt'
