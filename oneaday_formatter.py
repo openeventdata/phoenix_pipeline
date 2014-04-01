@@ -50,8 +50,8 @@ def writeevents():
 
 def writedups(datestr):
     global evtdict, evtdup, curday
-    server_list, file_list = phox_utilities.parse_config('PHOX_config.ini')
-    fdup = open(file_list.dupfile_stem + datestr + '.txt', 'w')
+    server_list, file_details = phox_utilities.parse_config('PHOX_config.ini')
+    fdup = open(file_details.dupfile_stem + datestr + '.txt', 'w')
     for locevt, loclist in evtdup.iteritems():
         if len(loclist) > 0:
             fstr = '\t'.join(evtdict[locevt][:DUPCOUNT])
@@ -67,17 +67,16 @@ def writedups(datestr):
     fdup.close()
 
 
-def main(datestr):
+def main(datestr, server_list, file_details):
     global fout, evtdict, DUPCOUNT, evtdup, curday
-    server_list, file_list = phox_utilities.parse_config('PHOX_config.ini')
     try:
-        fin = open(file_list.fullfile_stem + datestr + '.txt', 'r')
+        fin = open(file_details.fullfile_stem + datestr + '.txt', 'r')
     except IOError:
         phox_utilities.do_RuntimeError(
             'Could not find the full event file for',
             datestr)
 
-    eventfilename = file_list.eventfile_stem + datestr + '.txt'
+    eventfilename = file_details.eventfile_stem + datestr + '.txt'
     fout = open(eventfilename, 'w')
     print 'Writing', eventfilename
 
