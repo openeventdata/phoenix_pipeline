@@ -3,17 +3,10 @@ import sys
 import textwrap
 import phox_utilities
 from dateutil import parser
+from collections import Counter
 
 
 MAX_LEDE = 4   # number of sentences to output
-# this is relatively high because we are only looking for sentences that
-# will have subject and object
-MIN_SENTLENGTH = 100
-MAX_SENTLENGTH = 512
-
-MAX_URLLENGTH = 192   # temporary to accommodate TABARI input limits
-
-newsourcestem = 'newsources.'
 
 sources = {
     'csmonitor.com': 'CSM',
@@ -166,10 +159,7 @@ def write_record(source, sourcecount, thisdate, thisURL, story, fout):
     fout: file
             File for TABARI-formatted output
     """
-    if source in sourcecount:  # count of the stories by source
-        sourcecount[source] += 1
-    else:
-        sourcecount[source] = 1
+    sourcecount[source] += 1
 
     sentlist = sentence_segmenter(story)
 
@@ -212,9 +202,12 @@ def sentence_segmenter(paragr):
     paragr: String
 
     """
-#   ka = 0
-#   print '\nSentSeg-Mk1'
-# sentence termination pattern used in sentence_segmenter(paragr)
+    # this is relatively high because we are only looking for sentences that
+    # will have subject and object
+    MIN_SENTLENGTH = 100
+    MAX_SENTLENGTH = 512
+
+    # sentence termination pattern used in sentence_segmenter(paragr)
     terpat = re.compile('[\.\?!]\s+[A-Z\"]')
 
     # source: LbjNerTagger1.11.release/Data/KnownLists/known_title.lst from
@@ -235,10 +228,10 @@ def sentence_segmenter(paragr):
                    't.', 'vol.',  'w.', 'wt.']
 
     sentlist = []
-    searchstart = 0  # controls skipping over non-terminal conditions
+    # controls skipping over non-terminal conditions
+    searchstart = 0
     terloc = terpat.search(paragr)
     while terloc:
-#       print 'Mk2-0:', paragr[:terloc.start()+2]
         isok = True
         if paragr[terloc.start()] == '.':
             if (paragr[terloc.start() - 1].isupper() and
@@ -248,31 +241,22 @@ def sentence_segmenter(paragr):
                 # check abbreviations
                 loc = paragr.rfind(' ', 0, terloc.start() - 1)
                 if loc > 0:
-#                   print 'SentSeg-Mk1: checking',paragr[loc+1:terloc.start()+1]
                     if paragr[loc + 1:terloc.start() + 1].lower() in ABBREV_LIST:
-#                       print 'SentSeg-Mk2: found',paragr[loc+1:terloc.start()+1]
                         isok = False
         if paragr[:terloc.start()].count('(') != paragr[:terloc.start()].count(')'):
-#           print 'SentSeg-Mk2: unbalanced ()'
             isok = False
         if paragr[:terloc.start()].count('"') % 2 != 0:
-#           print 'SentSeg-Mk2: unbalanced ""'
             isok = False
         if isok:
             if (len(paragr[:terloc.start()]) > MIN_SENTLENGTH and
                     len(paragr[:terloc.start()]) < MAX_SENTLENGTH):
                 sentlist.append(paragr[:terloc.start() + 2])
-#               print 'SentSeg-Mk3: added',paragr[:terloc.start()+2]
             paragr = paragr[terloc.end() - 1:]
             searchstart = 0
         else:
             searchstart = terloc.start() + 2
 
-#       print 'SentSeg-Mk4:',paragr[:64]
-#       print '            ',paragr[searchstart:searchstart+64]
         terloc = terpat.search(paragr, searchstart)
-#       ka += 1
-#       if ka > 16: sys.exit()
 
     # add final sentence
     if (len(paragr) > MIN_SENTLENGTH and len(paragr) < MAX_SENTLENGTH):
@@ -359,8 +343,9 @@ def main(thisday, server_list, file_details):
     recordfilename = file_details.recordfile_stem + thisday + '.txt'
     print "Mongo: Record file name:", recordfilename
 
-    newsourcefile = newsourcestem + thisday + '.txt'
-    print "Mongo: New Sources file name:", newsourcefile
+    #Suppress this for now.
+#    newsourcefile = file_details.newsourcestem + thisday + '.txt'
+#    print "Mongo: New Sources file name:", newsourcefile
 
     try:
         fin = open(scraperfilename, 'r')
@@ -372,11 +357,13 @@ def main(thisday, server_list, file_details):
 
     finlist = fin.readlines()
     fout = open(recordfilename, 'w')
-    newout = open(newsourcefile, 'w')
-    sourcecount = {}
+    #newout = open(newsourcefile, 'w')
+    sourcecount = Counter()
 
     #storyno = 1
     #csno = 1
+
+    MAX_URLLENGTH = 192
 
     for line in range(0, len(finlist)):
         if '\thttp' in finlist[line]:
