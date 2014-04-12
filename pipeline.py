@@ -1,20 +1,20 @@
 import sys
 import logging
 import datetime
+import uploader
+import utilities
+import formatter
 import subprocess
-import phox_uploader
-import phox_utilities
-import mongo_formatter
 import oneaday_formatter
 import scraper_connection
 
 
-phox_utilities.init_logger('PHOX_pipeline.log')
+utilities.init_logger('PHOX_pipeline.log')
 # get a local copy for the pipeline
 logger = logging.getLogger('pipeline_log')
 
 # initialize the various phox_utilities globals
-server_details, file_details = phox_utilities.parse_config('PHOX_config.ini')
+server_details, file_details = utilities.parse_config('PHOX_config.ini')
 
 print '\nPHOX.pipeline run:', datetime.datetime.utcnow()
 
@@ -40,7 +40,7 @@ print "Scraper file name:", scraperfilename
 
 logger.info("Running Mongo.formatter.py")
 print "Running Mongo.formatter.py"
-mongo_formatter.main(date_string, server_details, file_details)
+formatter.main(date_string, server_details, file_details)
 
 logger.info("Running TABARI")
 print "Running TABARI"
@@ -57,7 +57,7 @@ oneaday_formatter.main(date_string, server_details, file_details)
 
 logger.info("Running phox_uploader.py")
 print "Running phox_uploader.py"
-phox_uploader.main(date_string, server_details, file_details)
+uploader.main(date_string, server_details, file_details)
 
 logger.info('PHOX.pipeline end')
 print 'PHOX.pipeline end:', datetime.datetime.utcnow()
