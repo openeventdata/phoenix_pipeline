@@ -34,6 +34,7 @@ def query_all(collection, less_than_date, greater_than_date):
         except Exception as e:
             print 'Error on entry {}: {}.'.format(num, e)
     final_out = '\n'.join(output)
+
     return final_out, posts
 
 
