@@ -34,6 +34,9 @@ def query_all(collection, less_than_date, greater_than_date):
         except Exception as e:
             print 'Error on entry {}: {}.'.format(num, e)
     final_out = '\n'.join(output)
+    posts = collection.find({"$and": [{"date_added": {"$lte": less_than_date}},
+                                      {"date_added": {"$gt": greater_than_date}}
+                                      ]})
 
     return final_out, posts
 

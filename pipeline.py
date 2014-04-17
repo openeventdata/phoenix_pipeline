@@ -13,7 +13,7 @@ utilities.init_logger('PHOX_pipeline.log')
 # get a local copy for the pipeline
 logger = logging.getLogger('pipeline_log')
 
-# initialize the various phox_utilities globals
+# initialize the various utilities globals
 server_details, file_details = utilities.parse_config('PHOX_config.ini')
 
 print '\nPHOX.pipeline run:', datetime.datetime.utcnow()
@@ -40,7 +40,8 @@ print "Scraper file name:", scraperfilename
 
 logger.info("Running Mongo.formatter.py")
 print "Running Mongo.formatter.py"
-formatter.main(date_string, server_details, file_details)
+formatter.main(results, server_details, file_details, process_date,
+               date_string)
 
 logger.info("Running TABARI")
 print "Running TABARI"

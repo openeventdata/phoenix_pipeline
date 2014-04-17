@@ -1,5 +1,5 @@
 import sys
-import phox_utilities
+import utilities
 
 # ======== global initializations ========= #
 
@@ -50,7 +50,7 @@ def writeevents():
 
 def writedups(datestr):
     global evtdict, evtdup, curday
-    server_list, file_details = phox_utilities.parse_config('PHOX_config.ini')
+    server_list, file_details = utilities.parse_config('PHOX_config.ini')
     fdup = open(file_details.dupfile_stem + datestr + '.txt', 'w')
     for locevt, loclist in evtdup.iteritems():
         if len(loclist) > 0:
@@ -72,7 +72,7 @@ def main(datestr, server_list, file_details):
     try:
         fin = open(file_details.fullfile_stem + datestr + '.txt', 'r')
     except IOError:
-        phox_utilities.do_RuntimeError(
+        utilities.do_RuntimeError(
             'Could not find the full event file for',
             datestr)
 
@@ -135,10 +135,10 @@ def main(datestr, server_list, file_details):
 
 if __name__ == '__main__':
     if len(sys.argv) > 2:   # initializations for stand-alone tests
-        phox_utilities.init_logger('test_pipeline.log')
-        logger = phox_utilities.logger  # get a local copy for the pipeline
-        # initialize the various phox_utilities globals
-        phox_utilities.parse_config('test_config.ini')
+        utilities.init_logger('test_pipeline.log')
+        logger = utilities.logger  # get a local copy for the pipeline
+        # initialize the various utilities globals
+        utilities.parse_config('test_config.ini')
 
     if len(sys.argv) > 1:
         datestr = sys.argv[1]

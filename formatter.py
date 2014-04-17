@@ -3,7 +3,7 @@ import sys
 import timex
 import textwrap
 import datetime
-import phox_utilities
+import utilities
 from dateutil import parser
 from collections import Counter
 
@@ -380,14 +380,14 @@ def main(results, server_list, file_details, process_date, thisday):
 
 if __name__ == '__main__':
     if len(sys.argv) > 2:  # initializations for stand-alone tests
-        phox_utilities.init_logger('test_pipeline.log')
-        logger = phox_utilities.logger  # get a local copy for the pipeline
-        # initialize the various phox_utilities globals
-        phox_utilities.parse_config('test_config.ini')
+        utilities.init_logger('test_pipeline.log')
+        logger = utilities.logger  # get a local copy for the pipeline
+        # initialize the various utilities globals
+        utilities.parse_config('test_config.ini')
 
     if len(sys.argv) > 1:
         thisday = sys.argv[1]
     else:
-        phox_utilities.do_RuntimeError('No date suffix in Mongo.formatter.py')
+        utilities.do_RuntimeError('No date suffix in Mongo.formatter.py')
 
     main(thisday)
