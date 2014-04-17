@@ -12,7 +12,7 @@ def format_records(results, max_lede, process_date):
     """
 
     Parameters
-    -----
+    ----------
 
     results: pymongo.cursor.Cursor. Iterable.
             Iterable containing the results from the scraper.
@@ -25,7 +25,7 @@ def format_records(results, max_lede, process_date):
                     processing. Standard is date_running - 1 day.
 
     Returns
-    ------
+    -------
 
     final_output: String.
                     TABARI-formatted records with one sentence per entry.
@@ -77,14 +77,14 @@ def _format_content(raw_content):
     Function to process a given news story for further formatting.
 
     Parameters
-    ------
+    ----------
 
     raw_content: String.
                     Content of a news story as pulled from the web scraping
                     database.
 
     Returns
-    --------
+    -------
 
     sent_list: List.
                 List of sentences.
@@ -100,7 +100,7 @@ def _get_story(story_all):
     Function to extract story text without date and source line.
 
     Parameters
-    ------
+    ----------
 
     story_all: String.
                 Content of a news story as pulled from the web scraping
@@ -151,13 +151,13 @@ def _sentence_segmenter(paragr):
     5. Returns sentlist
 
     Parameters
-    ------
+    ----------
 
     paragr: String.
             Content that will be split into constituent sentences.
 
     Returns
-    --------
+    -------
 
     sentlist: List.
                 List of sentences.
@@ -269,7 +269,7 @@ def _get_date(result_entry, process_date):
     parsing.
 
     Parameters
-    ------
+    ----------
 
     result_entry: Dictionary.
                     Record of a single result from the web scraper.
@@ -324,7 +324,7 @@ def _check_date(date_object, process_date):
     the pipeline is processing.
 
     Parameters
-    --------
+    ----------
 
     date_object: datetime object.
                     Date that the _get_date function suggests as a candidate
@@ -335,7 +335,7 @@ def _check_date(date_object, process_date):
                     processing. Standard is date_running - 1 day.
 
     Returns
-    ------
+    -------
 
     too_big: Boolean.
                 Whether the gap is one day or larger.

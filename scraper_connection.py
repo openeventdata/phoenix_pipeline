@@ -4,7 +4,6 @@ import logging
 import codecs
 import time
 from pymongo import MongoClient
-from apscheduler.scheduler import Scheduler
 
 
 def make_conn():
@@ -67,13 +66,4 @@ def main(file_stem, current_date):
 
 if __name__ == '__main__':
     print 'Running...'
-
-    logging.basicConfig()
-
-    sched = Scheduler()
-    sched.add_cron_job(main, hour='6')
-
-    sched.start()
-    while True:
-        time.sleep(10)
-    sched.shutdown()
+    main('temp_stem.', 'YYMMDD')
