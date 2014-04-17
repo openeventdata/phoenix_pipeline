@@ -1,5 +1,7 @@
 Phoenix Pipeline Package
 ========================
+:mod:`Test` Module
+------------------
 
 :mod:`formatter` Module
 -----------------------
