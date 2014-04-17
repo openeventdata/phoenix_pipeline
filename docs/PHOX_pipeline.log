@@ -1,0 +1,4 @@
+INFO 2014-04-17 17:20:34,497: Running
+INFO 2014-04-17 17:20:34,497: PHOX.pipeline run
+INFO 2014-04-17 17:20:34,497: Found a config file in working directory
+WARNING 2014-04-17 17:20:34,497: Problem parsing config file. No section: 'Server'
