@@ -41,7 +41,10 @@ def format_records(results, max_lede, process_date):
     max_lede = 4
     final_output = ''
     for story in results:
-        content = story['content']
+        try:
+            content = story['content'].encode('utf-8')
+        except Exception as e:
+            print 'Error encoding text for {}. {}'.format(story['url'], e)
         final_content = _format_content(content)
 
         MAX_URLLENGTH = 192   # temporary to accommodate TABARI input limits
@@ -66,9 +69,7 @@ def format_records(results, max_lede, process_date):
             try:
                 one_record = '{} {}\n{}\n\n'.format(date, url, line)
             except UnicodeEncodeError:
-                print 'Error on: {}, {}, {}'.format(date,
-                                                    url,
-                                                    line)
+                print 'Error on: {}'.format(url, line)
 
             final_output += one_record
 
