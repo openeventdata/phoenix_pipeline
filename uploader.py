@@ -1,6 +1,6 @@
 import sys
 import subprocess
-import phox_utilities
+import utilities
 from ftplib import FTP
 
 
@@ -17,7 +17,7 @@ def store_zipped_file(filename, dirname, connection):
         connection.storbinary("STOR " + filezip, open(filezip))
         connection.cwd('..')               # back out
     except:
-        phox_utilities.do_RuntimeError(
+        utilities.do_RuntimeError(
             'Store of',
             filename,
             '.zip unsuccessful')
@@ -34,12 +34,12 @@ def get_zipped_file(filename, dirname, connection):
         connection.cwd(dirname)               # change into subdirectory
         connection.retrbinary("RETR " + filename + '.zip', fbin.write)
         connection.cwd('..')               # back
-        phox_utilities.logger.info(
+        utilities.logger.info(
             'Successfully retrieved ' +
             filename +
             '.zip\n')
     except:
-        phox_utilities.do_RuntimeError(
+        utilities.do_RuntimeError(
             'Retrieval of',
             filename,
             '.zip unsuccessful')
@@ -51,7 +51,7 @@ def get_zipped_file(filename, dirname, connection):
         subprocess.call("unzip -o tempfile.zip", shell=True)
         subprocess.call("rm tempfile.zip", shell=True)  # clean up
     except:
-        phox_utilities.do_RuntimeError(
+        utilities.do_RuntimeError(
             'Downloaded file',
             filename,
             'could not be decompressed')
@@ -76,14 +76,14 @@ def main(datestr, server_info, file_info):
         print 'Logged into: {}/{}'.format(server_info.serv_name,
                                           server_info.server_dir)
     except Exception as e:
-        phox_utilities.do_RuntimeError('Login to {} unsuccessful.'.format(server_info.serv_name))
+        utilities.do_RuntimeError('Login to {} unsuccessful.'.format(server_info.serv_name))
 
     # upload the daily event and duplicate index files
     try:
         eventfilename = '{}{}.txt'.format(file_info.eventfile_stem, datestr)
         store_zipped_file(eventfilename, 'Daily', ftp)
     except:
-        phox_utilities.do_RuntimeError('Transfer of ', eventfilename,
+        utilities.do_RuntimeError('Transfer of ', eventfilename,
                                        'unsuccessful')
 
     try:
@@ -91,7 +91,7 @@ def main(datestr, server_info, file_info):
         store_zipped_file(dupfilename, 'Daily/Duplicates', ftp)
         ftp.cwd('..')               # back out one more level
     except:
-        phox_utilities.do_RuntimeError('Transfer of', dupfilename,
+        utilities.do_RuntimeError('Transfer of', dupfilename,
                                        'unsuccessful')
 
     # update the monthly and yearly files
@@ -110,7 +110,7 @@ def main(datestr, server_info, file_info):
             # new month
             fyr = open(yearfilename, 'a')
         except:
-            phox_utilities.do_RuntimeError(
+            utilities.do_RuntimeError(
                 'Could not open yearly file',
                 yearfilename)
 
@@ -127,7 +127,7 @@ def main(datestr, server_info, file_info):
             # new month
             fmon = open(monthfilename, 'a')
         except:
-            phox_utilities.do_RuntimeError(
+            utilities.do_RuntimeError(
                 'Could not open monthly file',
                 monthfilename)
 
@@ -135,7 +135,7 @@ def main(datestr, server_info, file_info):
         try:
             fin = open(eventfilename, 'r')
         except:
-            phox_utilities.do_RuntimeError(
+            utilities.do_RuntimeError(
                 'Could not open the daily event file',
                 eventfilename)
 

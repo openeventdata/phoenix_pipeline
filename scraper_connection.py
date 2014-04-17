@@ -34,28 +34,36 @@ def query_all(collection, less_than_date, greater_than_date):
         except Exception as e:
             print 'Error on entry {}: {}.'.format(num, e)
     final_out = '\n'.join(output)
-    return final_out
+    posts = collection.find({"$and": [{"date_added": {"$lte": less_than_date}},
+                                      {"date_added": {"$gt": greater_than_date}}
+                                      ]})
+
+    return final_out, posts
 
 
-def main(file_stem):
+def main(file_stem, current_date):
+    """
+    Current date is date_running - 1 day. So if it's running on the 25th the
+    date is the 24th.
+    """
     conn = make_conn()
 
-    curr = datetime.datetime.utcnow()
-    less_than = datetime.datetime(curr.year, curr.month, curr.day)
-    greater_than = less_than - datetime.timedelta(days=2)
-    desired_date = less_than - datetime.timedelta(days=1)
+    less_than = datetime.datetime(current_date.year, current_date.month,
+                                  current_date.day)
+    less_than = less_than + datetime.timedelta(days=1)
+    greater_than = less_than - datetime.timedelta(days=1)
 
-    text = query_all(conn, less_than, greater_than)
+    text, results = query_all(conn, less_than, greater_than)
     text = text.decode('utf-8')
 
     filename = '{}{:02d}{:02d}{:02d}.txt'.format(file_stem,
-                                                 desired_date.year,
-                                                 desired_date.month,
-                                                 desired_date.day)
+                                                 current_date.year,
+                                                 current_date.month,
+                                                 current_date.day)
     with codecs.open(filename, 'w', encoding='utf-8') as f:
         f.write(text)
 
-    return filename
+    return filename, results
 
 if __name__ == '__main__':
     print 'Running...'
