@@ -41,10 +41,7 @@ def format_records(results, max_lede, process_date):
     max_lede = 4
     final_output = ''
     for story in results:
-        try:
-            content = story['content'].encode('utf-8')
-        except Exception as e:
-            print 'Error encoding text. {}'.format(e)
+        content = story['content'].encode('utf-8')
         final_content = _format_content(content)
 
         MAX_URLLENGTH = 192   # temporary to accommodate TABARI input limits
@@ -58,10 +55,6 @@ def format_records(results, max_lede, process_date):
         #Filter sentences that start with a "
         final_content = [sent for sent in final_content if sent[0] != '"']
         for sent in final_content[:max_lede]:
-            try:
-                sent = sent.encode('utf-8')
-            except Exception as e:
-                print 'Error with Unicode. {}'.format(e)
             line = '\n'.join(textwrap.wrap(sent, 80))
             line = line.decode('utf-8')
             line = line.encode('utf-8')
