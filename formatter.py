@@ -58,7 +58,10 @@ def format_records(results, max_lede, process_date):
         #Filter sentences that start with a "
         final_content = [sent for sent in final_content if sent[0] != '"']
         for sent in final_content[:max_lede]:
-            sent = sent.encode('utf-8')
+            try:
+                sent = sent.encode('utf-8')
+            except Exception as e:
+                print 'Error with Unicode on {}. {}'.format(url, e)
             line = '\n'.join(textwrap.wrap(sent, 80))
             line = line.decode('utf-8')
             line = line.encode('utf-8')
