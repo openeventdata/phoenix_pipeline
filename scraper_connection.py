@@ -2,67 +2,155 @@ import nltk.data
 import datetime
 import logging
 import codecs
-import time
 from pymongo import MongoClient
 
 
 def make_conn():
+    """
+    Function to establish a connection to a local MonoDB instance.
+
+    Returns
+    -------
+
+    collection: pymongo.collection.Collection.
+                Collection within MongoDB that holds the scraped news stories.
+
+    """
     client = MongoClient()
     database = client.event_scrape
-    return database['stories']
+    collection = database['stories']
+    return collection
 
 
-def query_all(collection, less_than_date, greater_than_date):
+def query_all(collection, less_than_date, greater_than_date, write_file=False):
+    """
+    Function to query the MongoDB instance and obtain results for the desired
+    date range. The query constructed is: greater_than_date > results
+    < less_than_date.
+
+    Parameters
+    ----------
+
+    collection: pymongo.collection.Collection.
+                Collection within MongoDB that holds the scraped news stories.
+
+    less_than_date: Datetime object.
+                    Date for which results should be older than. For example,
+                    if the date running is the 25th, and the desired date is
+                    the 24th, then the `less_than_date` is the 25th.
+
+    greater_than_date: Datetime object.
+                        Date for which results should be older than. For
+                        example, if the date running is the 25th, and the
+                        desired date is the 24th, then the `greater_than_date`
+                        is the 23rd.
+
+    write_file: Boolean.
+                Option indicating whether to write the results from the web
+                scraper to an intermediate file. Defaults to false.
+
+    Returns
+    -------
+
+    posts: Dictionary.
+            Dictionary of results from the MongoDB query.
+
+    final_out: String.
+                If `write_file` is True, this contains a string representation
+                of the query results. Otherwise, contains an empty string.
+
+    """
     output = []
-    posts = collection.find({"$and": [{"date_added": {"$lte": less_than_date}},
-                                      {"date_added": {"$gt": greater_than_date}}
+    posts = collection.find({"$and": [{"date_added": {"$lt": less_than_date}},
+                                      {"date_added": {"$gt":
+                                                      greater_than_date}}
                                       ]})
 
     sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
 
-    for num, post in enumerate(posts):
-        try:
-            #print 'Processing entry {}...'.format(num)
-            content = post['content'].encode('utf-8')
-            if post['source'] == 'aljazeera':
-                content = content.replace("""Caution iconAttention The browser or device you are using is out of date.  It has known security flaws and a limited feature set.  You will not see all the features of some websites.  Please update your browser.""", '')
-            header = '  '.join(sent_detector.tokenize(content.strip())[:4])
-            string = '{}\t{}\t{}\n{}\n'.format(num, post['date'], post['url'],
-                                               header)
-            output.append(string)
-        except Exception as e:
-            print 'Error on entry {}: {}.'.format(num, e)
-    final_out = '\n'.join(output)
-    posts = collection.find({"$and": [{"date_added": {"$lte": less_than_date}},
-                                      {"date_added": {"$gt": greater_than_date}}
-                                      ]})
+    final_out = ''
+    if write_file:
+        for num, post in enumerate(posts):
+            try:
+                #print 'Processing entry {}...'.format(num)
+                content = post['content'].encode('utf-8')
+                if post['source'] == 'aljazeera':
+                    content = content.replace("""Caution iconAttention The browser or device you are using is out of date.  It has known security flaws and a limited feature set.  You will not see all the features of some websites.  Please update your browser.""", '')
+                header = '  '.join(sent_detector.tokenize(content.strip())[:4])
+                string = '{}\t{}\t{}\n{}\n'.format(num, post['date'],
+                                                   post['url'], header)
+                output.append(string)
+            except Exception as e:
+                print 'Error on entry {}: {}.'.format(num, e)
+        final_out = '\n'.join(output)
+        posts = collection.find({"$and": [{"date_added": {"$lte":
+                                                          less_than_date}},
+                                          {"date_added": {"$gt":
+                                                          greater_than_date}}]}
+                                )
+        posts = dict(posts)
 
-    return final_out, posts
+    return posts, final_out
 
 
-def main(file_stem, current_date):
+def main(current_date, write_file=False, file_stem=None):
     """
-    Current date is date_running - 1 day. So if it's running on the 25th the
-    date is the 24th.
+    Function to create a connection to a MongoDB instance, query for a given
+    day's results, optionally write the results to a file, and return the
+    results.
+
+    Parameters
+    ----------
+
+    current_date: datetime object.
+                    Date for which records are pulled. Normally this is
+                    $date_running - 1. For example, if the script is running on
+                    the 25th, the current_date will be the 24th.
+
+    write_file: Boolean.
+                Option indicating whether to write the results from the web
+                scraper to an intermediate file. Defaults to false.
+
+    file_stem: String. Optional.
+                Optional string defining the file stem for the intermediate
+                file for the scraper results.
+
+    Returns
+    -------
+
+    posts: Dictionary.
+            Dictionary of results from the MongoDB query.
+
+    filename: String.
+                If `write_file` is True, contains the filename to which the
+                scraper results are writen. Otherwise is an empty string.
+
     """
     conn = make_conn()
 
     less_than = datetime.datetime(current_date.year, current_date.month,
                                   current_date.day)
-    less_than = less_than + datetime.timedelta(days=1)
     greater_than = less_than - datetime.timedelta(days=1)
+    less_than = less_than + datetime.timedelta(days=1)
 
-    text, results = query_all(conn, less_than, greater_than)
-    text = text.decode('utf-8')
+    results, text = query_all(conn, less_than, greater_than,
+                              write_file=write_file)
 
-    filename = '{}{:02d}{:02d}{:02d}.txt'.format(file_stem,
-                                                 current_date.year,
-                                                 current_date.month,
-                                                 current_date.day)
-    with codecs.open(filename, 'w', encoding='utf-8') as f:
-        f.write(text)
+    filename = ''
+    if text:
+        text = text.decode('utf-8')
 
-    return filename, results
+        if file_stem:
+            filename = '{}{:02d}{:02d}{:02d}.txt'.format(file_stem,
+                                                         current_date.year,
+                                                         current_date.month,
+                                                         current_date.day)
+            with codecs.open(filename, 'w', encoding='utf-8') as f:
+                f.write(text)
+        else:
+            print 'Need filestem to write results to file.'
+
+    return results, filename
 
 if __name__ == '__main__':
     print 'Running...'

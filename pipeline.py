@@ -31,12 +31,11 @@ else:
     logger.info('Date string: {}'.format(date_string))
     print 'Date string:', date_string
 
-# this is actually generated inside Mongo.formatter.py
-# also we could just shift and use the config.ini info to get this
-scraperfilename, results = scraper_connection.main(file_details.scraper_stem,
-                                                   process_date)
-logger.info("Scraper file name: " + scraperfilename)
-print "Scraper file name:", scraperfilename
+results, scraperfilename = scraper_connection.main(process_date)
+
+if scraperfilename:
+    logger.info("Scraper file name: " + scraperfilename)
+    print "Scraper file name:", scraperfilename
 
 logger.info("Running Mongo.formatter.py")
 print "Running Mongo.formatter.py"
