@@ -12,7 +12,7 @@ def make_conn():
     Returns
     -------
 
-    collection: pymongo.collection.Collection. Iterable.
+    collection: pymongo.collection.Collection.
                 Collection within MongoDB that holds the scraped news stories.
 
     """
@@ -25,21 +25,43 @@ def make_conn():
 def query_all(collection, less_than_date, greater_than_date, write_file=False):
     """
     Function to query the MongoDB instance and obtain results for the desired
-    date range.
+    date range. The query constructed is: greater_than_date > results
+    < less_than_date.
 
     Parameters
     ----------
 
-    collection: pymongo.collection.Collection. Iterable.
+    collection: pymongo.collection.Collection.
                 Collection within MongoDB that holds the scraped news stories.
 
-    less_than_date:
+    less_than_date: Datetime object.
+                    Date for which results should be older than. For example,
+                    if the date running is the 25th, and the desired date is
+                    the 24th, then the `less_than_date` is the 25th.
+
+    greater_than_date: Datetime object.
+                        Date for which results should be older than. For
+                        example, if the date running is the 25th, and the
+                        desired date is the 24th, then the `greater_than_date`
+                        is the 23rd.
+
+    write_file: Boolean.
+                Option indicating whether to write the results from the web
+                scraper to an intermediate file. Defaults to false.
 
     Returns
     -------
+
+    posts: Dictionary.
+            Dictionary of results from the MongoDB query.
+
+    final_out: String.
+                If `write_file` is True, this contains a string representation
+                of the query results. Otherwise, contains an empty string.
+
     """
     output = []
-    posts = collection.find({"$and": [{"date_added": {"$lte": less_than_date}},
+    posts = collection.find({"$and": [{"date_added": {"$lt": less_than_date}},
                                       {"date_added": {"$gt":
                                                       greater_than_date}}
                                       ]})
@@ -66,12 +88,16 @@ def query_all(collection, less_than_date, greater_than_date, write_file=False):
                                           {"date_added": {"$gt":
                                                           greater_than_date}}]}
                                 )
+        posts = dict(posts)
 
     return posts, final_out
 
 
 def main(current_date, write_file=False, file_stem=None):
     """
+    Function to create a connection to a MongoDB instance, query for a given
+    day's results, optionally write the results to a file, and return the
+    results.
 
     Parameters
     ----------
@@ -89,13 +115,23 @@ def main(current_date, write_file=False, file_stem=None):
                 Optional string defining the file stem for the intermediate
                 file for the scraper results.
 
+    Returns
+    -------
+
+    posts: Dictionary.
+            Dictionary of results from the MongoDB query.
+
+    filename: String.
+                If `write_file` is True, contains the filename to which the
+                scraper results are writen. Otherwise is an empty string.
+
     """
     conn = make_conn()
 
     less_than = datetime.datetime(current_date.year, current_date.month,
                                   current_date.day)
-    less_than = less_than + datetime.timedelta(days=1)
     greater_than = less_than - datetime.timedelta(days=1)
+    less_than = less_than + datetime.timedelta(days=1)
 
     results, text = query_all(conn, less_than, greater_than,
                               write_file=write_file)
