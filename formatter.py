@@ -52,18 +52,21 @@ def format_records(results, max_lede, process_date):
         source = story['source']
         sourcecount[source] += 1
 
+        story_id = str(story['_id'])
+
         #Filter sentences that start with a "
         final_content = [sent for sent in final_content if sent[0] != '"']
-        for sent in final_content[:max_lede]:
+        for num, sent in enumerate(final_content[:max_lede]):
             line = '\n'.join(textwrap.wrap(sent, 80))
             line = line.decode('utf-8')
             line = line.encode('utf-8')
+            sent_id = '{}_{}'.format(story_id, num)
             try:
                 url = url.encode('utf-8')
             except UnicodeDecodeError:
                 url = url.decode('utf-8')
             try:
-                one_record = '{} {}\n{}\n\n'.format(date, url, line)
+                one_record = '{} {}\n{}\n\n'.format(date, sent_id, line)
             except UnicodeEncodeError:
                 print 'Error writing one record.'
 
