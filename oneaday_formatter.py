@@ -68,6 +68,9 @@ def writedups(datestr):
 
 
 def main(datestr, server_list, file_details):
+    """
+    Main function for final (unique) event datasets and duplicates reference file
+    """
     global fout, evtdict, DUPCOUNT, evtdup, curday
     try:
         fin = open(file_details.fullfile_stem + datestr + '.txt', 'r')
