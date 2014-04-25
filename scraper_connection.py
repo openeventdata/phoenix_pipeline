@@ -52,24 +52,25 @@ def query_all(collection, less_than_date, greater_than_date, write_file=False):
     Returns
     -------
 
-    posts: Dictionary.
-            Dictionary of results from the MongoDB query.
+    posts: List.
+            List of dictionaries of results from the MongoDB query.
+
 
     final_out: String.
                 If `write_file` is True, this contains a string representation
                 of the query results. Otherwise, contains an empty string.
 
     """
-    output = []
-    posts = collection.find({"$and": [{"date_added": {"$lt": less_than_date}},
-                                      {"date_added": {"$gt":
-                                                      greater_than_date}}
-                                      ]})
-
-    sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
 
     final_out = ''
     if write_file:
+        output = []
+        sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+        posts = collection.find({"$and": [{"date_added": {"$lt":
+                                                          less_than_date}},
+                                          {"date_added": {"$gt":
+                                                          greater_than_date}}
+                                          ]})
         for num, post in enumerate(posts):
             try:
                 #print 'Processing entry {}...'.format(num)
@@ -83,12 +84,13 @@ def query_all(collection, less_than_date, greater_than_date, write_file=False):
             except Exception as e:
                 print 'Error on entry {}: {}.'.format(num, e)
         final_out = '\n'.join(output)
-        posts = collection.find({"$and": [{"date_added": {"$lte":
-                                                          less_than_date}},
-                                          {"date_added": {"$gt":
-                                                          greater_than_date}}]}
-                                )
-        posts = dict(posts)
+
+    posts = collection.find({"$and": [{"date_added": {"$lte":
+                                                      less_than_date}},
+                                      {"date_added": {"$gt":
+                                                      greater_than_date}}]}
+                            )
+    posts = list(posts)
 
     return posts, final_out
 
