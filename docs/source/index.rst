@@ -177,7 +177,7 @@ rules. However, following these rules when submitting new code makes the
 review easier so new code can be integrated in less time.
 
 Uniformly formatted code makes it easier to share code ownership. OEDA 
-projects tries to closely follow the official Python guidelines
+projects try to closely follow the official Python guidelines
 detailed in `PEP8 <http://www.python.org/dev/peps/pep-0008/>`__ that
 detail how code should be formatted and indented. Please read it and
 follow it.
