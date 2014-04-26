@@ -30,41 +30,39 @@ Configuration file
 ==================
 PHOX_config.ini configures the initial settings for PHOX pipeline and should be included in the working directory.
 
-```
-[Server]
-server_name = <server name for http: site>
-username =  <user name for ftp login to server_name>
-password =  <user password for ftp login to server_name>
-server_dir = <path to directory on the server where subdirectories are located>
+::
 
-[Pipeline]
-scraper_stem =  <stem for scrapped output>
-recordfile_stem =  <stem for output of monger_formatter.py>
-fullfile_stem =  <stem for output of TABARI.0.8.4b1>
-eventfile_stem =  <stem for event output of oneaday_formatter.py>
-dupfile_stem =  <stem for duplicate file output of oneaday_formatter.py>
-outputfile_stem =  <stem for files uploaded by phox_uploader.py>
-```
+    [Server]
+    server_name = <server name for http: site>
+    username =  <user name for ftp login to server_name>
+    password =  <user password for ftp login to server_name>
+    server_dir = <path to directory on the server where subdirectories are located>
 
-#####Example of PHOX_config.ini
+    [Pipeline]
+    scraper_stem =  <stem for scrapped output>
+    recordfile_stem =  <stem for output of monger_formatter.py>
+    fullfile_stem =  <stem for output of TABARI.0.8.4b1>
+    eventfile_stem =  <stem for event output of oneaday_formatter.py>
+    dupfile_stem =  <stem for duplicate file output of oneaday_formatter.py>
+    outputfile_stem =  <stem for files uploaded by phox_uploader.py>
 
-```
-[Server]
-server_name = openeventdata.org
-username = myusername
-password = myweakpassword12345
-server_dir = public_html/datasets/phoenix/
+Example of PHOX_config.ini
+    
+::
 
-[Pipeline]
-scraper_stem = scraper_results_20
-recordfile_stem = eventrecords.
-fullfile_stem = events.full.
-eventfile_stem = Phoenix.events.
-dupfile_stem = Phoenix.dupindex.
-outputfile_stem = Phoenix.events.20
-```
+    [Server]
+    server_name = openeventdata.org
+    username = myusername
+    password = myweakpassword12345
+    server_dir = public_html/datasets/phoenix/
 
-In the examples below, 'datestr' refers to a 6-digit YYMMDD date
+    [Pipeline]
+    scraper_stem = scraper_results_20
+    recordfile_stem = eventrecords.
+    fullfile_stem = events.full.
+    eventfile_stem = Phoenix.events.
+    dupfile_stem = Phoenix.dupindex.
+    outputfile_stem = Phoenix.events.20
 
 TABARI.0.8.4b2
 ========================
@@ -179,7 +177,7 @@ rules. However, following these rules when submitting new code makes the
 review easier so new code can be integrated in less time.
 
 Uniformly formatted code makes it easier to share code ownership. OEDA 
-projects tries to closely follow the official Python guidelines
+projects try to closely follow the official Python guidelines
 detailed in `PEP8 <http://www.python.org/dev/peps/pep-0008/>`__ that
 detail how code should be formatted and indented. Please read it and
 follow it.
