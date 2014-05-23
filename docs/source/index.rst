@@ -21,6 +21,15 @@ The PHOX pipeline links a series of Python programs to convert files scrapped fr
 
 .. image:: phox_pipeline_flow.jpeg
 
+It is now possible to code event data from a limited list of sources that is
+different from that used within the web scraper. For instance, it might be
+desirable to scrape content from a wide variety of sources, but some of this
+content may be too noisy to include in an event dataset or there is some
+experementation necessary to determine which sources to include in a final
+dataset. The data sources are restricted using the ``source_keys.txt`` file.
+These keys correspond to those found in the ``source`` field within the MongoDB
+instance created by the `web scraper <https://github.com/openeventdata/scraper>`_.
+
 Source code can be found at: https://github.com/openeventdata/phoenix_pipeline
 
 This software is MIT Licensed (MIT)
