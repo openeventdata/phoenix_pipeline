@@ -22,7 +22,7 @@ def make_conn():
     return collection
 
 
-def query_all(collection, less_than_date, greater_than_date, write_file=False):
+def query_all(collection, lt_date, gt_date, sources, write_file=False):
     """
     Function to query the MongoDB instance and obtain results for the desired
     date range. The query constructed is: greater_than_date > results
@@ -66,11 +66,9 @@ def query_all(collection, less_than_date, greater_than_date, write_file=False):
     if write_file:
         output = []
         sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
-        posts = collection.find({"$and": [{"date_added": {"$lt":
-                                                          less_than_date}},
-                                          {"date_added": {"$gt":
-                                                          greater_than_date}}
-                                          ]})
+        posts = collection.find({"$and": [{"date_added": {"$lt": lt_date}},
+                                          {"date_added": {"$gt": gt_date}},
+                                          {"source": {"$in": sources}}]})
         for num, post in enumerate(posts):
             try:
                 #print 'Processing entry {}...'.format(num)
@@ -85,14 +83,18 @@ def query_all(collection, less_than_date, greater_than_date, write_file=False):
                 print 'Error on entry {}: {}.'.format(num, e)
         final_out = '\n'.join(output)
 
-    posts = collection.find({"$and": [{"date_added": {"$lte":
-                                                      less_than_date}},
-                                      {"date_added": {"$gt":
-                                                      greater_than_date}}]}
-                            )
+    posts = collection.find({"$and": [{"date_added": {"$lte": lt_date}},
+                                      {"date_added": {"$gt": gt_date}},
+                                      {"source": {"$in": sources}}]})
     posts = list(posts)
 
     return posts, final_out
+
+
+def get_sources(filepath):
+    with open(filepath, 'r') as f:
+        sources = [key.replace('\n', '') for key in f.readlines()]
+    return sources
 
 
 def main(current_date, write_file=False, file_stem=None):
@@ -128,6 +130,7 @@ def main(current_date, write_file=False, file_stem=None):
                 scraper results are writen. Otherwise is an empty string.
 
     """
+    sources = get_sources('source_keys.txt')
     conn = make_conn()
 
     less_than = datetime.datetime(current_date.year, current_date.month,
@@ -135,7 +138,7 @@ def main(current_date, write_file=False, file_stem=None):
     greater_than = less_than - datetime.timedelta(days=1)
     less_than = less_than + datetime.timedelta(days=1)
 
-    results, text = query_all(conn, less_than, greater_than,
+    results, text = query_all(conn, less_than, greater_than, sources,
                               write_file=write_file)
 
     filename = ''
