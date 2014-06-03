@@ -7,6 +7,7 @@ import formatter
 import subprocess
 import oneaday_formatter
 import scraper_connection
+import petrarch
 
 
 utilities.init_logger('PHOX_pipeline.log')
@@ -42,14 +43,9 @@ print "Running Mongo.formatter.py"
 formatter.main(results, server_details, file_details, process_date,
                date_string)
 
-logger.info("Running TABARI")
-print "Running TABARI"
-subprocess.call(
-    "./TABARI.0.8.4b2 -ad PHOX.pipeline.project -t "
-    + file_details.recordfile_stem + date_string +
-    ".txt -o " +
-    file_details.fullfile_stem + date_string + ".txt",
-    shell=True)
+logger.info("Running PETRARCH")
+print "Running PETRARCH"
+results = petrarch.run_pipeline(results, 'daily_events_YYMMDD.csv')
 
 logger.info("Running oneaday_formatter.py")
 print "Running oneaday_formatter.py"
