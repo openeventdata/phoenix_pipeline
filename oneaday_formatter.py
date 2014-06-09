@@ -1,152 +1,153 @@
-import sys
-import utilities
-
-# ======== global initializations ========= #
-
-evtdict = {}  # initialize the dictionaries
-evtdup = {}
-
-DUPCOUNT = 7  # field index for the duplicate count
-URLLOC = 6  # field index for the URL
+import logging
+from collections import Counter
 
 
-def writeevents():
-    global fout, evtdict, DUPCOUNT
-    for locevt, loclist in evtdict.iteritems():
-        fout.write(evtdict[locevt][0] + '\t')
-
-        if len(evtdict[locevt][1]) == 3:
-            fout.write(evtdict[locevt][1] + '\t\t\t')  # source + agents[s]
-        elif len(evtdict[locevt][1]) == 6:
-            fout.write(evtdict[locevt][1][:3] + '\t' +
-                       evtdict[locevt][1][3:] + '\t\t')
-        else:
-            fout.write(evtdict[locevt][1][:3] + '\t' + evtdict[locevt]
-                       [1][3:6] + '\t' + evtdict[locevt][1][6:] + '\t')
-
-        if len(evtdict[locevt][2]) == 3:
-            fout.write(evtdict[locevt][2] + '\t\t\t')  # target + agents[s]
-        elif len(evtdict[locevt][2]) == 6:
-            fout.write(evtdict[locevt][2][:3] + '\t' +
-                       evtdict[locevt][2][3:] + '\t\t')
-        else:
-            fout.write(evtdict[locevt][2][:3] + '\t' + evtdict[locevt]
-                       [2][3:6] + '\t' + evtdict[locevt][2][6:] + '\t')
-
-        fstr = '\t'.join(evtdict[locevt][3:DUPCOUNT])
-        # add the duplicate count
-        fout.write(fstr + '\t' + str(evtdict[locevt][DUPCOUNT]))
-        if evtdict[locevt][DUPCOUNT] > 1:
-            fout.write('\t')   # write duplicate sources and their frequencies
-            if locevt in evtdup:
-                for loclist in evtdup[locevt]:
-                    fout.write(' ' + loclist[0] + ' ' + str(loclist[1]))
-                fout.write('\n')
-            else:
-                fout.write('\tMissing references\n')  # should not hit this
-        else:
-            fout.write('\t\n')  # no duplicates, so blank field
-
-
-def writedups(datestr):
-    global evtdict, evtdup, curday
-    server_list, file_details = utilities.parse_config('PHOX_config.ini')
-    fdup = open(file_details.dupfile_stem + datestr + '.txt', 'w')
-    for locevt, loclist in evtdup.iteritems():
-        if len(loclist) > 0:
-            fstr = '\t'.join(evtdict[locevt][:DUPCOUNT])
-            fdup.write(fstr + "\n")
-            for ka in range(len(loclist)):
-#               print '++',ka, loclist
-                fdup.write("\t" + loclist[ka][0] + " " + str(loclist[ka][1]))
-                for kb in range(len(loclist[ka][2:])):
-#                   print '--',kb, loclist[ka][kb+2]
-                    fdup.write(" " + loclist[ka][kb + 2])
-                fdup.write("\n")
-            fdup.write("\n")
-    fdup.close()
-
-
-def main(datestr, server_list, file_details):
+def filter_events(results):
     """
-    Main function for final (unique) event datasets and duplicates reference file
+    Filters out duplicate events, leaving only one unique
+    (DATE, SOURCE, TARGET, EVENT) tuple per day.
+
+
+    Parameters
+    ----------
+
+    results: Dictionary.
+                PETRARCH-formatted results in the
+                {StoryID: [(record), (record)]} format.
+
+
+    Returns
+    -------
+
+    filter_dict: Dictionary.
+                    Contains filtered events. Keys are
+                    (DATE, SOURCE, TARGET, EVENT) tuples, values are lists of
+                    IDs, sources, and issues.
     """
-    global fout, evtdict, DUPCOUNT, evtdup, curday
-    try:
-        fin = open(file_details.fullfile_stem + datestr + '.txt', 'r')
-    except IOError:
-        utilities.do_RuntimeError(
-            'Could not find the full event file for',
-            datestr)
-
-    eventfilename = file_details.eventfile_stem + datestr + '.txt'
-    fout = open(eventfilename, 'w')
-    print 'Writing', eventfilename
-
-    curday = '000000'
-    dayno = 1
-    line = fin.readline()
-    while len(line) > 0:  # loop through the file
-        field = line[:-1].split('\t')
-#       print '--',field
-        if field[0] != curday:
-            writeevents()
-            if curday != '000000':
-                writedups(curday)
-            curday = field[0]
-            evtdict = {}
-            evtdup = {}
-
-        # string to check against for duplicates
-        evt = field[1] + field[2] + field[3]
-        src = field[5][0:3]
-        field[6] = field[6][:16]  # debug -- readability
-        field.append(1)
-#       print evt
-        if evt in evtdict:  # duplicate
-#           print '++',field
-            evtdict[evt][DUPCOUNT] += 1
-    #       print evt, evtdict[evt][5], evtdict[evt][6]
-            gotsrc = False
-            for ka in range(len(evtdup[evt])):
-                if evtdup[evt][ka][0] == src:
-                    evtdup[evt][ka][1] += 1
-                    evtdup[evt][ka].append(field[5])
-                    evtdup[evt][ka].append(field[6])
-                    gotsrc = True
-                    break
-            if not gotsrc:  # new source
-                evtdup[evt].append([src, 1, field[5], field[6]])
-
+    filter_dict = {}
+    for story in results:
+        date = story[0]
+        source = story[1]
+        target = story[2]
+        code = story[3]
+        if len(story) == 6:
+            ids = story[4].split(';')
+            source = story[5]
+            issues = ''
         else:
-            evtdict[evt] = field
-            evtdup[evt] = []
+            issues = story[4]
+            issues = issues.split(';')
+            ids = story[5].split(';')
+            source = story[6]
 
-        dayno += 1
-    # if dayno > 128: sys.exit()   # debug
+        event_tuple = (date, source, target, code)
 
-        line = fin.readline()
+        if event_tuple not in filter_dict:
+            filter_dict[event_tuple] = {'issues': Counter(), 'ids': ids,
+                                        'sources': [source]}
+            if issues:
+                issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
+                                                        for issue_str in
+                                                        issues]]
+                for issue, count in issue_splits:
+                    filter_dict[event_tuple]['issues'][issue] += int(count)
+        else:
+            filter_dict[event_tuple]['ids'] += ids
+            filter_dict[event_tuple]['sources'].append(source)
+            if issues:
+                issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
+                                                        for issue_str in
+                                                        issues]]
+                for issue, count in issue_splits:
+                    filter_dict[event_tuple]['issues'][issue] += int(count)
 
-    fin.close()
+    return filter_dict
 
-    writeevents()  # write final day (which is only day in the pipeline call)
-    fout.close()
 
-    writedups(datestr)
+def create_strings(events):
+    """
+    Formats the event tuples into a string that can be written to a file.close
+
+    Parameters
+    ----------
+
+    events: Dictionary.
+                Contains filtered events. Keys are
+                (DATE, SOURCE, TARGET, EVENT) tuples, values are lists of
+                IDs, sources, and issues.
+
+    Returns
+    -------
+
+    event_strings: String.
+                    Contains tab-separated event entries with \n as a line
+                    delimiter.
+    """
+    event_output = []
+
+    for event in events:
+        story_date = event[0]
+        source = event[1]
+        target = event[2]
+        code = event[3]
+
+        ids = ';'.join(events[event]['ids'])
+        sources = ';'.join(events[event]['sources'])
+
+        if 'issues' in events[event]:
+            iss = events[event]['issues']
+            issues = ['{},{}'.format(k, v) for k, v in iss.iteritems()]
+            joined_issues = ';'.join(issues)
+        else:
+            joined_issues = []
+
+        print 'Event: {}\t{}\t{}\t{}\t{}\t{}'.format(story_date, source,
+                                                     target, code, ids,
+                                                     sources)
+        event_str = '{}\t{}\t{}\t{}'.format(story_date,
+                                            source,
+                                            target,
+                                            code)
+        if joined_issues:
+            event_str += '\t{}'.format(joined_issues)
+
+        event_str += '\t{}\t{}'.format(ids, sources)
+        event_output.append(event_str)
+
+    event_strings = '\n'.join(event_output)
+    return event_strings
+
+
+def main(results, this_date, server_list, file_details):
+    """
+    Pulls in the coded results from PETRARCH dictionary in the
+    {StoryID: [(record), (record)]} format and allows only one unique
+    (DATE, SOURCE, TARGET, EVENT) tuple per day. Writes out this new,
+    filtered event data.
+
+    Parameters
+    ----------
+
+    results: Dictionary.
+                PETRARCH-formatted results in the
+                {StoryID: [(record), (record)]} format.
+
+    file_details: NamedTuple.
+                    Container generated from the config file specifying file
+                    stems and other relevant options.
+
+    this_date: String.
+                The current date the pipeline is running.
+    """
+    logger = logging.getLogger('pipeline_log')
+
+    logger.info('Applying one-a-day filter.')
+    filtered = filter_events(results)
+    event_write = create_strings(filtered)
+
+    logger.info('Writing event output.')
+    filename = '{}{}.txt'.format(file_details.fullfile_stem, this_date)
+    with open(filename, 'w') as f:
+        f.write(event_write)
 
     print "Finished"
-
-if __name__ == '__main__':
-    if len(sys.argv) > 2:   # initializations for stand-alone tests
-        utilities.init_logger('test_pipeline.log')
-        logger = utilities.logger  # get a local copy for the pipeline
-        # initialize the various utilities globals
-        utilities.parse_config('test_config.ini')
-
-    if len(sys.argv) > 1:
-        datestr = sys.argv[1]
-    else:
-        print 'Date string is required for oneaday_formatter.py'
-        sys.exit()
-
-    main(datestr)

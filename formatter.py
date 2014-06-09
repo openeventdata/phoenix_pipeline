@@ -250,10 +250,34 @@ def sentence_segmenter(paragr):
     return sentlist
 
 
-def main(results, server_list, file_details, process_date, thisday):
+def main(results, file_details, process_date, thisday):
     """
     Main function to parse results from the web scraper to TABARI-formatted
     output.
+
+    Parameters
+    ----------
+
+    results: pymongo.cursor.Cursor. Iterable.
+                Iterable containing the results from the scraper.
+
+    file_details: NamedTuple.
+                    Container generated from the config file specifying file
+                    stems and other relevant options.
+
+    process_date: String.
+                    Date for which the pipeline is running. Usually
+                    current_date - 1.
+
+    this_date: String.
+                The current date the pipeline is running.
+
+    Returns
+    -------
+
+    new_results: List.
+                    List of dictionaries that contain the MongoDB records with
+                    new, formatted content.
     """
 
     sourcecount = Counter()
