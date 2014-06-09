@@ -66,7 +66,7 @@ def main(write_petr=False, oneaday_filter=True):
 
     logger.info("Running phox_uploader.py")
     print "Running phox_uploader.py"
-    uploader.main(date_string, server_details, file_details)
+    uploader.main(results, date_string, server_details, file_details)
 
     logger.info('PHOX.pipeline end')
     print 'PHOX.pipeline end:', datetime.datetime.utcnow()
