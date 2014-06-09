@@ -14,9 +14,6 @@ def main(write_petr=False, oneaday_filter=True):
     # get a local copy for the pipeline
     logger = logging.getLogger('pipeline_log')
 
-    # initialize the various utilities globals
-    server_details, file_details = utilities.parse_config('PHOX_config.ini')
-
     print '\nPHOX.pipeline run:', datetime.datetime.utcnow()
 
     if len(sys.argv) > 1:
@@ -50,6 +47,7 @@ def main(write_petr=False, oneaday_filter=True):
         petrarch.run_pipeline(formatted,
                               '{}{}.txt'.format(file_details.fullfile_stem,
                                                 date_string))
+        results = ''
     elif write_petr and oneaday_filter:
         print "Can't write to output and run the one-a-day filter. Exiting."
         logger.warning("Can't write to output and run the one-a-day filter. Exiting.")
@@ -61,9 +59,10 @@ def main(write_petr=False, oneaday_filter=True):
         logger.warning("Can't run with the options you've specified. Exiting.")
         sys.exit()
 
-    logger.info("Running oneaday_formatter.py")
-    print "Running oneaday_formatter.py"
-    oneaday_formatter.main(date_string, server_details, file_details)
+    if oneaday_filter:
+        logger.info("Running oneaday_formatter.py")
+        print "Running oneaday_formatter.py"
+        oneaday_formatter.main(date_string, server_details, file_details)
 
     logger.info("Running phox_uploader.py")
     print "Running phox_uploader.py"
@@ -71,3 +70,10 @@ def main(write_petr=False, oneaday_filter=True):
 
     logger.info('PHOX.pipeline end')
     print 'PHOX.pipeline end:', datetime.datetime.utcnow()
+
+
+if __name__ == '__main__':
+    # initialize the various utilities globals
+    server_details, file_details = utilities.parse_config('PHOX_config.ini')
+
+    main(file_details.petr_write, file_details.oneaday_filter)
