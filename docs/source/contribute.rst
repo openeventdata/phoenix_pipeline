@@ -50,7 +50,7 @@ More detailed information on the use of git can be found in the `git
 documentation <http://git-scm.com/documentation>`_.
 
 Coding Guidelines
-=================
+-----------------
 
 The following are some guidelines on how new code should be written. Of
 course, there are special cases and there will be exceptions to these
