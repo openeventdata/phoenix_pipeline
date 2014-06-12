@@ -9,7 +9,7 @@ import scraper_connection
 from petrarch import petrarch
 
 
-def main(oneaday_filter=True):
+def main(run_filter=None):
     utilities.init_logger('PHOX_pipeline.log')
     # get a local copy for the pipeline
     logger = logging.getLogger('pipeline_log')
@@ -30,6 +30,7 @@ def main(oneaday_filter=True):
         print 'Date string:', date_string
 
     results, scraperfilename = scraper_connection.main(process_date)
+    results = results[:100]
 
     if scraperfilename:
         logger.info("Scraper file name: " + scraperfilename)
@@ -43,14 +44,14 @@ def main(oneaday_filter=True):
     logger.info("Running PETRARCH")
     print "Running PETRARCH"
     file_details.fullfile_stem + date_string
-    if not oneaday_filter:
+    if run_filter == 'False':
         print 'Running PETRARCH and writing to a file. No one-a-day.'
         logger.info('Running PETRARCH and writing to a file. No one-a-day.')
         petrarch.run_pipeline(formatted,
                               '{}{}.txt'.format(file_details.fullfile_stem,
                                                 date_string))
         results = ''
-    elif oneaday_filter:
+    elif run_filter == 'True':
         print 'Running PETRARCH and returning output.'
         logger.info('Running PETRARCH and returning output.')
         petr_results = petrarch.run_pipeline(formatted, write_output=False)
@@ -59,7 +60,7 @@ def main(oneaday_filter=True):
         logger.warning("Can't run with the options you've specified. Exiting.")
         sys.exit()
 
-    if oneaday_filter:
+    if run_filter == 'True':
         logger.info("Running oneaday_formatter.py")
         print "Running oneaday_formatter.py"
         oneaday_formatter.main(petr_results, date_string, server_details,
@@ -78,4 +79,4 @@ if __name__ == '__main__':
     # initialize the various utilities globals
     server_details, file_details = utilities.parse_config('PHOX_config.ini')
 
-    main(file_details.oneaday_filter)
+    main(run_filter=file_details.oneaday_filter)
