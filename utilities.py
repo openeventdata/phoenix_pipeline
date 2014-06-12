@@ -37,7 +37,6 @@ def parse_config(config_filename):
         eventfile_stem = parser.get('Pipeline', 'eventfile_stem')
         dupfile_stem = parser.get('Pipeline', 'dupfile_stem')
         outputfile_stem = parser.get('Pipeline', 'outputfile_stem')
-        petr_write = parser.get('Pipeline', 'petr_write')
         oneaday_filter = parser.get('Pipeline', 'oneaday_filter')
 
         file_attrs = namedtuple('FileAttributes', ['scraper_stem',
@@ -46,11 +45,10 @@ def parse_config(config_filename):
                                                    'eventfile_stem',
                                                    'dupfile_stem',
                                                    'outputfile_stem',
-                                                   'petr_write',
                                                    'oneaday_filter'])
         file_list = file_attrs(scraper_stem, recordfile_stem, fullfile_stem,
                                eventfile_stem, dupfile_stem, outputfile_stem,
-                               petr_write, oneaday_filter)
+                               oneaday_filter)
 
         return server_list, file_list
     except Exception as e:
