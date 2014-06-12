@@ -62,6 +62,7 @@ def query_all(collection, lt_date, gt_date, sources, write_file=False):
 
     """
 
+    logger = logging.getLogger('pipeline_log')
     final_out = ''
     if write_file:
         output = []
@@ -86,6 +87,10 @@ def query_all(collection, lt_date, gt_date, sources, write_file=False):
     posts = collection.find({"$and": [{"date_added": {"$lte": lt_date}},
                                       {"date_added": {"$gt": gt_date}},
                                       {"source": {"$in": sources}}]})
+
+    print 'Total number of stories: {}'.format(posts.count())
+    logger.info('Total number of stories: {}'.format(posts.count()))
+
     posts = list(posts)
 
     return posts, final_out

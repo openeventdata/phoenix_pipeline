@@ -6,7 +6,7 @@ import utilities
 import formatter
 import oneaday_formatter
 import scraper_connection
-import petrarch
+from petrarch import petrarch
 
 
 def main(write_petr=False, oneaday_filter=True):
@@ -37,13 +37,15 @@ def main(write_petr=False, oneaday_filter=True):
 
     logger.info("Running Mongo.formatter.py")
     print "Running Mongo.formatter.py"
-    formatted = formatter.main(results, server_details, file_details,
+    formatted = formatter.main(results, file_details,
                                process_date, date_string)
 
     logger.info("Running PETRARCH")
     print "Running PETRARCH"
     file_details.fullfile_stem + date_string
     if write_petr and not oneaday_filter:
+        print 'Running PETRARCH and writing to a file. No one-a-day.'
+        logger.info('Running PETRARCH and writing to a file. No one-a-day.')
         petrarch.run_pipeline(formatted,
                               '{}{}.txt'.format(file_details.fullfile_stem,
                                                 date_string))
@@ -53,6 +55,8 @@ def main(write_petr=False, oneaday_filter=True):
         logger.warning("Can't write to output and run the one-a-day filter. Exiting.")
         sys.exit()
     elif not write_petr and oneaday_filter:
+        print 'Running PETRARCH and returning output.'
+        logger.info('Running PETRARCH and returning output.')
         results = petrarch.run_pipeline(formatted, write_output=False)
     else:
         print "Can't run with the options you've specified. You need to fix something."
@@ -64,9 +68,10 @@ def main(write_petr=False, oneaday_filter=True):
         print "Running oneaday_formatter.py"
         oneaday_formatter.main(date_string, server_details, file_details)
 
-    logger.info("Running phox_uploader.py")
-    print "Running phox_uploader.py"
-    uploader.main(results, date_string, server_details, file_details)
+#Dis broke for now.
+#    logger.info("Running phox_uploader.py")
+#    print "Running phox_uploader.py"
+#    uploader.main(results, date_string, server_details, file_details)
 
     logger.info('PHOX.pipeline end')
     print 'PHOX.pipeline end:', datetime.datetime.utcnow()
