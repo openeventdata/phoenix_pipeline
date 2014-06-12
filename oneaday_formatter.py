@@ -26,44 +26,45 @@ def filter_events(results):
     """
     filter_dict = {}
     for story in results:
-        date = story[0]
-        source = story[1]
-        target = story[2]
-        code = story[3]
-        if len(story) == 7:
-            ids = story[4].split(';')
-            url = story[5]
-            source = story[6]
-            issues = ''
-        else:
-            issues = story[4]
-            issues = issues.split(';')
-            ids = story[5].split(';')
-            url = story[6]
-            source = story[7]
+        for event in results[story]:
+            date = event[0]
+            src = event[1]
+            target = event[2]
+            code = event[3]
+            if len(event) == 7:
+                ids = event[4].split(';')
+                url = event[5]
+                source = event[6]
+                issues = ''
+            else:
+                issues = event[4]
+                issues = issues.split(';')
+                ids = event[5].split(';')
+                url = event[6]
+                source = event[7]
 
-        event_tuple = (date, source, target, code)
+            event_tuple = (date, src, target, code)
 
-        if event_tuple not in filter_dict:
-            filter_dict[event_tuple] = {'issues': Counter(), 'ids': ids,
-                                        'sources': [source], 'urls': [url]}
-            if issues:
-                print issues
-                issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
-                                                        for issue_str in
-                                                        issues]]
-                for issue, count in issue_splits:
-                    filter_dict[event_tuple]['issues'][issue] += int(count)
-        else:
-            filter_dict[event_tuple]['ids'] += ids
-            filter_dict[event_tuple]['sources'].append(source)
-            filter_dict[event_tuple]['urls'].append(url)
-            if issues:
-                issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
-                                                        for issue_str in
-                                                        issues]]
-                for issue, count in issue_splits:
-                    filter_dict[event_tuple]['issues'][issue] += int(count)
+            if event_tuple not in filter_dict:
+                filter_dict[event_tuple] = {'issues': Counter(), 'ids': ids,
+                                            'sources': [source], 'urls': [url]}
+                if issues:
+                    print issues
+                    issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
+                                                            for issue_str in
+                                                            issues]]
+                    for issue, count in issue_splits:
+                        filter_dict[event_tuple]['issues'][issue] += int(count)
+            else:
+                filter_dict[event_tuple]['ids'] += ids
+                filter_dict[event_tuple]['sources'].append(source)
+                filter_dict[event_tuple]['urls'].append(url)
+                if issues:
+                    issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
+                                                            for issue_str in
+                                                            issues]]
+                    for issue, count in issue_splits:
+                        filter_dict[event_tuple]['issues'][issue] += int(count)
 
     return filter_dict
 
@@ -91,7 +92,7 @@ def create_strings(events):
 
     for event in events:
         story_date = event[0]
-        source = event[1]
+        src = event[1]
         target = event[2]
         code = event[3]
 
@@ -106,11 +107,11 @@ def create_strings(events):
         else:
             joined_issues = []
 
-        print 'Event: {}\t{}\t{}\t{}\t{}\t{}'.format(story_date, source,
+        print 'Event: {}\t{}\t{}\t{}\t{}\t{}'.format(story_date, src,
                                                      target, code, ids,
                                                      sources)
         event_str = '{}\t{}\t{}\t{}'.format(story_date,
-                                            source,
+                                            src,
                                             target,
                                             code)
         if joined_issues:
