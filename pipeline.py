@@ -30,7 +30,6 @@ def main(run_filter=None):
         print 'Date string:', date_string
 
     results, scraperfilename = scraper_connection.main(process_date)
-    results = results[:100]
 
     if scraperfilename:
         logger.info("Scraper file name: " + scraperfilename)
