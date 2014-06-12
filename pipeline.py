@@ -9,7 +9,7 @@ import scraper_connection
 from petrarch import petrarch
 
 
-def main(write_petr=False, oneaday_filter=True):
+def main(oneaday_filter=True):
     utilities.init_logger('PHOX_pipeline.log')
     # get a local copy for the pipeline
     logger = logging.getLogger('pipeline_log')
@@ -43,21 +43,17 @@ def main(write_petr=False, oneaday_filter=True):
     logger.info("Running PETRARCH")
     print "Running PETRARCH"
     file_details.fullfile_stem + date_string
-    if write_petr and not oneaday_filter:
+    if not oneaday_filter:
         print 'Running PETRARCH and writing to a file. No one-a-day.'
         logger.info('Running PETRARCH and writing to a file. No one-a-day.')
         petrarch.run_pipeline(formatted,
                               '{}{}.txt'.format(file_details.fullfile_stem,
                                                 date_string))
         results = ''
-    elif write_petr and oneaday_filter:
-        print "Can't write to output and run the one-a-day filter. Exiting."
-        logger.warning("Can't write to output and run the one-a-day filter. Exiting.")
-        sys.exit()
-    elif not write_petr and oneaday_filter:
+    elif oneaday_filter:
         print 'Running PETRARCH and returning output.'
         logger.info('Running PETRARCH and returning output.')
-        results = petrarch.run_pipeline(formatted, write_output=False)
+        petr_results = petrarch.run_pipeline(formatted, write_output=False)
     else:
         print "Can't run with the options you've specified. You need to fix something."
         logger.warning("Can't run with the options you've specified. Exiting.")
@@ -66,7 +62,8 @@ def main(write_petr=False, oneaday_filter=True):
     if oneaday_filter:
         logger.info("Running oneaday_formatter.py")
         print "Running oneaday_formatter.py"
-        oneaday_formatter.main(date_string, server_details, file_details)
+        oneaday_formatter.main(petr_results, date_string, server_details,
+                               file_details)
 
 #Dis broke for now.
 #    logger.info("Running phox_uploader.py")
@@ -81,4 +78,4 @@ if __name__ == '__main__':
     # initialize the various utilities globals
     server_details, file_details = utilities.parse_config('PHOX_config.ini')
 
-    main(file_details.petr_write, file_details.oneaday_filter)
+    main(file_details.oneaday_filter)

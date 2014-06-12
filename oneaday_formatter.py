@@ -30,22 +30,25 @@ def filter_events(results):
         source = story[1]
         target = story[2]
         code = story[3]
-        if len(story) == 6:
+        if len(story) == 7:
             ids = story[4].split(';')
-            source = story[5]
+            url = story[5]
+            source = story[6]
             issues = ''
         else:
             issues = story[4]
             issues = issues.split(';')
             ids = story[5].split(';')
-            source = story[6]
+            url = story[6]
+            source = story[7]
 
         event_tuple = (date, source, target, code)
 
         if event_tuple not in filter_dict:
             filter_dict[event_tuple] = {'issues': Counter(), 'ids': ids,
-                                        'sources': [source]}
+                                        'sources': [source], 'urls': [url]}
             if issues:
+                print issues
                 issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
                                                         for issue_str in
                                                         issues]]
@@ -54,6 +57,7 @@ def filter_events(results):
         else:
             filter_dict[event_tuple]['ids'] += ids
             filter_dict[event_tuple]['sources'].append(source)
+            filter_dict[event_tuple]['urls'].append(url)
             if issues:
                 issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
                                                         for issue_str in
@@ -93,6 +97,7 @@ def create_strings(events):
 
         ids = ';'.join(events[event]['ids'])
         sources = ';'.join(events[event]['sources'])
+        urls = ';'.join(events[event]['urls'])
 
         if 'issues' in events[event]:
             iss = events[event]['issues']
@@ -111,7 +116,7 @@ def create_strings(events):
         if joined_issues:
             event_str += '\t{}'.format(joined_issues)
 
-        event_str += '\t{}\t{}'.format(ids, sources)
+        event_str += '\t{}\t{}\t{}'.format(ids, urls, sources)
         event_output.append(event_str)
 
     event_strings = '\n'.join(event_output)
