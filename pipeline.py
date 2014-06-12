@@ -6,7 +6,7 @@ import utilities
 import formatter
 import oneaday_formatter
 import scraper_connection
-import petrarch
+from petrarch import petrarch
 
 
 def main(write_petr=False, oneaday_filter=True):
@@ -37,7 +37,7 @@ def main(write_petr=False, oneaday_filter=True):
 
     logger.info("Running Mongo.formatter.py")
     print "Running Mongo.formatter.py"
-    formatted = formatter.main(results, server_details, file_details,
+    formatted = formatter.main(results, file_details,
                                process_date, date_string)
 
     logger.info("Running PETRARCH")

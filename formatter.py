@@ -296,6 +296,7 @@ def main(results, file_details, process_date, thisday):
 
         new_results.append(story)
 
+    source_counts_string = ''
     for source, count in sourcecount.iteritems():
         source_counts_string += '{}\t{}'.format(source, count)
 
