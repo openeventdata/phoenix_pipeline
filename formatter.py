@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import unicode_literals
 import re
 import timex
 import datetime
@@ -297,7 +299,7 @@ def main(results, file_details, process_date, thisday):
         new_results.append(story)
 
     source_counts_string = ''
-    for source, count in sourcecount.iteritems():
+    for source, count in sourcecount.items():
         source_counts_string += '{}\t{}'.format(source, count)
 
 #    with open(newsourcefile, 'w') as sauce:

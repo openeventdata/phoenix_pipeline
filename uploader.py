@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import unicode_literals
 import sys
 import subprocess
 import utilities
@@ -73,8 +75,8 @@ def main(datestr, server_info, file_info):
         ftp.login(server_info.username, server_info.password)
         # change into PHOX directory
         ftp.cwd(server_info.server_dir)
-        print 'Logged into: {}/{}'.format(server_info.serv_name,
-                                          server_info.server_dir)
+        print('Logged into: {}/{}'.format(server_info.serv_name,
+                                          server_info.server_dir))
     except Exception as e:
         utilities.do_RuntimeError('Login to {} unsuccessful.'.format(server_info.serv_name))
 
@@ -159,16 +161,16 @@ def main(datestr, server_info, file_info):
     store_zipped_file(yearfilename, 'Annual')
 
     ftp.quit()
-    print "Finished"
+    print("Finished")
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         datestr = sys.argv[1]
     else:
-        print 'Error: No date provided to PHOX_uploader.py'
+        print('Error: No date provided to PHOX_uploader.py')
         sys.exit()
 
     try:
         main(datestr)
     except RuntimeError as why:
-        print 'phox_uploader.main() raised the RuntimeError:', why
+        print('phox_uploader.main() raised the RuntimeError:', why)
