@@ -11,8 +11,11 @@ import scraper_connection
 from petrarch import petrarch
 
 
-def main(logger_file, run_filter=None):
-    utilities.init_logger('PHOX_pipeline.log')
+def main(logger_file=None, run_filter=None):
+    if logger_file:
+        utilities.init_logger(logger_file)
+    else:
+        utilities.init_logger('PHOX_pipeline.log')
     # get a local copy for the pipeline
     logger = logging.getLogger('pipeline_log')
 
