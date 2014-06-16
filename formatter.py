@@ -286,7 +286,7 @@ def main(results, file_details, process_date, thisday):
 
     new_results = []
     for i, story in enumerate(list(results)):
-        content = story['content'].encode('utf-8')
+        content = story['content']
         formatted_content = format_content(content)
         story['content'] = ' '.join([sent for sent in formatted_content if
                                      sent[0] != '"'])
