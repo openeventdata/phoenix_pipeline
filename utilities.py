@@ -1,6 +1,12 @@
+from __future__ import print_function
+from __future__ import unicode_literals
 import logging
-from configparser import ConfigParser
 from collections import namedtuple
+
+try:
+    from ConfigParser import ConfigParser
+except ImportError:
+    from configparser import ConfigParser
 
 global logger
 

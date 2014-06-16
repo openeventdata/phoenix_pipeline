@@ -1,6 +1,9 @@
 # Code for tagging temporal expressions in text
 # For details of the TIMEX format, see http://timex2.mitre.org/
 
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import re
 import string
 import os
