@@ -1,5 +1,5 @@
 import logging
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from collections import namedtuple
 
 global logger
@@ -52,7 +52,7 @@ def parse_config(config_filename):
 
         return server_list, file_list
     except Exception as e:
-        print 'There was an error. Check the log file for more information.'
+        print('There was an error. Check the log file for more information.')
         logger.warning('Problem parsing config file. {}'.format(e))
 
 
@@ -79,6 +79,6 @@ def do_RuntimeError(st1, filename='', st2=''):
     appears to propagate out to the calling program, which can deal with it.
     """
     logger = logging.getLogger('pipeline_log')
-    print st1, filename, st2
+    print(st1, filename, st2)
     logger.error(st1 + ' ' + filename + ' ' + st2 + '\n')
     raise RuntimeError(st1 + ' ' + filename + ' ' + st2)

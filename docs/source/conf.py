@@ -47,8 +47,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Phoenix Pipeline'
-copyright = u'2014, Open Event Data Alliance'
+project = 'Phoenix Pipeline'
+copyright = '2014, Open Event Data Alliance'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -200,8 +200,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'PhoenixPipeline.tex', u'Phoenix Pipeline Documentation',
-   u'Open Event Data Alliance', 'manual'),
+  ('index', 'PhoenixPipeline.tex', 'Phoenix Pipeline Documentation',
+   'Open Event Data Alliance', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -230,8 +230,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'phoenixpipeline', u'Phoenix Pipeline Documentation',
-     [u'Open Event Data Alliance'], 1)
+    ('index', 'phoenixpipeline', 'Phoenix Pipeline Documentation',
+     ['Open Event Data Alliance'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -244,8 +244,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'PhoenixPipeline', u'Phoenix Pipeline Documentation',
-   u'Open Event Data Alliance', 'PhoenixPipeline', 'One line description of project.',
+  ('index', 'PhoenixPipeline', 'Phoenix Pipeline Documentation',
+   'Open Event Data Alliance', 'PhoenixPipeline', 'One line description of project.',
    'Miscellaneous'),
 ]
 

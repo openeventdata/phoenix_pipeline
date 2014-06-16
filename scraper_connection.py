@@ -81,14 +81,14 @@ def query_all(collection, lt_date, gt_date, sources, write_file=False):
                                                    post['url'], header)
                 output.append(string)
             except Exception as e:
-                print 'Error on entry {}: {}.'.format(num, e)
+                print('Error on entry {}: {}.'.format(num, e))
         final_out = '\n'.join(output)
 
     posts = collection.find({"$and": [{"date_added": {"$lte": lt_date}},
                                       {"date_added": {"$gt": gt_date}},
                                       {"source": {"$in": sources}}]})
 
-    print 'Total number of stories: {}'.format(posts.count())
+    print('Total number of stories: {}'.format(posts.count()))
     logger.info('Total number of stories: {}'.format(posts.count()))
 
     posts = list(posts)
@@ -158,10 +158,10 @@ def main(current_date, write_file=False, file_stem=None):
             with codecs.open(filename, 'w', encoding='utf-8') as f:
                 f.write(text)
         else:
-            print 'Need filestem to write results to file.'
+            print('Need filestem to write results to file.')
 
     return results, filename
 
 if __name__ == '__main__':
-    print 'Running...'
+    print('Running...')
     main('temp_stem.', 'YYMMDD')

@@ -49,7 +49,7 @@ def filter_events(results):
                 filter_dict[event_tuple] = {'issues': Counter(), 'ids': ids,
                                             'sources': [source], 'urls': [url]}
                 if issues:
-                    print issues
+                    print(issues)
                     issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
                                                             for issue_str in
                                                             issues]]
@@ -102,14 +102,14 @@ def create_strings(events):
 
         if 'issues' in events[event]:
             iss = events[event]['issues']
-            issues = ['{},{}'.format(k, v) for k, v in iss.iteritems()]
+            issues = ['{},{}'.format(k, v) for k, v in iss.items()]
             joined_issues = ';'.join(issues)
         else:
             joined_issues = []
 
-        print 'Event: {}\t{}\t{}\t{}\t{}\t{}'.format(story_date, src,
+        print('Event: {}\t{}\t{}\t{}\t{}\t{}'.format(story_date, src,
                                                      target, code, ids,
-                                                     sources)
+                                                     sources))
         event_str = '{}\t{}\t{}\t{}'.format(story_date,
                                             src,
                                             target,
@@ -156,4 +156,4 @@ def main(results, this_date, server_list, file_details):
     with open(filename, 'w') as f:
         f.write(event_write)
 
-    print "Finished"
+    print("Finished")
