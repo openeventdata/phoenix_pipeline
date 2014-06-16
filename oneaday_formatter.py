@@ -118,7 +118,7 @@ def create_strings(events):
         if joined_issues:
             event_str += '\t{}'.format(joined_issues)
         else:
-            event_str += '\t\t'
+            event_str += '\t'
 
         event_str += '\t{}\t{}\t{}'.format(ids, urls, sources)
         event_output.append(event_str)
