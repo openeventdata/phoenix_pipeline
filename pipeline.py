@@ -11,7 +11,7 @@ import scraper_connection
 from petrarch import petrarch
 
 
-def main(run_filter=None):
+def main(logger_file, run_filter=None):
     utilities.init_logger('PHOX_pipeline.log')
     # get a local copy for the pipeline
     logger = logging.getLogger('pipeline_log')
@@ -80,4 +80,4 @@ if __name__ == '__main__':
     # initialize the various utilities globals
     server_details, file_details = utilities.parse_config('PHOX_config.ini')
 
-    main(run_filter=file_details.oneaday_filter)
+    main(file_details.log_file, run_filter=file_details.oneaday_filter)

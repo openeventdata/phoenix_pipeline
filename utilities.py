@@ -21,8 +21,7 @@ def parse_config(config_filename):
     parser = ConfigParser()
     parser.read(config_filename)
 
-    logger = logging.getLogger('pipeline_log')
-    logger.info('Found a config file in working directory')
+    print('Found a config file in working directory')
     try:
         serv_name = parser.get('Server', 'server_name')
         username = parser.get('Server', 'username')
@@ -44,6 +43,10 @@ def parse_config(config_filename):
         dupfile_stem = parser.get('Pipeline', 'dupfile_stem')
         outputfile_stem = parser.get('Pipeline', 'outputfile_stem')
         oneaday_filter = parser.get('Pipeline', 'oneaday_filter')
+        if 'Logging' in parser.sections():
+            log_file = parser.get('Logging', 'log_file')
+        else:
+            log_file = ''
 
         file_attrs = namedtuple('FileAttributes', ['scraper_stem',
                                                    'recordfile_stem',
@@ -51,15 +54,16 @@ def parse_config(config_filename):
                                                    'eventfile_stem',
                                                    'dupfile_stem',
                                                    'outputfile_stem',
-                                                   'oneaday_filter'])
+                                                   'oneaday_filter',
+                                                   'log_file'])
+
         file_list = file_attrs(scraper_stem, recordfile_stem, fullfile_stem,
                                eventfile_stem, dupfile_stem, outputfile_stem,
-                               oneaday_filter)
+                               oneaday_filter, log_file)
 
         return server_list, file_list
     except Exception as e:
-        print('There was an error. Check the log file for more information.')
-        logger.warning('Problem parsing config file. {}'.format(e))
+        print('Problem parsing config file. {}'.format(e))
 
 
 def init_logger(logger_filename):
