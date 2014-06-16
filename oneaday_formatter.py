@@ -51,7 +51,6 @@ def filter_events(results):
                 filter_dict[event_tuple] = {'issues': Counter(), 'ids': ids,
                                             'sources': [source], 'urls': [url]}
                 if issues:
-                    print(issues)
                     issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
                                                             for issue_str in
                                                             issues]]
