@@ -46,7 +46,6 @@ def main(logger_file=None, run_filter=None):
                                process_date, date_string)
 
     logger.info("Running PETRARCH")
-    print("Running PETRARCH")
     file_details.fullfile_stem + date_string
     if run_filter == 'False':
         print('Running PETRARCH and writing to a file. No one-a-day.')
@@ -70,10 +69,9 @@ def main(logger_file=None, run_filter=None):
         oneaday_formatter.main(petr_results, date_string, server_details,
                                file_details)
 
-#Dis broke for now.
-#    logger.info("Running phox_uploader.py")
-#    print "Running phox_uploader.py"
-#    uploader.main(results, date_string, server_details, file_details)
+    logger.info("Running phox_uploader.py")
+    print("Running phox_uploader.py")
+    uploader.main(date_string, server_details, file_details)
 
     logger.info('PHOX.pipeline end')
     print('PHOX.pipeline end:', datetime.datetime.utcnow())
