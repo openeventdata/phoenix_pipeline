@@ -16,17 +16,17 @@ def store_zipped_file(filename, dirname, connection):
     """
     logger = logging.getLogger('pipeline_log')
     filezip = filename + '.zip'
-    #try:
-    with ZipFile(filezip, 'w') as f_zip:
-        f_zip.write(filename)
-    # change into subdirectory
-    connection.cwd(dirname)
-    connection.storbinary("STOR " + filezip, open(filezip))
-    # back out
-    connection.cwd('..')
-#    except:
-#        logger.warning('Store of {} unsuccessful'.format(filezip))
-#        utilities.do_RuntimeError('Store of', filename, '.zip unsuccessful')
+    try:
+        with ZipFile(filezip, 'w') as f_zip:
+            f_zip.write(filename)
+        # change into subdirectory
+        connection.cwd(dirname)
+        connection.storbinary("STOR " + filezip, open(filezip))
+        # back out
+        connection.cwd('..')
+    except:
+        logger.warning('Store of {} unsuccessful'.format(filezip))
+        utilities.do_RuntimeError('Store of', filename, '.zip unsuccessful')
 
 
 def get_zipped_file(filename, dirname, connection):
@@ -80,14 +80,14 @@ def main(datestr, server_info, file_info):
         utilities.do_RuntimeError('Login to {} unsuccessful.'.format(server_info.serv_name))
 
     # upload the daily event and duplicate index files
-#    try:
-    eventfilename = '{}{}.txt'.format(file_info.eventfile_stem, datestr)
-    store_zipped_file(eventfilename, 'Daily', ftp)
-#    except Exception as e:
-#        filezip = eventfilename + '.zip'
-#        logger.warning('Store of {} unsuccessful'.format(filezip))
-#        utilities.do_RuntimeError('Transfer of', eventfilename,
-#                                  'unsuccessful')
+    try:
+        eventfilename = '{}{}.txt'.format(file_info.eventfile_stem, datestr)
+        store_zipped_file(eventfilename, 'Daily', ftp)
+    except Exception as e:
+        filezip = eventfilename + '.zip'
+        logger.warning('Store of {} unsuccessful'.format(filezip))
+        utilities.do_RuntimeError('Transfer of', eventfilename,
+                                  'unsuccessful')
 
 #We don't have these files right now.
 #    try:
