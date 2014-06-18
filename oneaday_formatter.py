@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
+import io
 import logging
 from collections import Counter
 
@@ -156,7 +157,7 @@ def main(results, this_date, server_list, file_details):
 
     logger.info('Writing event output.')
     filename = '{}{}.txt'.format(file_details.fullfile_stem, this_date)
-    with open(filename, 'w') as f:
+    with io.open(filename, 'w', encoding='utf-8') as f:
         f.write(event_write)
 
     print("Finished")
