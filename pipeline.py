@@ -52,12 +52,13 @@ def main(logger_file=None, run_filter=None):
         logger.info('Running PETRARCH and writing to a file. No one-a-day.')
         petrarch.run_pipeline(formatted,
                               '{}{}.txt'.format(file_details.fullfile_stem,
-                                                date_string))
+                                                date_string), parsed=True)
         results = ''
     elif run_filter == 'True':
         print('Running PETRARCH and returning output.')
         logger.info('Running PETRARCH and returning output.')
-        petr_results = petrarch.run_pipeline(formatted, write_output=False)
+        petr_results = petrarch.run_pipeline(formatted, write_output=False,
+                                             parsed=True)
     else:
         print("Can't run with the options you've specified. You need to fix something.")
         logger.warning("Can't run with the options you've specified. Exiting.")
