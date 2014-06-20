@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import io
 import logging
+import geolocation
 from collections import Counter
 
 
@@ -109,6 +110,11 @@ def create_strings(events):
         else:
             joined_issues = []
 
+        if 'geo' in events[event]:
+            lat, lon = events[event]['geo']
+        else:
+            lat, lon = '', ''
+
         print('Event: {}\t{}\t{}\t{}\t{}\t{}'.format(story_date, src,
                                                      target, code, ids,
                                                      sources))
@@ -120,6 +126,11 @@ def create_strings(events):
             event_str += '\t{}'.format(joined_issues)
         else:
             event_str += '\t'
+
+        if lat and lon:
+            event_str += '\t{}\t{}'.format(lat, lon)
+        else:
+            event_str += '\t\t'
 
         event_str += '\t{}\t{}\t{}'.format(ids, urls, sources)
         event_output.append(event_str)
@@ -153,7 +164,8 @@ def main(results, this_date, server_list, file_details):
 
     logger.info('Applying one-a-day filter.')
     filtered = filter_events(results)
-    event_write = create_strings(filtered)
+    updated_events = geolocation.main(filtered)
+    event_write = create_strings(updated_events)
 
     logger.info('Writing event output.')
     filename = '{}{}.txt'.format(file_details.fullfile_stem, this_date)
