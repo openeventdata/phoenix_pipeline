@@ -1,27 +1,10 @@
 from __future__ import print_function
 from __future__ import unicode_literals
+import utilities
 import nltk.data
 import datetime
 import logging
 import codecs
-from pymongo import MongoClient
-
-
-def make_conn():
-    """
-    Function to establish a connection to a local MonoDB instance.
-
-    Returns
-    -------
-
-    collection: pymongo.collection.Collection.
-                Collection within MongoDB that holds the scraped news stories.
-
-    """
-    client = MongoClient()
-    database = client.event_scrape
-    collection = database['stories']
-    return collection
 
 
 def query_all(collection, lt_date, gt_date, sources, write_file=False):
@@ -138,7 +121,7 @@ def main(current_date, write_file=False, file_stem=None):
 
     """
     sources = get_sources('source_keys.txt')
-    conn = make_conn()
+    conn = utilities.make_conn()
 
     less_than = datetime.datetime(current_date.year, current_date.month,
                                   current_date.day)
