@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from __future__ import print_function
 import json
 import requests
 import utilities
@@ -28,9 +30,18 @@ def query_geotext(sentence):
     q = "http://geotxt.org/api/1/geotxt.json?m=stanfords&q={}".format(sentence)
 
     query_out = requests.get(q)
-    geo_results = json.loads(query_out.content)
+    try:
+        geo_results = json.loads(query_out.content)
+    except Exception as e:
+        print('There was an error: {}. Status code: {}'.format(e,
+                                                               query_out.status_code))
+        geo_results = {'features': []}
+
     if geo_results['features']:
-        lat, lon = geo_results['features'][0]['geometry']['coordinates']
+        try:
+            lat, lon = geo_results['features'][0]['geometry']['coordinates']
+        except Exception as e:
+            lat, long = '', ''
     else:
         lat, lon = '', ''
 
@@ -65,7 +76,8 @@ def main(events):
         result = coll.find_one({'_id': ObjectId(event_id.split('_')[0])})
         sents = utilities.sentence_segmenter(result['content'])
 
-        query_text = sents[sentence_id]
+        query_text = sents[int(sentence_id)]
+        print('Hitting geolocation for {}'.format(event))
         lat, lon = query_geotext(query_text)
         if lat and lon:
             events[event]['geo'] = (lat, lon)
@@ -74,4 +86,4 @@ def main(events):
 
 
 if __name__ == '__main__':
-    print 'Not designed to be run as a stand-alone script.'
+    print('Not designed to be run as a stand-alone script.')
