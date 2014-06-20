@@ -77,7 +77,6 @@ def main(events):
         sents = utilities.sentence_segmenter(result['content'])
 
         query_text = sents[int(sentence_id)]
-        print('Hitting geolocation for {}'.format(event))
         lat, lon = query_geotext(query_text)
         if lat and lon:
             events[event]['geo'] = (lat, lon)
