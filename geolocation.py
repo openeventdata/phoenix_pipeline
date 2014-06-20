@@ -41,7 +41,7 @@ def query_geotext(sentence):
         try:
             lat, lon = geo_results['features'][0]['geometry']['coordinates']
         except Exception as e:
-            lat, long = '', ''
+            lat, lon = '', ''
     else:
         lat, lon = '', ''
 
