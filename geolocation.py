@@ -1,7 +1,6 @@
-import scraper_connection
-import formatter
-import requests
 import json
+import requests
+import utilities
 from bson.objectid import ObjectId
 
 
@@ -59,12 +58,12 @@ def main(events):
             Same as in the parameter but with the addition of a value that is
             a tuple of the form (LAT, LON).
     """
-    coll = scraper_connection.make_conn()
+    coll = utilities.make_conn()
 
     for event in events:
         event_id, sentence_id = events[event]['ids'][0].split('_')
         result = coll.find_one({'_id': ObjectId(event_id.split('_')[0])})
-        sents = formatter.sentence_segmenter(result['content'])
+        sents = utilities.sentence_segmenter(result['content'])
 
         query_text = sents[sentence_id]
         lat, lon = query_geotext(query_text)
