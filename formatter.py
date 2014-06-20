@@ -200,7 +200,13 @@ def main(results, file_details, process_date, thisday):
         story['content'] = ' '.join([sent for sent in formatted_content if
                                      sent[0] != '"'])
 
-        story['date'] = get_date(story, process_date)
+        try:
+            story['date'] = get_date(story, process_date)
+        except ValueError:
+            now = datetime.datetime.utcnow()
+            date = '{}{:02d}{:02d}'.format(str(now.year)[2:],
+                                           now.month, now.day)
+            story['date'] = date
 
         source = story['source']
         sourcecount[source] += 1
