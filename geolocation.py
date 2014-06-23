@@ -39,13 +39,14 @@ def query_geotext(sentence):
 
     if geo_results['features']:
         try:
-            lat, lon = geo_results['features'][0]['geometry']['coordinates']
+            lon, lat = geo_results['features'][0]['geometry']['coordinates']
+            name = geo_results['features'][0]['properties']['toponym']
         except Exception as e:
-            lat, lon = '', ''
+            lon, lat, name = '', '', ''
     else:
-        lat, lon = '', ''
+        lon, lat, name = '', '', ''
 
-    return lat, lon
+    return lon, lat, name
 
 
 def main(events):
@@ -77,9 +78,9 @@ def main(events):
         sents = utilities.sentence_segmenter(result['content'])
 
         query_text = sents[int(sentence_id)]
-        lat, lon = query_geotext(query_text)
+        lon, lat, name = query_geotext(query_text)
         if lat and lon:
-            events[event]['geo'] = (lat, lon)
+            events[event]['geo'] = (lon, lat, name)
 
     return events
 
