@@ -111,9 +111,9 @@ def create_strings(events):
             joined_issues = []
 
         if 'geo' in events[event]:
-            lat, lon = events[event]['geo']
+            lon, lat, name = events[event]['geo']
         else:
-            lat, lon = '', ''
+            lon, lat, name = '', '', ''
 
         print('Event: {}\t{}\t{}\t{}\t{}\t{}'.format(story_date, src,
                                                      target, code, ids,
@@ -127,10 +127,10 @@ def create_strings(events):
         else:
             event_str += '\t'
 
-        if lat and lon:
-            event_str += '\t{}\t{}'.format(lat, lon)
+        if lat and lon and name:
+            event_str += '\t{}\t{}\t{}'.format(lat, lon, name)
         else:
-            event_str += '\t\t'
+            event_str += '\t\t\t'
 
         event_str += '\t{}\t{}\t{}'.format(ids, urls, sources)
         event_output.append(event_str)
