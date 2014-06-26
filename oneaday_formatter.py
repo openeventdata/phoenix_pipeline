@@ -92,8 +92,13 @@ def create_strings(events):
                     delimiter.
     """
     event_output = []
+    with open('counter.txt', 'r') as f:
+        id_count = int(f.read().replace('\n', ''))
 
     for event in events:
+        formatted = split_process(event)
+        formatted_date, year, month, day = formatted[:4]
+        root_code, quad_class = formatted[4:]
         story_date = event[0]
         src = event[1]
         target = event[2]
@@ -118,10 +123,14 @@ def create_strings(events):
         print('Event: {}\t{}\t{}\t{}\t{}\t{}'.format(story_date, src,
                                                      target, code, ids,
                                                      sources))
-        event_str = '{}\t{}\t{}\t{}'.format(story_date,
-                                            src,
-                                            target,
-                                            code)
+        event_str = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(id_count,
+                                                            story_date,
+                                                            formatted_date,
+                                                            year, month, day,
+                                                            src, target)
+
+        event_str += '\t{}\t{}\t{}'.format(code, root_code, quad_class)
+
         if joined_issues:
             event_str += '\t{}'.format(joined_issues)
         else:
@@ -135,8 +144,49 @@ def create_strings(events):
         event_str += '\t{}\t{}\t{}'.format(ids, urls, sources)
         event_output.append(event_str)
 
+        id_count += 1
+
     event_strings = '\n'.join(event_output)
+
+    with open('counter.txt', 'w') as f:
+        f.write(id_count)
+
     return event_strings
+
+
+def split_process(event):
+    """
+    Splits out the CAMEO code, provides a conversion to the quad class,
+    provides a formatted date.
+
+    Parameters
+    ----------
+
+    event: Tuple.
+            (DATE, SOURCE, TARGET, EVENT) format.
+
+    Returns
+    -------
+
+    formatted: Tuple.
+                Tuple of the form
+                (year, month, day, formatted_date, root_code, event_quad).
+    """
+
+    year = event[0][:5]
+    month = event[0][5:7]
+    day = event[0][7:]
+    formatted_date = '{}-{}-{}'.format(year, month, day)
+    quad_conversion = {'01': '0', '02': '0', '03': '1', '04': '1', '05': '1',
+                       '06': '2', '07': '2', '08': '2', '09': '3', '10': '3',
+                       '11': '3', '12': '3', '13': '3', '14': '4', '15': '4',
+                       '16': '3', '17': '4', '18': '4', '19': '4', '20': '4'}
+    root_code = event[3][:2]
+    event_quad = quad_conversion[root_code]
+
+    formatted = (formatted_date, year, month, day, root_code, event_quad)
+
+    return formatted
 
 
 def main(results, this_date, server_list, file_details):
