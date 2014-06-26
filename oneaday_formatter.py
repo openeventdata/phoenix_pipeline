@@ -173,9 +173,9 @@ def split_process(event):
                 (year, month, day, formatted_date, root_code, event_quad).
     """
 
-    year = event[0][:5]
-    month = event[0][5:7]
-    day = event[0][7:]
+    year = event[0][:4]
+    month = event[0][4:6]
+    day = event[0][6:]
     formatted_date = '{}-{}-{}'.format(year, month, day)
     quad_conversion = {'01': '0', '02': '0', '03': '1', '04': '1', '05': '1',
                        '06': '2', '07': '2', '08': '2', '09': '3', '10': '3',
