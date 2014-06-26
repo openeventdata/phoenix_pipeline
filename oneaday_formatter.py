@@ -149,7 +149,7 @@ def create_strings(events):
     event_strings = '\n'.join(event_output)
 
     with open('counter.txt', 'w') as f:
-        f.write(id_count)
+        f.write(str(id_count))
 
     return event_strings
 
