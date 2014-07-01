@@ -11,7 +11,7 @@ import scraper_connection
 from petrarch import petrarch
 
 
-def main(logger_file=None, run_filter=None):
+def main(file_details, server_details, logger_file=None, run_filter=None):
     if logger_file:
         utilities.init_logger(logger_file)
     else:
@@ -34,7 +34,8 @@ def main(logger_file=None, run_filter=None):
         logger.info('Date string: {}'.format(date_string))
         print('Date string:', date_string)
 
-    results, scraperfilename = scraper_connection.main(process_date)
+    results, scraperfilename = scraper_connection.main(process_date,
+                                                       file_details)
 
     if scraperfilename:
         logger.info("Scraper file name: " + scraperfilename)
@@ -82,4 +83,5 @@ if __name__ == '__main__':
     # initialize the various utilities globals
     server_details, file_details = utilities.parse_config('PHOX_config.ini')
 
-    main(file_details.log_file, run_filter=file_details.oneaday_filter)
+    main(file_details, server_details, file_details.log_file,
+         run_filter=file_details.oneaday_filter)

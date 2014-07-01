@@ -49,7 +49,7 @@ def query_geotext(sentence):
     return lon, lat, name
 
 
-def main(events):
+def main(events, file_details):
     """
     Pulls out a database ID and runs the ``query_geotext`` function to hit the
     GeoVista Center's GeoText API and find location information within the
@@ -70,7 +70,8 @@ def main(events):
             Same as in the parameter but with the addition of a value that is
             a tuple of the form (LAT, LON).
     """
-    coll = utilities.make_conn()
+    conn = utilities.make_conn(file_details.auth_db, file_details.auth_user,
+                               file_details.auth_pass)
 
     for event in events:
         event_id, sentence_id = events[event]['ids'][0].split('_')
