@@ -214,7 +214,7 @@ def main(results, this_date, server_list, file_details):
 
     logger.info('Applying one-a-day filter.')
     filtered = filter_events(results)
-    updated_events = geolocation.main(filtered)
+    updated_events = geolocation.main(filtered, file_details)
     event_write = create_strings(updated_events)
 
     logger.info('Writing event output.')

@@ -45,6 +45,14 @@ def parse_config(config_filename):
         dupfile_stem = parser.get('Pipeline', 'dupfile_stem')
         outputfile_stem = parser.get('Pipeline', 'outputfile_stem')
         oneaday_filter = parser.get('Pipeline', 'oneaday_filter')
+        if 'Auth' in parser.sections():
+            auth_db = parser.get('Auth', 'log_file')
+            auth_user = parser.get('Auth', 'auth_user')
+            auth_pass = parser.get('Auth', 'auth_pass')
+        else:
+            auth_db = ''
+            auth_user = ''
+            auth_pass = ''
         if 'Logging' in parser.sections():
             log_file = parser.get('Logging', 'log_file')
         else:
@@ -57,11 +65,15 @@ def parse_config(config_filename):
                                                    'dupfile_stem',
                                                    'outputfile_stem',
                                                    'oneaday_filter',
-                                                   'log_file'])
+                                                   'log_file',
+                                                   'auth_db',
+                                                   'auth_user',
+                                                   'auth_pass'])
 
         file_list = file_attrs(scraper_stem, recordfile_stem, fullfile_stem,
                                eventfile_stem, dupfile_stem, outputfile_stem,
-                               oneaday_filter, log_file)
+                               oneaday_filter, log_file, auth_db, auth_user,
+                               auth_pass)
 
         return server_list, file_list
     except Exception as e:
@@ -96,7 +108,7 @@ def do_RuntimeError(st1, filename='', st2=''):
     raise RuntimeError(st1 + ' ' + filename + ' ' + st2)
 
 
-def make_conn():
+def make_conn(db_auth, db_user, db_pass):
     """
     Function to establish a connection to a local MonoDB instance.
 
@@ -108,6 +120,8 @@ def make_conn():
 
     """
     client = MongoClient()
+    if db_auth:
+        client[db_auth].authenticate(db_user, db_pass)
     database = client.event_scrape
     collection = database['stories']
     return collection

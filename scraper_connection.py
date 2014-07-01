@@ -87,7 +87,7 @@ def get_sources(filepath):
     return sources
 
 
-def main(current_date, write_file=False, file_stem=None):
+def main(current_date, file_details, write_file=False, file_stem=None):
     """
     Function to create a connection to a MongoDB instance, query for a given
     day's results, optionally write the results to a file, and return the
@@ -121,7 +121,8 @@ def main(current_date, write_file=False, file_stem=None):
 
     """
     sources = get_sources('source_keys.txt')
-    conn = utilities.make_conn()
+    conn = utilities.make_conn(file_details.auth_db, file_details.auth_user,
+                               file_details.auth_pass)
 
     less_than = datetime.datetime(current_date.year, current_date.month,
                                   current_date.day)
