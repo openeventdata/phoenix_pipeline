@@ -308,55 +308,51 @@ def process_actors(event):
     sauce = event[1]
     targ = event[2]
 
-    if sauce[:3] in (countries or root_actors):
+    if sauce[:3] in countries or sauce[:3] in root_actors:
         sauce_root = sauce[:3]
     else:
         sauce_root = ''
 
-    has_primary_sauce = False
     if sauce[3:6] in primary_agent:
-        has_primary_sauce = True
         sauce_agent = sauce[3:6]
     else:
         sauce_agent = ''
 
-    if len(sauce) > 6:
-        if len(sauce) == 9:
-            sauce_others = sauce[6:10]
+    sauce_others = ''
+    if len(sauce) > 3:
+        if sauce_agent:
+            start = 6
+            length = len(sauce[6:])
         else:
-            sauce_others = ''
-            if has_primary_sauce:
-                length = len(sauce[6:])
-            else:
-                length = sauce[3:]
-            for i in range(0, length, 3):
-                sauce_others += sauce[i:i + 3] + ';'
-            sauce_others = sauce_others[:-1]
+            start = 3
+            length = len(sauce[3:])
 
-    if targ[:3] in (countries or root_actors):
+        for i in range(start, start + length, 3):
+            sauce_others += sauce[i:i + 3] + ';'
+        sauce_others = sauce_others[:-1]
+
+    if targ[:3] in countries or targ[:3] in root_actors:
         targ_root = targ[:3]
     else:
         targ_root = ''
 
-    has_primary_targ = False
     if targ[3:6] in primary_agent:
-        has_primary_targ = True
         targ_agent = targ[3:6]
     else:
-        targ_root = ''
+        targ_agent = ''
 
-    if len(targ) > 6:
-        if len(targ) == 9:
-            targ_others = targ[6:10]
+    targ_others = ''
+    if len(targ) > 3:
+        if targ_agent:
+            start = 6
+            length = len(targ[6:])
         else:
-            targ_others = ''
-            if has_primary_targ:
-                length = len(targ[6:])
-            else:
-                length = targ[3:]
-            for i in range(0, length, 3):
-                targ_others += targ[i:i + 3] + ';'
-            targ_others = targ_others[:-1]
+            start = 3
+            length = len(targ[3:])
+
+        for i in range(start, start + length, 3):
+            targ_others += targ[i:i + 3] + ';'
+        targ_others = targ_others[:-1]
 
     actors = (sauce, sauce_root, sauce_agent, sauce_others, targ, targ_root,
               targ_agent, targ_others)
