@@ -190,14 +190,14 @@ def process_cameo(event):
                        '16': '3', '17': '4', '18': '4', '19': '4', '20': '4'}
     #Goldstein values pulled from
     #http://eventdata.parusanalytics.com/cameo.dir/CAMEO.SCALE.txt
-    goldstein_scale = {'01': 0.0, '010': 0.0, '011': -0.1, '012': -0.4,
+    goldstein_scale = {'01': 0.0, '010': 0.0, '011': -0.1, '0110': -0.1, '012': -0.4,
                        '013': 0.4, '014': 0.0, '015': 0.0, '016': 3.4,
                        '017': 0.0, '018': 3.4, '02': 3.0, '020': 3.0,
-                       '021': 3.4, '0211': 3.4, '0212': 3.4, '022': 3.4,
+                       '021': 3.4, '0211': 3.4, '0212': 3.4, '0213': 3.4, '0214' : 3.4, '022': 3.4,
                        '023': 3.4, '0231': 3.4, '0232': 3.4, '0233': 3.4,
                        '0234': 3.4, '024': -0.3, '0241': -0.3,
                        '0242': -0.3, '0243': -0.3, '0244': -0.3,
-                       '025': -0.3, '026': 4.0, '027': 4.0, '028': 4.0,
+                       '025': -0.3, '0253': -0.3, '026': 4.0, '027': 4.0, '028': 4.0,
                        '03': 4.0, '030': 4.0, '031': 5.2, '0311': 5.2,
                        '0312': 5.2, '032': 4.5, '033': 5.2, '0331': 5.2,
                        '0332': 5.2, '0333': 5.2, '0334': 6.0, '034': 7.0,
@@ -221,9 +221,9 @@ def process_cameo(event):
                        '0871': 9.0, '0872': 9.0, '0873': 9.0, '0874': 10.0,
                        '09': -2.0, '090': -2.0, '091': -2.0, '092': -2.0,
                        '093': -2.0, '094': -2.0, '10': -5.0, '100': -5.0,
-                       '101': -5.0, '102': -5.0, '103': -5.0, '104': -5.0,
+                       '101': -5.0, '1014': -5.0, '102': -5.0, '103': -5.0, '104': -5.0,
                        '1041': -5.0, '1042': -5.0, '1043': -5.0,
-                       '1044': -5.0, '105': -5.0, '106': -5.0, '107': -5.0,
+                       '1044': -5.0, '105': -5.0, '1056': -5.0, '106': -5.0, '107': -5.0,
                        '108': -5.0, '11': -2.0, '110': -2.0, '111': -2.0,
                        '112': -2.0, '1121': -2.0, '1122': -2.0,
                        '1123': -2.0, '1124': -2.0, '1125': -2.0,
@@ -265,7 +265,10 @@ def process_cameo(event):
 
     root_code = event[3][:2]
     event_quad = quad_conversion[root_code]
-    goldstein = goldstein_scale[event[3]]
+    try:
+        goldstein = goldstein_scale[event[3]]
+    except KeyError:
+        print('\nMissing Goldstein Value: {}'.format(event[3]))
 
     return root_code, event_quad, goldstein
 
@@ -307,31 +310,51 @@ def process_actors(event):
 
     if sauce[:3] in (countries or root_actors):
         sauce_root = sauce[:3]
+    else:
+        sauce_root = ''
 
+    has_primary_sauce = False
     if sauce[3:6] in primary_agent:
+        has_primary_sauce = True
         sauce_agent = sauce[3:6]
+    else:
+        sauce_agent = ''
 
     if len(sauce) > 6:
         if len(sauce) == 9:
             sauce_others = sauce[6:10]
         else:
             sauce_others = ''
-            for i in range(0, len(sauce[6:]), 3):
+            if has_primary_sauce:
+                length = len(sauce[6:])
+            else:
+                length = sauce[3:]
+            for i in range(0, length, 3):
                 sauce_others += sauce[i:i + 3] + ';'
             sauce_others = sauce_others[:-1]
 
     if targ[:3] in (countries or root_actors):
         targ_root = targ[:3]
+    else:
+        targ_root = ''
 
+    has_primary_targ = False
     if targ[3:6] in primary_agent:
+        has_primary_targ = True
         targ_agent = targ[3:6]
+    else:
+        targ_root = ''
 
     if len(targ) > 6:
         if len(targ) == 9:
             targ_others = targ[6:10]
         else:
             targ_others = ''
-            for i in range(0, len(targ[6:]), 3):
+            if has_primary_targ:
+                length = len(targ[6:])
+            else:
+                length = targ[3:]
+            for i in range(0, length, 3):
                 targ_others += targ[i:i + 3] + ';'
             targ_others = targ_others[:-1]
 
