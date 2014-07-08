@@ -12,6 +12,28 @@ from petrarch import petrarch
 
 
 def main(file_details, server_details, logger_file=None, run_filter=None):
+    """
+    Main function to run all the things.
+
+    Parameters
+    ----------
+
+    file_details: Named tuple.
+                    All the other config information not in ``server_details``.
+
+    server_details: Named tuple.
+                    Config information specifically related to the remote
+                    server for FTP uploading.
+
+    logger_file: String.
+                    Path to a log file. Defaults to ``None`` and opens a
+                    ``PHOX_pipeline.log`` file in the current working
+                    directory.
+
+    run_filter: String.
+                Whether to run the ``oneaday_formatter``. Takes True or False
+                (strings) as values.
+    """
     if logger_file:
         utilities.init_logger(logger_file)
     else:

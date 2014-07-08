@@ -15,10 +15,23 @@ global logger
 
 def parse_config(config_filename):
     """
-    Parse config_filename and put the resulting ftp directory information in
-    Server_List and the various file name stems in the named globals. This is
-    called once at the beginning of the pipeline to extract the information,
-    afterwhich the various routines use phox_utilities.<var>.
+    Parse the config file and return relevant information.
+
+    Parameters
+    ----------
+
+    config_filename: String.
+                        Path to config file.
+
+    Returns
+    -------
+
+    server_list: Named tuple.
+                    Config information specifically related to the remote
+                    server for FTP uploading.
+
+    file_list: Named tuple.
+                All the other config information not in ``server_list``.
     """
     parser = ConfigParser()
     parser.read(config_filename)
@@ -81,6 +94,15 @@ def parse_config(config_filename):
 
 
 def init_logger(logger_filename):
+    """
+    Initialize a log file.
+
+    Parameters
+    ----------
+
+    logger_filename: String.
+                        Path to the log file.
+    """
 
     logger = logging.getLogger('pipeline_log')
     logger.setLevel(logging.INFO)
@@ -111,6 +133,19 @@ def do_RuntimeError(st1, filename='', st2=''):
 def make_conn(db_auth, db_user, db_pass):
     """
     Function to establish a connection to a local MonoDB instance.
+
+
+    Parameters
+    ----------
+
+    db_auth: String.
+                MongoDB database that should be used for user authentication.
+
+    db_user: String.
+                Username for MongoDB authentication.
+
+    db_user: String.
+                Password for MongoDB authentication.
 
     Returns
     -------

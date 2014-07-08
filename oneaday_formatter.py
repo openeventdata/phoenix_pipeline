@@ -155,8 +155,8 @@ def create_strings(events):
 
 def split_process(event):
     """
-    Splits out the CAMEO code, provides a conversion to the quad class,
-    provides a formatted date.
+    Splits out the CAMEO code and actor information along with providing
+    conversions between CAMEO codes and quad class and Goldstein values.
 
     Parameters
     ----------
@@ -170,6 +170,14 @@ def split_process(event):
     formatted: Tuple.
                 Tuple of the form
                 (year, month, day, formatted_date, root_code, event_quad).
+
+    actors: Tuple.
+            Tuple containing actor information. Format is
+            (source, source_root, source_agent, source_others, target,
+            target_root, target_agent, target_others). Root is either
+            a country code or one of IGO, NGO, IMG, or MNC. Agent is
+            one of GOV, MIL, REB, OPP, PTY, COP, JUD, SPY, MED, EDU, BUS, CRM,
+            or CVL. The ``others`` contains all other actor or agent codes.
     """
 
     year = event[0][:4]
@@ -184,10 +192,33 @@ def split_process(event):
 
 
 def process_cameo(event):
-    quad_conversion = {'01': '0', '02': '0', '03': '1', '04': '1', '05': '1',
-                       '06': '2', '07': '2', '08': '2', '09': '3', '10': '3',
-                       '11': '3', '12': '3', '13': '3', '14': '4', '15': '4',
-                       '16': '3', '17': '4', '18': '4', '19': '4', '20': '4'}
+    """
+    Provides the "root" CAMEO event, a Goldstein value for the full CAMEO code,
+    and a quad class value.
+
+    Parameters
+    ----------
+
+    event: Tuple.
+            (DATE, SOURCE, TARGET, EVENT) format.
+
+    Returns
+    -------
+
+    root_code: String.
+                First two digits of a CAMEO code. Single-digit codes have
+                leading zeros, hence the string format rather than
+
+    event_quad: Int.
+                    Quad class value for a root CAMEO category.
+
+    goldstein: Float.
+                Goldstein value for the full CAMEO code.
+    """
+    quad_conversion = {'01': 0, '02': 0, '03': 1, '04': 1, '05': 1,
+                       '06': 2, '07': 2, '08': 2, '09': 3, '10': 3,
+                       '11': 3, '12': 3, '13': 3, '14': 4, '15': 4,
+                       '16': 3, '17': 4, '18': 4, '19': 4, '20': 4}
     #Goldstein values pulled from
     #http://eventdata.parusanalytics.com/cameo.dir/CAMEO.SCALE.txt
     goldstein_scale = {'01': 0.0, '010': 0.0, '011': -0.1, '0110': -0.1, '012': -0.4,
@@ -274,6 +305,27 @@ def process_cameo(event):
 
 
 def process_actors(event):
+    """
+    Splits out the actor codes into separate fields to enable easier
+    querying/formatting of the data.
+
+    Parameters
+    ----------
+
+    event: Tuple.
+            (DATE, SOURCE, TARGET, EVENT) format.
+
+    Returns
+    -------
+
+    actors: Tuple.
+            Tuple containing actor information. Format is
+            (source, source_root, source_agent, source_others, target,
+            target_root, target_agent, target_others). Root is either
+            a country code or one of IGO, NGO, IMG, or MNC. Agent is
+            one of GOV, MIL, REB, OPP, PTY, COP, JUD, SPY, MED, EDU, BUS, CRM,
+            or CVL. The ``others`` contains all other actor or agent codes.
+    """
     countries = ('ABW', 'AFG', 'AGO', 'AIA', 'ALA', 'ALB', 'AND', 'ARE', 'ARG',
                  'ARM', 'ASM', 'AUT', 'AZE', 'BDI', 'BEL', 'BEN', 'BES', 'BFA',
                  'BGD', 'BGR', 'BHR', 'BHS', 'BIH', 'BLM', 'BLR', 'BLZ', 'BMU',

@@ -19,16 +19,19 @@ def query_all(collection, lt_date, gt_date, sources, write_file=False):
     collection: pymongo.collection.Collection.
                 Collection within MongoDB that holds the scraped news stories.
 
-    less_than_date: Datetime object.
+    lt_date: Datetime object.
                     Date for which results should be older than. For example,
                     if the date running is the 25th, and the desired date is
-                    the 24th, then the `less_than_date` is the 25th.
+                    the 24th, then the `lt_date` is the 25th.
 
-    greater_than_date: Datetime object.
+    gt_date: Datetime object.
                         Date for which results should be older than. For
                         example, if the date running is the 25th, and the
-                        desired date is the 24th, then the `greater_than_date`
+                        desired date is the 24th, then the `gt_date`
                         is the 23rd.
+
+    sources: List.
+                Sources to pull from the MongoDB instance.
 
     write_file: Boolean.
                 Option indicating whether to write the results from the web
@@ -81,7 +84,26 @@ def query_all(collection, lt_date, gt_date, sources, write_file=False):
     return posts, final_out
 
 
-def get_sources(filepath):
+def _get_sources(filepath):
+    """
+    Function to create a list of sources that will be used in the query to the
+    MongoDB instance.
+
+    Parameters
+    ----------
+
+    filepath: String.
+                Path to file containing the source keys. File should have a
+                single key on each line.
+
+
+    Returns
+    -------
+
+    sources: List.
+                List of sources, basically.
+
+    """
     with open(filepath, 'r') as f:
         sources = [key.replace('\n', '') for key in f.readlines()]
     return sources
@@ -100,6 +122,9 @@ def main(current_date, file_details, write_file=False, file_stem=None):
                     Date for which records are pulled. Normally this is
                     $date_running - 1. For example, if the script is running on
                     the 25th, the current_date will be the 24th.
+
+    file_details: Named tuple.
+                    Tuple containing config information.
 
     write_file: Boolean.
                 Option indicating whether to write the results from the web
