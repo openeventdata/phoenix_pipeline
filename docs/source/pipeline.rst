@@ -12,7 +12,7 @@ Downloads scraped stories from Mongo DB.
 
 :mod:`formatter` Module
 -----------------------
-Parses scraped stories from a Mongo DB into TABARI-formatted source text input.
+Parses scraped stories from a Mongo DB into PETRARCH-formatted source text input.
 
 .. automodule:: formatter
     :members:
@@ -21,7 +21,10 @@ Parses scraped stories from a Mongo DB into TABARI-formatted source text input.
         
 :mod:`oneaday_formatter` Module
 -------------------------------
-Deduplication. Reads in a single day of coded event data, selects first record of souce-target-event combination and saves to (unique) Phoenix.events.YYMMDD.txt and records references for any additional events of same source-target-event combination in (duplicate) Phoenix.dupindex.TTMMDD.txt.
+Deduplication and other useful formatting functions for the final output. Reads
+in a single day of coded event data, selects first record of souce-target-event
+combination and records references for any additional events of same
+source-target-event combination.
         
 .. automodule:: oneaday_formatter
     :members:
@@ -30,7 +33,7 @@ Deduplication. Reads in a single day of coded event data, selects first record o
 
 :mod:`uploader` Module
 ----------------------
-Uploads TABARI coded event data and duplicate record references to designated server in config file.
+Uploads PETRARCH coded event data and duplicate record references to designated server in config file.
                 
 .. automodule:: uploader 
     :members:
@@ -39,6 +42,8 @@ Uploads TABARI coded event data and duplicate record references to designated se
 
 :mod:`utilities` Module
 -----------------------
+Miscellaneous functions to do things like establish database connections, parse
+config files, and intialize logging.
                 
 .. automodule:: utilities
     :members:
