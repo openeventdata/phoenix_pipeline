@@ -29,8 +29,8 @@ def query_geotext(sentence):
     """
     q = "http://geotxt.org/api/1/geotxt.json?m=stanfords&q={}".format(sentence)
 
-    query_out = requests.get(q)
     try:
+        query_out = requests.get(q)
         geo_results = json.loads(query_out.content)
     except Exception as e:
         print('There was an error: {}. Status code: {}'.format(e,
@@ -70,7 +70,7 @@ def main(events, file_details):
             Same as in the parameter but with the addition of a value that is
             a tuple of the form (LAT, LON).
     """
-    conn = utilities.make_conn(file_details.auth_db, file_details.auth_user,
+    coll = utilities.make_conn(file_details.auth_db, file_details.auth_user,
                                file_details.auth_pass)
 
     for event in events:

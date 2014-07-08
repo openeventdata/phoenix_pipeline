@@ -46,7 +46,7 @@ def parse_config(config_filename):
         outputfile_stem = parser.get('Pipeline', 'outputfile_stem')
         oneaday_filter = parser.get('Pipeline', 'oneaday_filter')
         if 'Auth' in parser.sections():
-            auth_db = parser.get('Auth', 'log_file')
+            auth_db = parser.get('Auth', 'auth_db')
             auth_user = parser.get('Auth', 'auth_user')
             auth_pass = parser.get('Auth', 'auth_pass')
         else:
