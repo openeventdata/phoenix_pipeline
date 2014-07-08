@@ -145,7 +145,7 @@ def main(current_date, file_details, write_file=False, file_stem=None):
                 scraper results are writen. Otherwise is an empty string.
 
     """
-    sources = get_sources('source_keys.txt')
+    sources = _get_sources('source_keys.txt')
     conn = utilities.make_conn(file_details.auth_db, file_details.auth_user,
                                file_details.auth_pass)
 
