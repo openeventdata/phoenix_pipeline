@@ -31,11 +31,18 @@ def query_geotext(sentence):
 
     try:
         query_out = requests.get(q)
-        geo_results = json.loads(query_out.content)
     except Exception as e:
-        print('There was an error: {}. Status code: {}'.format(e,
-                                                               query_out.status_code))
-        geo_results = {'features': []}
+        print('There was an error requesting geolocation. {}'.format(e))
+        query_out = ''
+    if query_out:
+        try:
+            geo_results = json.loads(query_out.content)
+        except Exception as e:
+            print('There was an error: {}. Status code: {}'.format(e,
+                                                                   query_out.status_code))
+            geo_results = {'features': []}
+    else:
+            geo_results = {'features': []}
 
     if geo_results['features']:
         try:
