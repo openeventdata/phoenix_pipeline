@@ -6,7 +6,9 @@ import datetime
 import uploader
 import utilities
 import formatter
-import oneaday_formatter
+import postprocess
+import oneaday_filter
+import result_formatter
 import scraper_connection
 from petrarch import petrarch
 
@@ -73,25 +75,35 @@ def main(file_details, server_details, logger_file=None, run_filter=None):
     if run_filter == 'False':
         print('Running PETRARCH and writing to a file. No one-a-day.')
         logger.info('Running PETRARCH and writing to a file. No one-a-day.')
-        petrarch.run_pipeline(formatted,
-                              '{}{}.txt'.format(file_details.fullfile_stem,
-                                                date_string), parsed=True)
-        results = ''
+        #Command to write output to a file directly from PETR
+#        petrarch.run_pipeline(formatted,
+#                              '{}{}.txt'.format(file_details.fullfile_stem,
+#                                                date_string), parsed=True)
+        petr_results = petrarch.run_pipeline(formatted, write_output=False,
+                                             parsed=True)
     elif run_filter == 'True':
         print('Running PETRARCH and returning output.')
         logger.info('Running PETRARCH and returning output.')
         petr_results = petrarch.run_pipeline(formatted, write_output=False,
                                              parsed=True)
     else:
-        print("Can't run with the options you've specified. You need to fix something.")
+        print("""Can't run with the options you've specified. You need to fix
+              something.""")
         logger.warning("Can't run with the options you've specified. Exiting.")
         sys.exit()
 
     if run_filter == 'True':
         logger.info("Running oneaday_formatter.py")
         print("Running oneaday_formatter.py")
-        oneaday_formatter.main(petr_results, date_string, server_details,
-                               file_details)
+        formatted_results = oneaday_filter.main(petr_results)
+    else:
+        logger.info("Running result_formatter.py")
+        print("Running result_formatter.py")
+        formatted_results = result_formatter.main(petr_results)
+
+    logger.info("Running postprocess.py")
+    print("Running postprocess.py")
+    postprocess.main(formatted_results, date_string, file_details)
 
     logger.info("Running phox_uploader.py")
     print("Running phox_uploader.py")

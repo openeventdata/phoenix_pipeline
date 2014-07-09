@@ -19,14 +19,43 @@ Parses scraped stories from a Mongo DB into PETRARCH-formatted source text input
     :undoc-members:
     :show-inheritance:
         
-:mod:`oneaday_formatter` Module
+:mod:`oneaday_filter` Module
 -------------------------------
-Deduplication and other useful formatting functions for the final output. Reads
-in a single day of coded event data, selects first record of souce-target-event
-combination and records references for any additional events of same
-source-target-event combination.
+Deduplication for the final output. Reads in a single day of coded event data,
+selects first record of souce-target-event combination and records references
+for any additional events of same source-target-event combination.
         
-.. automodule:: oneaday_formatter
+.. automodule:: oneaday_filter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`result_formatter` Module
+-------------------------------
+Puts the PETRARCH-generated event data into a format consistent with other
+parts of the pipeline so that the events can be further processed by the
+``postprocess`` module.
+        
+.. automodule:: result_formatter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`postprocess` Module
+-------------------------------
+Performs final formatting of the event data and writes events out to a text
+file.
+        
+.. automodule:: postprocess
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`geolocation` Module
+-------------------------------
+Geolocates the coded event data.
+        
+.. automodule:: geolocation
     :members:
     :undoc-members:
     :show-inheritance:
