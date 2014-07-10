@@ -227,12 +227,20 @@ def process_cameo(event):
                        '2042': -10.0}
 
     root_code = event[3][:2]
-    event_quad = quad_conversion[root_code]
+    try:
+        event_quad = quad_conversion[root_code]
+    except KeyError:
+        print('Bad event: {}'.format(event))
+        event_quad = ''
     try:
         goldstein = goldstein_scale[event[3]]
     except KeyError:
         print('\nMissing Goldstein Value: {}'.format(event[3]))
-        goldstein = goldstein_scale[root_code]
+        try:
+            goldstein = goldstein_scale[root_code]
+        except KeyError:
+            print('Bad event: {}'.format(event))
+            goldstein = ''
 
     return root_code, event_quad, goldstein
 
