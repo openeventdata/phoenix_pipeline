@@ -3,73 +3,6 @@ from __future__ import unicode_literals
 import io
 import logging
 import geolocation
-from collections import Counter
-
-
-def filter_events(results):
-    """
-    Filters out duplicate events, leaving only one unique
-    (DATE, SOURCE, TARGET, EVENT) tuple per day.
-
-
-    Parameters
-    ----------
-
-    results: Dictionary.
-                PETRARCH-formatted results in the
-                {StoryID: [(record), (record)]} format.
-
-
-    Returns
-    -------
-
-    filter_dict: Dictionary.
-                    Contains filtered events. Keys are
-                    (DATE, SOURCE, TARGET, EVENT) tuples, values are lists of
-                    IDs, sources, and issues.
-    """
-    filter_dict = {}
-    for story in results:
-        for event in results[story]:
-            date = event[0]
-            src = event[1]
-            target = event[2]
-            code = event[3]
-            if len(event) == 7:
-                ids = event[4].split(';')
-                url = event[5]
-                source = event[6]
-                issues = ''
-            else:
-                issues = event[4]
-                issues = issues.split(';')
-                ids = event[5].split(';')
-                url = event[6]
-                source = event[7]
-
-            event_tuple = (date, src, target, code)
-
-            if event_tuple not in filter_dict:
-                filter_dict[event_tuple] = {'issues': Counter(), 'ids': ids,
-                                            'sources': [source], 'urls': [url]}
-                if issues:
-                    issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
-                                                            for issue_str in
-                                                            issues]]
-                    for issue, count in issue_splits:
-                        filter_dict[event_tuple]['issues'][issue] += int(count)
-            else:
-                filter_dict[event_tuple]['ids'] += ids
-                filter_dict[event_tuple]['sources'].append(source)
-                filter_dict[event_tuple]['urls'].append(url)
-                if issues:
-                    issue_splits = [(iss, c) for iss, c in [issue_str.split(',')
-                                                            for issue_str in
-                                                            issues]]
-                    for issue, count in issue_splits:
-                        filter_dict[event_tuple]['issues'][issue] += int(count)
-
-    return filter_dict
 
 
 def create_strings(events):
@@ -221,15 +154,16 @@ def process_cameo(event):
                        '16': 3, '17': 4, '18': 4, '19': 4, '20': 4}
     #Goldstein values pulled from
     #http://eventdata.parusanalytics.com/cameo.dir/CAMEO.SCALE.txt
-    goldstein_scale = {'01': 0.0, '010': 0.0, '011': -0.1, '0110': -0.1, '012': -0.4,
-                       '013': 0.4, '014': 0.0, '015': 0.0, '016': 3.4,
-                       '017': 0.0, '018': 3.4, '02': 3.0, '020': 3.0,
-                       '021': 3.4, '0211': 3.4, '0212': 3.4, '0213': 3.4, '0214': 3.4, '022': 3.4,
-                       '023': 3.4, '0231': 3.4, '0232': 3.4, '0233': 3.4,
-                       '0234': 3.4, '024': -0.3, '0241': -0.3,
-                       '0242': -0.3, '0243': -0.3, '0244': -0.3,
-                       '025': -0.3, '0253': -0.3, '0256': -0.3, '026': 4.0, '027': 4.0, '028': 4.0,
-                       '03': 4.0, '030': 4.0, '031': 5.2, '0311': 5.2,
+    goldstein_scale = {'01': 0.0, '010': 0.0, '011': -0.1, '0110': -0.1,
+                       '012': -0.4, '013': 0.4, '014': 0.0, '015': 0.0,
+                       '016': 3.4, '017': 0.0, '018': 3.4, '02': 3.0,
+                       '020': 3.0, '021': 3.4, '0211': 3.4, '0212': 3.4,
+                       '0213': 3.4, '0214': 3.4, '022': 3.4, '023': 3.4,
+                       '0231': 3.4, '0232': 3.4, '0233': 3.4, '0234': 3.4,
+                       '024': -0.3, '0241': -0.3, '0242': -0.3, '0243': -0.3,
+                       '0244': -0.3, '025': -0.3, '0253': -0.3, '0256': -0.3,
+                       '026': 4.0, '027': 4.0, '028': 4.0, '03': 4.0,
+                       '030': 4.0, '031': 5.2, '0311': 5.2,
                        '0312': 5.2, '032': 4.5, '033': 5.2, '0331': 5.2,
                        '0332': 5.2, '0333': 5.2, '0334': 6.0, '034': 7.0,
                        '0341': 7.0, '0342': 7.0, '0343': 7.0, '0344': 7.0,
@@ -252,18 +186,18 @@ def process_cameo(event):
                        '0871': 9.0, '0872': 9.0, '0873': 9.0, '0874': 10.0,
                        '09': -2.0, '090': -2.0, '091': -2.0, '092': -2.0,
                        '093': -2.0, '094': -2.0, '10': -5.0, '100': -5.0,
-                       '101': -5.0, '1014': -5.0, '102': -5.0, '103': -5.0, '104': -5.0,
-                       '1041': -5.0, '1042': -5.0, '1043': -5.0,
-                       '1044': -5.0, '105': -5.0, '1056': -5.0, '106': -5.0, '107': -5.0,
-                       '108': -5.0, '109': -5.0, '11': -2.0, '110': -2.0, '111': -2.0,
-                       '112': -2.0, '1121': -2.0, '1122': -2.0,
-                       '1123': -2.0, '1124': -2.0, '1125': -2.0,
+                       '101': -5.0, '1014': -5.0, '102': -5.0, '103': -5.0,
+                       '104': -5.0, '1041': -5.0, '1042': -5.0, '1043': -5.0,
+                       '1044': -5.0, '105': -5.0, '1056': -5.0, '106': -5.0,
+                       '107': -5.0, '108': -5.0, '109': -5.0, '11': -2.0,
+                       '110': -2.0, '111': -2.0, '112': -2.0, '1121': -2.0,
+                       '1122': -2.0, '1123': -2.0, '1124': -2.0, '1125': -2.0,
                        '113': -2.0, '114': -2.0, '115': -2.0, '12': -4.0,
                        '120': -4.0, '121': -4.0, '1211': -4.0, '1212': -4.0,
-                       '1213': -4.0, '122': -4.0, '123': -4.0,
-                       '1231': -4.0, '1232': -4.0, '1233': -4.0,
-                       '1234': -4.0, '124': -5.0, '1246': -5.0, '125': -5.0, '126': -5.0,
-                       '127': -5.0, '128': -5.0, '13': -6.0, '130': -4.4,
+                       '1213': -4.0, '122': -4.0, '123': -4.0, '1231': -4.0,
+                       '1232': -4.0, '1233': -4.0, '1234': -4.0, '124': -5.0,
+                       '1246': -5.0, '125': -5.0, '126': -5.0, '127': -5.0,
+                       '128': -5.0, '13': -6.0, '130': -4.4,
                        '131': -5.8, '1311': -5.8, '1312': -5.8, '1313': -5.8,
                        '132': -5.8, '1321': -5.8, '1322': -5.8, '1323': -5.8,
                        '1324': -5.8, '133': -5.8, '134': -5.8, '135': -5.8,
@@ -295,12 +229,20 @@ def process_cameo(event):
                        '2042': -10.0}
 
     root_code = event[3][:2]
-    event_quad = quad_conversion[root_code]
+    try:
+        event_quad = quad_conversion[root_code]
+    except KeyError:
+        print('Bad event: {}'.format(event))
+        event_quad = ''
     try:
         goldstein = goldstein_scale[event[3]]
     except KeyError:
         print('\nMissing Goldstein Value: {}'.format(event[3]))
-        goldstein = goldstein_scale[root_code]
+        try:
+            goldstein = goldstein_scale[root_code]
+        except KeyError:
+            print('Bad event: {}'.format(event))
+            goldstein = ''
 
     return root_code, event_quad, goldstein
 
@@ -412,32 +354,34 @@ def process_actors(event):
     return actors
 
 
-def main(results, this_date, server_list, file_details):
+def main(event_dict, this_date, file_details):
     """
     Pulls in the coded results from PETRARCH dictionary in the
     {StoryID: [(record), (record)]} format and allows only one unique
-    (DATE, SOURCE, TARGET, EVENT) tuple per day. Writes out this new,
+    (DATE, SOURCE, TARGET, EVENT) tuple per day. Returns this new,
     filtered event data.
 
     Parameters
     ----------
 
-    results: Dictionary.
+    event_dict: Dictionary.
                 PETRARCH-formatted results in the
                 {StoryID: [(record), (record)]} format.
+
+    this_date: String.
+                The current date the pipeline is running.
 
     file_details: NamedTuple.
                     Container generated from the config file specifying file
                     stems and other relevant options.
-
-    this_date: String.
-                The current date the pipeline is running.
     """
     logger = logging.getLogger('pipeline_log')
 
-    logger.info('Applying one-a-day filter.')
-    filtered = filter_events(results)
-    updated_events = geolocation.main(filtered, file_details)
+    logger.info('Geolocating.')
+    print('Geolocating')
+    updated_events = geolocation.main(event_dict, file_details)
+
+    logger.info('Formatting events for output.')
     event_write = create_strings(updated_events)
 
     logger.info('Writing event output.')

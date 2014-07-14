@@ -1,7 +1,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 import utilities
-import nltk.data
 import datetime
 import logging
 import codecs
@@ -64,7 +63,7 @@ def query_all(collection, lt_date, gt_date, sources, write_file=False):
                 content = post['content'].encode('utf-8')
                 if post['source'] == 'aljazeera':
                     content = content.replace("""Caution iconAttention The browser or device you are using is out of date.  It has known security flaws and a limited feature set.  You will not see all the features of some websites.  Please update your browser.""", '')
-                header = '  '.join(sent_detector.tokenize(content.strip())[:4])
+                header = '  '.join(utilities.sentence_segmenter(content)[:4])
                 string = '{}\t{}\t{}\n{}\n'.format(num, post['date'],
                                                    post['url'], header)
                 output.append(string)
@@ -172,7 +171,3 @@ def main(current_date, file_details, write_file=False, file_stem=None):
             print('Need filestem to write results to file.')
 
     return results, filename
-
-if __name__ == '__main__':
-    print('Running...')
-    main('temp_stem.', 'YYMMDD')
