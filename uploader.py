@@ -164,16 +164,3 @@ def main(datestr, server_info, file_info):
 
     ftp.quit()
     print("Finished")
-
-if __name__ == '__main__':
-    logger = logging.getLogger('phoenix_pipeline')
-    if len(sys.argv) > 1:
-        datestr = sys.argv[1]
-    else:
-        print('Error: No date provided to PHOX_uploader.py')
-        sys.exit()
-
-    try:
-        main(datestr)
-    except RuntimeError as why:
-        print('phox_uploader.main() raised the RuntimeError:', why)

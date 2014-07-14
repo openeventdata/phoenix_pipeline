@@ -91,7 +91,3 @@ def main(events, file_details):
             events[event]['geo'] = (lon, lat, name)
 
     return events
-
-
-if __name__ == '__main__':
-    print('Not designed to be run as a stand-alone script.')
