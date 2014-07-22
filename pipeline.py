@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import sys
 import logging
 import datetime
+import dateutil
 import uploader
 import utilities
 import formatter
@@ -13,7 +14,8 @@ import scraper_connection
 from petrarch import petrarch
 
 
-def main(file_details, server_details, logger_file=None, run_filter=None):
+def main(file_details, server_details, logger_file=None, run_filter=None,
+         run_date=None):
     """
     Main function to run all the things.
 
@@ -35,6 +37,11 @@ def main(file_details, server_details, logger_file=None, run_filter=None):
     run_filter: String.
                 Whether to run the ``oneaday_formatter``. Takes True or False
                 (strings) as values.
+
+    run_date: String.
+                Date of the format YYYYMMDD. The pipeline will run using this
+                date. If not specified the pipeline will run with
+                ``current_date`` minus one day.
     """
     if logger_file:
         utilities.init_logger(logger_file)
@@ -45,9 +52,11 @@ def main(file_details, server_details, logger_file=None, run_filter=None):
 
     print('\nPHOX.pipeline run:', datetime.datetime.utcnow())
 
-    if len(sys.argv) > 1:
-        date_string = sys.argv[1]
-        process_date = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+    if run_date:
+        process_date = dateutil.parser.parse(run_date)
+        date_string = '{:02d}{:02d}{:02d}'.format(process_date.year,
+                                                  process_date.month,
+                                                  process_date.day)
         logger.info('Date string: {}'.format(date_string))
         print('Date string:', date_string)
     else:
