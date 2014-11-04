@@ -116,7 +116,12 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
 
     logger.info("Running phox_uploader.py")
     print("Running phox_uploader.py")
-    uploader.main(date_string, server_details, file_details)
+    try:
+        uploader.main(date_string, server_details, file_details)
+    except Exception as e:
+        logger.warning("Error on the upload portion. {}".format(e))
+        print("""Error on the uploader. This step isn't absolutely necessary.
+              Valid events should still be generated.""")
 
     logger.info('PHOX.pipeline end')
     print('PHOX.pipeline end:', datetime.datetime.utcnow())
