@@ -6,7 +6,7 @@ import utilities
 from bson.objectid import ObjectId
 
 
-def query_geotext(sentence):
+def query_cliff(sentence):
     """
     Filters out duplicate events, leaving only one unique
     (DATE, SOURCE, TARGET, EVENT) tuple per day.
@@ -27,33 +27,76 @@ def query_geotext(sentence):
     lon: String.
             Longitude of a location.
     """
-    q = "http://geotxt.org/api/1/geotxt.json?m=stanfords&q={}".format(sentence)
+    
+    payload = {"q":sentence}
+    
+    place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
 
     try:
-        query_out = requests.get(q)
+        located = requests.get("http://localhost:8999/CLIFF-2.0.0/parse/text",
+                params=payload).json     # convert all at once. Good practice?
+    
     except Exception as e:
         print('There was an error requesting geolocation. {}'.format(e))
-        query_out = ''
-    if query_out:
+        located = place_info
+    
+    if located:
         try:
-            geo_results = json.loads(query_out.content)
+            focus = located['results']['places']['focus']
         except Exception as e:
             print('There was an error: {}. Status code: {}'.format(e,
-                                                                   query_out.status_code))
-            geo_results = {'features': []}
+                                                                   focus.status_code))
+    
+            place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
+    
     else:
-            geo_results = {'features': []}
+        place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
+    
+ # If there's a city, we want that.
+    if focus['cities']:
+        # If there's more than onne city, we just want the first.
+        # (That's questionable, but eh)
+        if len(focus['cities']) > 1:
+            citylist = focus['cities'][0]
+            lat = citylist['lat']
+            lon = citylist['lon']
+            placename = citylist['name']
+            country = citylist['countryCode']
+            place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'city'}
+        # If there's only one city, we're good to go.
+        if len(focus['cities']) == 1:
+            #print("This thing thinks there's only one city")
+            lat = focus['cities'][0]['lat']
+            lon = focus['cities'][0]['lon']
+            placename = focus['cities'][0]['name']
+            country = focus['cities'][0]['countryCode']
+            place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'city', 'country':country}
+    # If there's no city, we'll take a state.
+    if (len(focus['states']) > 0) & (len(focus['cities']) == 0):        
+        #if len(focus['states']) > 1:
+        #    stateslist = focus['states'][0]
+        #    lat = stateslist['states']['lat']
+        #    lon = stateslist['states']['lon']
+        #    placename = statelist['states']['name']
+        if len(focus['states']) == 1:
+            lat = focus['states'][0]['lat']
+            lon = focus['states'][0]['lon']
+            placename = focus['states'][0]['name']
+            place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'state'}
+        else:
+            print("WTF, states are too long")
+    #if ((focus['cities'] == []) & len(focus['states']) > 0):
+       # lat = focus['cities']['lat']
+       # lon = focus['cities']['lon']
+       # placename = focus['cities']['name']
+    if (len(focus['cities']) == 0) & (len(focus['states'])==0):
+        print("daaaang, it's countries")
+        lat = focus['countries'][0]['lat']
+        lon = focus['countries'][0]['lon']
+        placename = focus['countries'][0]['name']
+        place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'country'}
 
-    if geo_results['features']:
-        try:
-            lon, lat = geo_results['features'][0]['geometry']['coordinates']
-            name = geo_results['features'][0]['properties']['toponym']
-        except Exception as e:
-            lon, lat, name = '', '', ''
-    else:
-        lon, lat, name = '', '', ''
-
-    return lon, lat, name
+    return place_info 
 
 
 def main(events, file_details):
@@ -86,8 +129,8 @@ def main(events, file_details):
         sents = utilities.sentence_segmenter(result['content'])
 
         query_text = sents[int(sentence_id)]
-        lon, lat, name = query_geotext(query_text)
-        if lat and lon:
-            events[event]['geo'] = (lon, lat, name)
-
+        geo_info = query_cliff(query_text)
+        if geo_info:
+            events[event]['geo'] = (geo_info['lon'], geo_info['lat'], geo_info['placename'])
+            # Add in country and restype here
     return events
