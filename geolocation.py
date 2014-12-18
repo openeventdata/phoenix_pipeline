@@ -34,23 +34,19 @@ def query_cliff(sentence):
 
     try:
         located = requests.get("http://localhost:8999/CLIFF-2.0.0/parse/text",
-                params=payload).json     # convert all at once. Good practice?
+                params=payload).json()
     
     except Exception as e:
         print('There was an error requesting geolocation. {}'.format(e))
-        located = place_info
+        return  place_info
     
-    if located:
-        try:
-            focus = located['results']['places']['focus']
-        except Exception as e:
-            print('There was an error: {}. Status code: {}'.format(e,
-                                                                   focus.status_code))
-    
-            place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
-    
-    else:
-        place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
+    focus = located['results']['places']['focus']
+    print(focus)
+   # 
+    #        place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
+   # 
+   # else:
+   #     place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
     
  # If there's a city, we want that.
     if focus['cities']:
@@ -83,14 +79,11 @@ def query_cliff(sentence):
             lon = focus['states'][0]['lon']
             placename = focus['states'][0]['name']
             place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'state'}
-        else:
-            print("WTF, states are too long")
     #if ((focus['cities'] == []) & len(focus['states']) > 0):
        # lat = focus['cities']['lat']
        # lon = focus['cities']['lon']
        # placename = focus['cities']['name']
     if (len(focus['cities']) == 0) & (len(focus['states'])==0):
-        print("daaaang, it's countries")
         lat = focus['countries'][0]['lat']
         lon = focus['countries'][0]['lon']
         placename = focus['countries'][0]['name']
