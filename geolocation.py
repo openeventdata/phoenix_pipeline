@@ -62,6 +62,8 @@ def query_cliff(sentence):
             for deet in countryDetails:
                 if deet['countryCode'] == countryCode:
                     countryName = deet['name']
+                else:
+                    countryName = ''  # shouldn't need these...
             stateCode = focus['cities'][0]['countryCode']
             stateDetails = focus['states']
             for deet in stateDetails:
@@ -83,11 +85,15 @@ def query_cliff(sentence):
             for deet in countryDetails:
                 if deet['countryCode'] == countryCode:
                     countryName = deet['name']
+                else:
+                    countryName = ''
             stateCode = focus['cities'][0]['stateCode']
             stateDetails = focus['states']
             for deet in stateDetails:
                 if deet['stateCode'] == stateCode:
                     stateName = deet['name']
+                else:
+                    stateName = ''
             place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
                     'restype':'city', 'countryName':countryName,
                     'stateName':stateName}
@@ -151,6 +157,7 @@ def main(events, file_details):
 
     for event in events:
         event_id, sentence_id = events[event]['ids'][0].split('_')
+       # print(event_id)
         result = coll.find_one({'_id': ObjectId(event_id.split('_')[0])})
         sents = utilities.sentence_segmenter(result['content'])
 
