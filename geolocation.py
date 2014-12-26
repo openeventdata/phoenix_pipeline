@@ -30,7 +30,8 @@ def query_cliff(sentence):
     
     payload = {"q":sentence}
     
-    place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
+   # place_info = {'lat':'', 'lon':'', 'placeName':'', 'countryName':'',
+   #         'stateName':'', 'restype':''}
 
     try:
         located = requests.get("http://localhost:8999/CLIFF-2.0.0/parse/text",
@@ -46,27 +47,50 @@ def query_cliff(sentence):
     #        place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
    # 
    # else:
-   #     place_info = {'lat':'', 'lon':'', 'placename':'', 'country':'', 'restype':''}
+    place_info = {'lat':'', 'lon':'', 'placeName':'', 'countryName':'',
+            'stateName':''}
     
  # If there's a city, we want that.
     if focus['cities']:
-        # If there's more than onne city, we just want the first.
-        # (That's questionable, but eh)
+        # If there's more than one city, we just want the first.
+        # (That's questionable, but eh). 
+        # They're all lists anyway, so do we need to do the len stuff?
         if len(focus['cities']) > 1:
-            citylist = focus['cities'][0]
-            lat = citylist['lat']
-            lon = citylist['lon']
-            placename = citylist['name']
-            country = citylist['countryCode']
-            place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'city'}
+            lat = focus['cities'][0]['lat']
+            lon = focus['cities'][0]['lon']
+            placeName = focus['cities'][0]['name']
+            countryCode = focus['cities'][0]['countryCode']
+            countryDetails = focus['countries']
+            for deet in countryDetails:
+                if deet['countryCode'] == countryCode:
+                    countryName = deet['name']
+            stateCode = focus['cities'][0]['countryCode']
+            stateDetails = focus['states']
+            for deet in stateDetails:
+                if deet['stateCode'] == stateCode:
+                    stateName = deet['name']
+            place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
+                    'restype':'city', 'countryName':countryName,
+                    'stateName':stateName}
         # If there's only one city, we're good to go.
         if len(focus['cities']) == 1:
             #print("This thing thinks there's only one city")
             lat = focus['cities'][0]['lat']
             lon = focus['cities'][0]['lon']
-            placename = focus['cities'][0]['name']
-            country = focus['cities'][0]['countryCode']
-            place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'city', 'country':country}
+            placeName = focus['cities'][0]['name']
+            countryCode = focus['cities'][0]['countryCode']
+            countryDetails = focus['countries']
+            for deet in countryDetails:
+                if deet['countryCode'] == countryCode:
+                    countryName = deet['name']
+            stateCode = focus['cities'][0]['stateCode']
+            stateDetails = focus['states']
+            for deet in stateDetails:
+                if deet['stateCode'] == stateCode:
+                    stateName = deet['name']
+            place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
+                    'restype':'city', 'countryName':countryName,
+                    'stateName':stateName}
     # If there's no city, we'll take a state.
     if (len(focus['states']) > 0) & (len(focus['cities']) == 0):        
         #if len(focus['states']) > 1:
@@ -77,17 +101,26 @@ def query_cliff(sentence):
         if len(focus['states']) == 1:
             lat = focus['states'][0]['lat']
             lon = focus['states'][0]['lon']
-            placename = focus['states'][0]['name']
-            place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'state'}
+            placeName = focus['states'][0]['name']
+            countryCode = focus['states'][0]['countryCode']
+            countryDetails = focus['countries']
+            for deet in countryDetails:
+                if deet['countryCode'] == countryCode:
+                    countryName = deet['name']
+            place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
+                    'restype':'state', 'countryName':countryName,
+                    'stateName':stateName} 
     #if ((focus['cities'] == []) & len(focus['states']) > 0):
        # lat = focus['cities']['lat']
        # lon = focus['cities']['lon']
        # placename = focus['cities']['name']
-    if (len(focus['cities']) == 0) & (len(focus['states'])==0):
+    if (len(focus['cities']) == 0) & (len(focus['states']) == 0):
         lat = focus['countries'][0]['lat']
         lon = focus['countries'][0]['lon']
-        placename = focus['countries'][0]['name']
-        place_info = {'lat':lat, 'lon':lon, 'placename':placename, 'restype':'country'}
+        placeName = focus['countries'][0]['name']
+        place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
+                'restype':'country', 'countryName':placeName}
+        
 
     return place_info 
 
@@ -124,6 +157,8 @@ def main(events, file_details):
         query_text = sents[int(sentence_id)]
         geo_info = query_cliff(query_text)
         if geo_info:
-            events[event]['geo'] = (geo_info['lon'], geo_info['lat'], geo_info['placename'])
+            events[event]['geo'] = (geo_info['lon'], geo_info['lat'],
+                    geo_info['placeName'])
             # Add in country and restype here
     return events
+
