@@ -47,7 +47,7 @@ def create_strings(events):
             joined_issues = []
 
         if 'geo' in events[event]:
-            lon, lat, name = events[event]['geo']
+            lon, lat, placeName, stateName, countryName = events[event]['geo']
         else:
             lon, lat, name = '', '', ''
 
@@ -65,11 +65,11 @@ def create_strings(events):
         else:
             event_str += '\t'
 
-        if lat and lon and name:
+        if lat and lon and placeName:
             ccode = ''
             admin = ''
-            event_str += '\t{}\t{}\t{}\t{}\t{}'.format(lat, lon, name, ccode,
-                                                       admin)
+            event_str += '\t{}\t{}\t{}\t{}\t{}'.format(lat, lon, placeName,
+                    stateName, countryName)
         else:
             event_str += '\t\t\t\t\t'
 
