@@ -15,7 +15,7 @@ from petrarch import petrarch
 
 
 def main(file_details, server_details, logger_file=None, run_filter=None,
-         run_date='20141217'):
+         run_date=''):
     """
     Main function to run all the things.
 
