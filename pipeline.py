@@ -112,7 +112,8 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
 
     logger.info("Running postprocess.py")
     print("Running postprocess.py")
-    postprocess.main(formatted_results, date_string, file_details)
+    postprocess.main(formatted_results, date_string,
+                     file_details, server_details)
 
     logger.info("Running phox_uploader.py")
     print("Running phox_uploader.py")
