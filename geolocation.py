@@ -1,12 +1,11 @@
 from __future__ import unicode_literals
 from __future__ import print_function
-import json
 import requests
 import utilities
 from bson.objectid import ObjectId
 
 
-def query_cliff(sentence):
+def query_cliff(sentence, host, port):
     """
     Filters out duplicate events, leaving only one unique
     (DATE, SOURCE, TARGET, EVENT) tuple per day.
@@ -27,29 +26,29 @@ def query_cliff(sentence):
     lon: String.
             Longitude of a location.
     """
-    
-    payload = {"q":sentence}
-    
-    place_info = {'lat':'', 'lon':'', 'placeName':'', 'countryName':'',
-            'stateName':''}
-    
+
+    payload = {"q": sentence}
+
+    place_info = {'lat': '', 'lon': '', 'placeName': '', 'countryName': '',
+                  'stateName': ''}
+
+    cliff_address = "http://{}:{}/CLIFF-2.0.0/parse/text".format(host, port)
     try:
-        located = requests.get("http://localhost:8999/CLIFF-2.0.0/parse/text",
-                params=payload).json()
-    
+        located = requests.get(cliff_address, params=payload).json()
+
     except Exception as e:
         print('There was an error requesting geolocation. {}'.format(e))
-        return  place_info
-    
+        return place_info
+
     focus = located['results']['places']['focus']
    # print(focus)
-   
+
     if not focus:
         return place_info
  # If there's a city, we want that.
     if focus['cities']:
         # If there's more than one city, we just want the first.
-        # (That's questionable, but eh). 
+        # (That's questionable, but eh).
         # They're all lists anyway, so do we need to do the len stuff?
         if len(focus['cities']) > 1:
             lat = focus['cities'][0]['lat']
@@ -69,9 +68,9 @@ def query_cliff(sentence):
                     stateName = deet['name']
                 else:
                     stateName = ''
-            place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
-                    'restype':'city', 'countryName':countryName,
-                    'stateName':stateName}
+            place_info = {'lat': lat, 'lon': lon, 'placeName': placeName,
+                          'restype': 'city', 'countryName': countryName,
+                          'stateName': stateName}
             return place_info
         # If there's only one city, we're good to go.
         elif len(focus['cities']) == 1:
@@ -93,12 +92,12 @@ def query_cliff(sentence):
                     stateName = deet['name']
                 else:
                     stateName = ''
-            place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
-                    'restype':'city', 'countryName':countryName,
-                    'stateName':stateName}
+                place_info = {'lat': lat, 'lon': lon, 'placeName': placeName,
+                              'restype': 'city', 'countryName': countryName,
+                              'stateName': stateName}
             return place_info
     # If there's no city, we'll take a state.
-    elif (len(focus['states']) > 0) & (len(focus['cities']) == 0):        
+    elif (len(focus['states']) > 0) & (len(focus['cities']) == 0):
         #if len(focus['states']) > 1:
         #    stateslist = focus['states'][0]
         #    lat = stateslist['states']['lat']
@@ -116,9 +115,9 @@ def query_cliff(sentence):
                         countryName = deet['name']
                     else:
                         countryName = ''
-                place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
-                    'restype':'state', 'countryName':countryName,
-                    'stateName':placeName} 
+                place_info = {'lat': lat, 'lon': lon, 'placeName': placeName,
+                              'restype': 'state', 'countryName': countryName,
+                              'stateName': stateName}
                 return place_info
             except:
                 print("Error on story: ")
@@ -133,8 +132,9 @@ def query_cliff(sentence):
             lat = focus['countries'][0]['lat']
             lon = focus['countries'][0]['lon']
             placeName = focus['countries'][0]['name']
-            place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
-                'restype':'country', 'countryName':placeName, 'stateName':''}
+            place_info = {'lat': lat, 'lon': lon, 'placeName': placeName,
+                          'restype': 'country', 'countryName': placeName,
+                          'stateName': ''}
             return place_info
         except:
             print("Error on story: ")
@@ -142,8 +142,7 @@ def query_cliff(sentence):
             return place_info
 
 
-
-def main(events, file_details):
+def main(events, file_details, server_details):
     """
     Pulls out a database ID and runs the ``query_geotext`` function to hit the
     GeoVista Center's GeoText API and find location information within the
@@ -174,10 +173,12 @@ def main(events, file_details):
         sents = utilities.sentence_segmenter(result['content'])
 
         query_text = sents[int(sentence_id)]
-        geo_info = query_cliff(query_text)
+        geo_info = query_cliff(query_text, server_details.cliff_host,
+                               server_details.cliff_port)
         if geo_info:
             events[event]['geo'] = (geo_info['lon'], geo_info['lat'],
-                    geo_info['placeName'], geo_info['stateName'], geo_info['countryName'])
+                                    geo_info['placeName'],
+                                    geo_info['stateName'],
+                                    geo_info['countryName'])
             # Add in country and restype here
     return events
-
