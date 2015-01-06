@@ -30,9 +30,9 @@ def query_cliff(sentence):
     
     payload = {"q":sentence}
     
-   # place_info = {'lat':'', 'lon':'', 'placeName':'', 'countryName':'',
-   #         'stateName':'', 'restype':''}
-
+    place_info = {'lat':'', 'lon':'', 'placeName':'', 'countryName':'',
+            'stateName':''}
+    
     try:
         located = requests.get("http://localhost:8999/CLIFF-2.0.0/parse/text",
                 params=payload).json()
@@ -43,9 +43,7 @@ def query_cliff(sentence):
     
     focus = located['results']['places']['focus']
    # print(focus)
-    place_info = {'lat':'', 'lon':'', 'placeName':'', 'countryName':'',
-            'stateName':''}
-    
+   
     if not focus:
         return place_info
  # If there's a city, we want that.
@@ -74,8 +72,9 @@ def query_cliff(sentence):
             place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
                     'restype':'city', 'countryName':countryName,
                     'stateName':stateName}
+            return place_info
         # If there's only one city, we're good to go.
-        if len(focus['cities']) == 1:
+        elif len(focus['cities']) == 1:
             #print("This thing thinks there's only one city")
             lat = focus['cities'][0]['lat']
             lon = focus['cities'][0]['lon']
@@ -97,38 +96,51 @@ def query_cliff(sentence):
             place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
                     'restype':'city', 'countryName':countryName,
                     'stateName':stateName}
+            return place_info
     # If there's no city, we'll take a state.
-    if (len(focus['states']) > 0) & (len(focus['cities']) == 0):        
+    elif (len(focus['states']) > 0) & (len(focus['cities']) == 0):        
         #if len(focus['states']) > 1:
         #    stateslist = focus['states'][0]
         #    lat = stateslist['states']['lat']
         #    lon = stateslist['states']['lon']
         #    placename = statelist['states']['name']
         if len(focus['states']) == 1:
-            lat = focus['states'][0]['lat']
-            lon = focus['states'][0]['lon']
-            placeName = focus['states'][0]['name']
-            countryCode = focus['states'][0]['countryCode']
-            countryDetails = focus['countries']
-            for deet in countryDetails:
-                if deet['countryCode'] == countryCode:
-                    countryName = deet['name']
-            place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
+            try:
+                lat = focus['states'][0]['lat']
+                lon = focus['states'][0]['lon']
+                placeName = focus['states'][0]['name']
+                countryCode = focus['states'][0]['countryCode']
+                countryDetails = focus['countries']
+                for deet in countryDetails:
+                    if deet['countryCode'] == countryCode:
+                        countryName = deet['name']
+                    else:
+                        countryName = ''
+                place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
                     'restype':'state', 'countryName':countryName,
                     'stateName':placeName} 
+                return place_info
+            except:
+                print("Error on story: ")
+                print(sentence)
+                return place_info
     #if ((focus['cities'] == []) & len(focus['states']) > 0):
        # lat = focus['cities']['lat']
        # lon = focus['cities']['lon']
        # placename = focus['cities']['name']
-    if (len(focus['cities']) == 0) & (len(focus['states']) == 0):
-        lat = focus['countries'][0]['lat']
-        lon = focus['countries'][0]['lon']
-        placeName = focus['countries'][0]['name']
-        place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
+    elif (len(focus['cities']) == 0) & (len(focus['states']) == 0):
+        try:
+            lat = focus['countries'][0]['lat']
+            lon = focus['countries'][0]['lon']
+            placeName = focus['countries'][0]['name']
+            place_info = {'lat':lat, 'lon':lon, 'placeName':placeName,
                 'restype':'country', 'countryName':placeName, 'stateName':''}
-        
+            return place_info
+        except:
+            print("Error on story: ")
+            print(sentence)
+            return place_info
 
-    return place_info 
 
 
 def main(events, file_details):
