@@ -7,9 +7,8 @@ from bson.objectid import ObjectId
 
 def query_cliff(sentence, host, port):
     """
-    Filters out duplicate events, leaving only one unique
-    (DATE, SOURCE, TARGET, EVENT) tuple per day.
-
+    Takes a sentence from a news article, passes it to the CLIFF geolocation
+    service, and extracts the relevant data that CLIFF returns.
 
     Parameters
     ----------
@@ -25,6 +24,15 @@ def query_cliff(sentence, host, port):
 
     lon: String.
             Longitude of a location.
+
+    placeName: String.
+            The name of the most precise location extracted from the sentence.
+
+    stateName: String.
+            The name of the state/region/province extracted from the sentence.
+
+    countryName: String.
+            The name of the country extracted from the sentence.
     """
 
     payload = {"q": sentence}
@@ -49,53 +57,61 @@ def query_cliff(sentence, host, port):
     if focus['cities']:
         # If there's more than one city, we just want the first.
         # (That's questionable, but eh).
-        # They're all lists anyway, so do we need to do the len stuff?
         if len(focus['cities']) > 1:
-            lat = focus['cities'][0]['lat']
-            lon = focus['cities'][0]['lon']
-            placeName = focus['cities'][0]['name']
-            countryCode = focus['cities'][0]['countryCode']
-            countryDetails = focus['countries']
-            for deet in countryDetails:
-                if deet['countryCode'] == countryCode:
-                    countryName = deet['name']
-                else:
-                    countryName = ''  # shouldn't need these...
-            stateCode = focus['cities'][0]['countryCode']
-            stateDetails = focus['states']
-            for deet in stateDetails:
-                if deet['stateCode'] == stateCode:
-                    stateName = deet['name']
-                else:
-                    stateName = ''
-            place_info = {'lat': lat, 'lon': lon, 'placeName': placeName,
-                          'restype': 'city', 'countryName': countryName,
-                          'stateName': stateName}
-            return place_info
+            try:
+                lat = focus['cities'][0]['lat']
+                lon = focus['cities'][0]['lon']
+                placeName = focus['cities'][0]['name']
+                countryCode = focus['cities'][0]['countryCode']
+                countryDetails = focus['countries']
+                for deet in countryDetails:
+                    if deet['countryCode'] == countryCode:
+                        countryName = deet['name']
+                    else:
+                        countryName = ''  # shouldn't need these...
+                stateCode = focus['cities'][0]['countryCode']
+                stateDetails = focus['states']
+                for deet in stateDetails:
+                    if deet['stateCode'] == stateCode:
+                        stateName = deet['name']
+                    else:
+                        stateName = ''
+                place_info = {'lat': lat, 'lon': lon, 'placeName': placeName,
+                              'restype': 'state', 'countryName': countryName,
+                              'stateName': stateName}
+                return place_info
+            except:
+                print("Error on story. It thought there were multiple cities")
+                print(sentence)
+                return place_info
         # If there's only one city, we're good to go.
         elif len(focus['cities']) == 1:
-            #print("This thing thinks there's only one city")
-            lat = focus['cities'][0]['lat']
-            lon = focus['cities'][0]['lon']
-            placeName = focus['cities'][0]['name']
-            countryCode = focus['cities'][0]['countryCode']
-            countryDetails = focus['countries']
-            for deet in countryDetails:
-                if deet['countryCode'] == countryCode:
-                    countryName = deet['name']
-                else:
-                    countryName = ''
-            stateCode = focus['cities'][0]['stateCode']
-            stateDetails = focus['states']
-            for deet in stateDetails:
-                if deet['stateCode'] == stateCode:
-                    stateName = deet['name']
-                else:
-                    stateName = ''
+            try:
+                lat = focus['cities'][0]['lat']
+                lon = focus['cities'][0]['lon']
+                placeName = focus['cities'][0]['name']
+                countryCode = focus['cities'][0]['countryCode']
+                countryDetails = focus['countries']
+                for deet in countryDetails:
+                    if deet['countryCode'] == countryCode:
+                        countryName = deet['name']
+                    else:
+                        countryName = ''
+                stateCode = focus['cities'][0]['stateCode']
+                stateDetails = focus['states']
+                for deet in stateDetails:
+                    if deet['stateCode'] == stateCode:
+                        stateName = deet['name']
+                    else:
+                        stateName = ''
                 place_info = {'lat': lat, 'lon': lon, 'placeName': placeName,
-                              'restype': 'city', 'countryName': countryName,
+                              'restype': 'state', 'countryName': countryName,
                               'stateName': stateName}
-            return place_info
+                return place_info
+            except:
+                print("Error on story. It thought there was 1 city.")
+                print(sentence)
+                return place_info
     # If there's no city, we'll take a state.
     elif (len(focus['states']) > 0) & (len(focus['cities']) == 0):
         #if len(focus['states']) > 1:
@@ -120,7 +136,8 @@ def query_cliff(sentence, host, port):
                               'stateName': stateName}
                 return place_info
             except:
-                print("Error on story: ")
+                print("""Error on story. It thought there were no cities but
+                        1 state.""")
                 print(sentence)
                 return place_info
     #if ((focus['cities'] == []) & len(focus['states']) > 0):
@@ -137,16 +154,17 @@ def query_cliff(sentence, host, port):
                           'stateName': ''}
             return place_info
         except:
-            print("Error on story: ")
+            print("""Error on story. It thought there were no cities or
+                    states--going for country""")
             print(sentence)
             return place_info
 
 
 def main(events, file_details, server_details):
     """
-    Pulls out a database ID and runs the ``query_geotext`` function to hit the
-    GeoVista Center's GeoText API and find location information within the
-    sentence.
+    Pulls out a database ID and runs the ``query_cliff`` function to hit MIT's
+    CLIFF/CLAVIN geolocation system running locally  and find location
+    information within the sentence.
 
     Parameters
     ----------
@@ -161,7 +179,7 @@ def main(events, file_details, server_details):
 
     events: Dictionary.
             Same as in the parameter but with the addition of a value that is
-            a tuple of the form (LAT, LON).
+            a list of lon, lat, placeName, stateName, countryName.
     """
     coll = utilities.make_conn(file_details.auth_db, file_details.auth_user,
                                file_details.auth_pass)
