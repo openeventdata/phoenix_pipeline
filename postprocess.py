@@ -47,7 +47,7 @@ def create_strings(events):
             joined_issues = []
 
         if 'geo' in events[event]:
-            lon, lat, name = events[event]['geo']
+            lon, lat, placeName, stateName, countryName = events[event]['geo']
         else:
             lon, lat, name = '', '', ''
 
@@ -65,11 +65,11 @@ def create_strings(events):
         else:
             event_str += '\t'
 
-        if lat and lon and name:
+        if lat and lon and placeName:
             ccode = ''
             admin = ''
-            event_str += '\t{}\t{}\t{}\t{}\t{}'.format(lat, lon, name, ccode,
-                                                       admin)
+            event_str += '\t{}\t{}\t{}\t{}\t{}'.format(lat, lon, placeName,
+                    stateName, countryName)
         else:
             event_str += '\t\t\t\t\t'
 
@@ -354,7 +354,7 @@ def process_actors(event):
     return actors
 
 
-def main(event_dict, this_date, file_details):
+def main(event_dict, this_date, file_details, server_details):
     """
     Pulls in the coded results from PETRARCH dictionary in the
     {StoryID: [(record), (record)]} format and allows only one unique
@@ -379,7 +379,7 @@ def main(event_dict, this_date, file_details):
 
     logger.info('Geolocating.')
     print('Geolocating')
-    updated_events = geolocation.main(event_dict, file_details)
+    updated_events = geolocation.main(event_dict, file_details, server_details)
 
     logger.info('Formatting events for output.')
     event_write = create_strings(updated_events)

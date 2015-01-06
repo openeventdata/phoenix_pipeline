@@ -15,7 +15,7 @@ from petrarch import petrarch
 
 
 def main(file_details, server_details, logger_file=None, run_filter=None,
-         run_date=None):
+         run_date=''):
     """
     Main function to run all the things.
 
@@ -112,7 +112,8 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
 
     logger.info("Running postprocess.py")
     print("Running postprocess.py")
-    postprocess.main(formatted_results, date_string, file_details)
+    postprocess.main(formatted_results, date_string,
+                     file_details, server_details)
 
     logger.info("Running phox_uploader.py")
     print("Running phox_uploader.py")
@@ -133,3 +134,4 @@ if __name__ == '__main__':
 
     main(file_details, server_details, file_details.log_file,
          run_filter=file_details.oneaday_filter)
+

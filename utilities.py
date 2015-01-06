@@ -42,13 +42,17 @@ def parse_config(config_filename):
         username = parser.get('Server', 'username')
         password = parser.get('Server', 'password')
         server_dir = parser.get('Server', 'server_dir')
+        cliff_host = parser.get('Server', 'cliff_host')
+        cliff_port = parser.get('Server', 'cliff_port')
 
         server_attrs = namedtuple('ServerAttributes', ['serv_name',
                                                        'username',
                                                        'password',
-                                                       'server_dir'])
+                                                       'server_dir',
+                                                       'cliff_host',
+                                                       'cliff_port'])
         server_list = server_attrs(serv_name, username, password,
-                                   server_dir)
+                                   server_dir, cliff_host, cliff_port)
 
         # these are listed in the order generated
         scraper_stem = parser.get('Pipeline', 'scraper_stem')
