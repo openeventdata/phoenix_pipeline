@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
+import logging
 import requests
 import utilities
 from bson.objectid import ObjectId
@@ -34,6 +35,7 @@ def query_cliff(sentence, host, port):
     countryName: String.
             The name of the country extracted from the sentence.
     """
+    logger = logging.getLogger('pipeline_log')
 
     payload = {"q": sentence}
 
@@ -45,11 +47,11 @@ def query_cliff(sentence, host, port):
         located = requests.get(cliff_address, params=payload).json()
 
     except Exception as e:
-        print('There was an error requesting geolocation. {}'.format(e))
+        logger.warning('There was an error requesting geolocation. {}'.format(e))
         return place_info
 
     focus = located['results']['places']['focus']
-   # print(focus)
+   # logger.warning(focus)
 
     if not focus:
         return place_info
@@ -81,8 +83,8 @@ def query_cliff(sentence, host, port):
                               'stateName': stateName}
                 return place_info
             except:
-                print("Error on story. It thought there were multiple cities")
-                print(sentence)
+                logger.warning("Error on story. It thought there were multiple cities")
+                logger.info(sentence)
                 return place_info
         # If there's only one city, we're good to go.
         elif len(focus['cities']) == 1:
@@ -109,8 +111,8 @@ def query_cliff(sentence, host, port):
                               'stateName': stateName}
                 return place_info
             except:
-                print("Error on story. It thought there was 1 city.")
-                print(sentence)
+                logger.warning("Error on story. It thought there was 1 city.")
+                logger.info(sentence)
                 return place_info
     # If there's no city, we'll take a state.
     elif (len(focus['states']) > 0) & (len(focus['cities']) == 0):
@@ -136,9 +138,9 @@ def query_cliff(sentence, host, port):
                               'stateName': stateName}
                 return place_info
             except:
-                print("""Error on story. It thought there were no cities but
-                        1 state.""")
-                print(sentence)
+                logger.warning("""Error on story. It thought there were no
+                               cities but 1 state.""")
+                logger.info(sentence)
                 return place_info
     #if ((focus['cities'] == []) & len(focus['states']) > 0):
        # lat = focus['cities']['lat']
@@ -154,9 +156,9 @@ def query_cliff(sentence, host, port):
                           'stateName': ''}
             return place_info
         except:
-            print("""Error on story. It thought there were no cities or
-                    states--going for country""")
-            print(sentence)
+            logger.warning("""Error on story. It thought there were no cities
+                           or states--going for country""")
+            logger.info(sentence)
             return place_info
 
 
