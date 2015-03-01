@@ -1,3 +1,10 @@
+from __future__ import unicode_literals		
+from __future__ import print_function		
+import logging		
+import requests		
+import utilities		
+from bson.objectid import ObjectId
+
 def query_cliff(sentence, host, port):
     """
     Takes a sentence from a news article, passes it to the CLIFF geolocation
