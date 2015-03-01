@@ -1,8 +1,8 @@
-from __future__ import unicode_literals		
-from __future__ import print_function		
-import logging		
-import requests		
-import utilities		
+from __future__ import unicode_literals        
+from __future__ import print_function        
+import logging        
+import requests        
+import utilities        
 from bson.objectid import ObjectId
 
 def query_cliff(sentence, host, port):
@@ -231,15 +231,44 @@ def iso_convert(iso2c):
         return iso3c
 
 
-def main(stories, cliff_host, cliff_port, conn):
-    for story in stories:
-        print('Processing {}...'.format(story['_id']))
-        geo_info = query_cliff(story['content'], cliff_host, cliff_port)
+def main(events, file_details, server_details):
+    """
+    Pulls out a database ID and runs the ``query_cliff`` function to hit MIT's
+    CLIFF/CLAVIN geolocation system running locally  and find location
+    information within the sentence.
+    Parameters
+    ----------
+    events: Dictionary.
+            Contains filtered events from the one-a-day filter. Keys are
+            (DATE, SOURCE, TARGET, EVENT) tuples, values are lists of
+            IDs, sources, and issues.
+    Returns
+    -------
+    events: Dictionary.
+            Same as in the parameter but with the addition of a value that is
+            a list of lon, lat, placeName, stateName, countryCode.
+    """
+    coll = utilities.make_conn(file_details.auth_db, file_details.auth_user,
+                               file_details.auth_pass)
+
+    for event in events:
+        event_id, sentence_id = events[event]['ids'][0].split('_')
+       # print(event_id)
+        result = coll.find_one({'_id': ObjectId(event_id.split('_')[0])})
+        sents = utilities.sentence_segmenter(result['content'])
+
+        query_text = sents[int(sentence_id)]
+        geo_info = query_cliff(query_text, server_details.cliff_host,
+                               server_details.cliff_port)
         if geo_info:
             try:
                 if geo_info['countryCode'] != "":
                     geo_info['countryCode'] = iso_convert(geo_info['countryCode'])
             except:
                 logger.warning("""Error converting country codes.""")
-        conn.update({"_id": story['_id']}, {"$set": {'geo_info': geo_info,
-                                                     'geo': 1}})
+            events[event]['geo'] = (geo_info['lon'], geo_info['lat'],
+                                    geo_info['placeName'],
+                                    geo_info['stateName'],
+                                    geo_info['countryCode'])
+            # Add in country and restype here
+    return events
