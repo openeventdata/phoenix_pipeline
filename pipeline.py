@@ -15,7 +15,7 @@ from petrarch import petrarch
 
 
 def main(file_details, server_details, logger_file=None, run_filter=None,
-         run_date=''):
+         run_date='', version=''):
     """
     Main function to run all the things.
 
@@ -112,8 +112,11 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
 
     logger.info("Running postprocess.py")
     print("Running postprocess.py")
-    postprocess.main(formatted_results, date_string,
-                     file_details, server_details)
+    if version:
+        postprocess.main(formatted_results, date_string, version, file_details,
+                         server_details)
+    else:
+        print("Please specify a data version number. Program ending.")
 
     logger.info("Running phox_uploader.py")
     print("Running phox_uploader.py")
@@ -133,5 +136,4 @@ if __name__ == '__main__':
     server_details, file_details = utilities.parse_config('PHOX_config.ini')
 
     main(file_details, server_details, file_details.log_file,
-         run_filter=file_details.oneaday_filter)
-
+         run_filter=file_details.oneaday_filter, version='v0.0.0')

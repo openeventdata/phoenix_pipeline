@@ -5,7 +5,7 @@ import logging
 import geolocation
 
 
-def create_strings(events):
+def create_strings(events, version):
     """
     Formats the event tuples into a string that can be written to a file.close
 
@@ -16,6 +16,9 @@ def create_strings(events):
                 Contains filtered events. Keys are
                 (DATE, SOURCE, TARGET, EVENT) tuples, values are lists of
                 IDs, sources, and issues.
+
+    version: String.
+                Data version. Something like v0.1.0
 
     Returns
     -------
@@ -54,8 +57,10 @@ def create_strings(events):
         actor_info = '\t'.join(actors)
         print('Event: {}\t{}\t{}\t{}\t{}'.format(story_date, actor_info, code,
                                                  ids, sources))
-        event_str = '{}\t{}\t{}\t{}\t{}\t{}'.format(id_count, story_date, year,
-                                                    month, day, actor_info)
+        id_string = '{}_{}'.format(id_count, version)
+        event_str = '{}\t{}\t{}\t{}\t{}\t{}'.format(id_string, story_date,
+                                                    year, month, day,
+                                                    actor_info)
 
         event_str += '\t{}\t{}\t{}\t{}'.format(code, root_code, quad_class,
                                                goldstein)
@@ -66,10 +71,8 @@ def create_strings(events):
             event_str += '\t'
 
         if lat and lon and placeName:
-            ccode = ''
-            admin = ''
             event_str += '\t{}\t{}\t{}\t{}\t{}'.format(lat, lon, placeName,
-                    stateName, countryName)
+                                                       stateName, countryName)
         else:
             event_str += '\t\t\t\t\t'
 
@@ -354,7 +357,7 @@ def process_actors(event):
     return actors
 
 
-def main(event_dict, this_date, file_details, server_details):
+def main(event_dict, this_date, version, file_details, server_details):
     """
     Pulls in the coded results from PETRARCH dictionary in the
     {StoryID: [(record), (record)]} format and allows only one unique
@@ -371,6 +374,9 @@ def main(event_dict, this_date, file_details, server_details):
     this_date: String.
                 The current date the pipeline is running.
 
+    version: String.
+                Data version. Something like v0.1.0
+
     file_details: NamedTuple.
                     Container generated from the config file specifying file
                     stems and other relevant options.
@@ -382,7 +388,7 @@ def main(event_dict, this_date, file_details, server_details):
     updated_events = geolocation.main(event_dict, file_details, server_details)
 
     logger.info('Formatting events for output.')
-    event_write = create_strings(updated_events)
+    event_write = create_strings(updated_events, version)
 
     logger.info('Writing event output.')
     filename = '{}{}.txt'.format(file_details.fullfile_stem, this_date)
