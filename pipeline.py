@@ -84,10 +84,10 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
     if run_filter == 'False':
         print('Running PETRARCH and writing to a file. No one-a-day.')
         logger.info('Running PETRARCH and writing to a file. No one-a-day.')
-        #Command to write output to a file directly from PETR
-#        petrarch.run_pipeline(formatted,
-#                              '{}{}.txt'.format(file_details.fullfile_stem,
-#                                                date_string), parsed=True)
+        # Command to write output to a file directly from PETR
+        #        petrarch.run_pipeline(formatted,
+        #                              '{}{}.txt'.format(file_details.fullfile_stem,
+        #                                                date_string), parsed=True)
         petr_results = petrarch.run_pipeline(formatted, write_output=False,
                                              parsed=True)
     elif run_filter == 'True':
@@ -131,9 +131,12 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
     print('PHOX.pipeline end:', datetime.datetime.utcnow())
 
 
-if __name__ == '__main__':
-    # initialize the various utilities globals
+def run():
     server_details, file_details = utilities.parse_config('PHOX_config.ini')
 
     main(file_details, server_details, file_details.log_file,
          run_filter=file_details.oneaday_filter, version='v0.0.0')
+
+
+if __name__ == '__main__':
+    run()
