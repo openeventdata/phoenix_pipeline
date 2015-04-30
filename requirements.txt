@@ -7,7 +7,7 @@ Unidecode==0.04.16
 corenlp-python==3.2.0-3
 docutils==0.11
 numpydoc==0.4
-petrarch==0.01a
+-e git+https://github.com/openeventdata/petrarch.git@5fe92b676e8b4fb9a1964e7da55e9c95e9a5745f#egg=petrarch-master
 pexpect==3.2
 pymongo==2.7
 python-dateutil==2.2

@@ -2,7 +2,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import re
 import logging
+import os
 from collections import namedtuple
+
 from pymongo import MongoClient
 
 try:
@@ -66,10 +68,12 @@ def parse_config(config_filename):
             auth_db = parser.get('Auth', 'auth_db')
             auth_user = parser.get('Auth', 'auth_user')
             auth_pass = parser.get('Auth', 'auth_pass')
+            db_host = parser.get('Auth', 'db_host')
         else:
             auth_db = ''
             auth_user = ''
             auth_pass = ''
+            db_host = os.getenv('MONGO_HOST') or None
         if 'Logging' in parser.sections():
             log_file = parser.get('Logging', 'log_file')
         else:
@@ -85,12 +89,13 @@ def parse_config(config_filename):
                                                    'log_file',
                                                    'auth_db',
                                                    'auth_user',
-                                                   'auth_pass'])
+                                                   'auth_pass',
+                                                   'db_host'])
 
         file_list = file_attrs(scraper_stem, recordfile_stem, fullfile_stem,
                                eventfile_stem, dupfile_stem, outputfile_stem,
                                oneaday_filter, log_file, auth_db, auth_user,
-                               auth_pass)
+                               auth_pass, db_host)
 
         return server_list, file_list
     except Exception as e:
@@ -134,7 +139,7 @@ def do_RuntimeError(st1, filename='', st2=''):
     raise RuntimeError(st1 + ' ' + filename + ' ' + st2)
 
 
-def make_conn(db_auth, db_user, db_pass):
+def make_conn(db_auth, db_user, db_pass, db_host=None):
     """
     Function to establish a connection to a local MonoDB instance.
 
@@ -158,7 +163,11 @@ def make_conn(db_auth, db_user, db_pass):
                 Collection within MongoDB that holds the scraped news stories.
 
     """
-    client = MongoClient()
+
+    if db_host:
+        client = MongoClient(db_host)
+    else:
+        client = MongoClient()
     if db_auth:
         client[db_auth].authenticate(db_user, db_pass)
     database = client.event_scrape
