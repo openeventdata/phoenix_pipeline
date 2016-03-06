@@ -1,6 +1,8 @@
 phoenix_pipeline
 ================
 
+[![Join the chat at https://gitter.im/openeventdata/phoenix_pipeline](https://badges.gitter.im/openeventdata/phoenix_pipeline.svg)](https://gitter.im/openeventdata/phoenix_pipeline?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Turning news into events since 2014.
 
 This system links a series of Python programs to convert the files which have been 
