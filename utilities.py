@@ -34,6 +34,9 @@ def parse_config(config_filename):
 
     file_list: Named tuple.
                 All the other config information not in ``server_list``.
+
+    petrarch_version: Int
+                Either 1 or 2, indicating whether Petrarch or Petrarch2 should be used.
     """
     parser = ConfigParser()
     parser.read(config_filename)
@@ -79,6 +82,9 @@ def parse_config(config_filename):
         else:
             log_file = ''
 
+        petrarch_version = parser.get('Petrarch', 'petrarch_version')
+        print("petrarch version is {}".format(petrarch_version))
+
         file_attrs = namedtuple('FileAttributes', ['scraper_stem',
                                                    'recordfile_stem',
                                                    'fullfile_stem',
@@ -97,7 +103,7 @@ def parse_config(config_filename):
                                oneaday_filter, log_file, auth_db, auth_user,
                                auth_pass, db_host)
 
-        return server_list, file_list
+        return server_list, file_list, petrarch_version
     except Exception as e:
         print('Problem parsing config file. {}'.format(e))
 

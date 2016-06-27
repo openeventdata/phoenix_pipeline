@@ -11,7 +11,18 @@ import postprocess
 import oneaday_filter
 import result_formatter
 import scraper_connection
-from petrarch import petrarch
+#from petrarch2 import petrarch2
+
+server_details, file_details, petrarch_version = utilities.parse_config('PHOX_config.ini')
+if petrarch_version == '1':
+    from petrarch import petrarch
+    print("Using original Petrarch version")
+elif petrarch_version == '2':
+    from petrarch2 import petrarch2 as petrarch
+    print("Using Petrarch2")
+else:
+    print("Invalid Petrarch version. Argument must be '1' or '2'")
+
 
 
 def main(file_details, server_details, logger_file=None, run_filter=None,
@@ -132,8 +143,6 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
 
 
 def run():
-    server_details, file_details = utilities.parse_config('PHOX_config.ini')
-
     main(file_details, server_details, file_details.log_file,
          run_filter=file_details.oneaday_filter, version='v0.0.0')
 
