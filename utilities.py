@@ -100,7 +100,6 @@ def parse_config(config_filename):
             log_file = ''
 
         petrarch_version = parser.get('Petrarch', 'petrarch_version')
-        print("petrarch version is {}".format(petrarch_version))
 
         file_attrs = namedtuple('FileAttributes', ['scraper_stem',
                                                    'recordfile_stem',
