@@ -12,6 +12,7 @@ import oneaday_filter
 import result_formatter
 import scraper_connection
 
+
 def main(file_details, geo_details, server_details, petrarch_version, logger_file=None, run_filter=None,
          run_date='', version=''):
     """
@@ -77,10 +78,6 @@ def main(file_details, geo_details, server_details, petrarch_version, logger_fil
                                                   process_date.day)
         logger.info('Date string: {}'.format(date_string))
         print('Date string:', date_string)
-    print("process date:")
-    print(process_date)
-    print("file_details")
-    print(file_details)
     results, scraperfilename = scraper_connection.main(process_date,
                                                        file_details)
 
