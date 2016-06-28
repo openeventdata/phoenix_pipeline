@@ -4,6 +4,7 @@ import logging
 import requests        
 import utilities        
 from bson.objectid import ObjectId
+import json
 
 def query_cliff(sentence, host, port):
     """
@@ -230,12 +231,39 @@ def iso_convert(iso2c):
         iso3c = "NA"
         return iso3c
 
-
-def main(events, file_details, server_details):
+def query_mordecai(sentence, host, port):
     """
-    Pulls out a database ID and runs the ``query_cliff`` function to hit MIT's
-    CLIFF/CLAVIN geolocation system running locally  and find location
-    information within the sentence.
+    Takes a sentence from a news article, passes it to the Mordecai geolocation
+    service, and extracts the relevant data that Mordecai returns.
+    Parameters
+    ----------
+    sentence: String.
+                Text from which an event was coded.
+    Returns
+    -------
+    lat: String.
+            Latitude of a location.
+    lon: String.
+            Longitude of a location.
+    placeName: String.
+            The name of the most precise location extracted from the sentence.
+    stateName: String.
+            The name of the state/region/province extracted from the sentence.
+    countryCode: String.
+            The ISO 3 character country code of the country  extracted from the sentence.
+    """
+    headers = {'Content-Type': 'application/json'}
+    data = {'text': sentence}
+    data = json.dumps(data)
+    dest = "{0}:{1}/places".format(host, port)
+    out = requests.post(dest, data=data, headers=headers)
+    return json.loads(out.text)
+
+
+def mordecai(events, file_details, server_details, geo_details):
+    """
+    Pulls out a database ID and queries the Mordecai geolocation system 
+    running locally  and find location information within the sentence.
     Parameters
     ----------
     events: Dictionary.
@@ -258,8 +286,54 @@ def main(events, file_details, server_details):
         sents = utilities.sentence_segmenter(result['content'])
 
         query_text = sents[int(sentence_id)]
-        geo_info = query_cliff(query_text, server_details.cliff_host,
-                               server_details.cliff_port)
+        geo_info = query_mordecai(query_text, geo_details.mordecai_host,
+                               geo_details.mordecai_port)
+        print(geo_info)
+        try:
+            # temporary hack: take the first location:
+            geo_info = geo_info[0]
+            # NA is for ADM1, which mord doesn't return. See issue #2
+            events[event]['geo'] = (geo_info['lon'], geo_info['lat'],
+                              geo_info['placename'], "NA", geo_info['countrycode'])
+            print("worked")
+        except Exception as e:
+            print("error")
+            print(e)
+            events[event]['geo'] = ("NA", "NA", "NA", "NA", "NA")
+
+    return events
+
+def cliff(events, file_details, server_details, geo_details):
+    """
+    Pulls out a database ID and runs the ``query_cliff`` function to hit MIT's
+    CLIFF/CLAVIN geolocation system running locally and find location
+    information within the sentence. Note, this function calls back to the database
+    where stories are stored.
+    Parameters
+    ----------
+    events: Dictionary.
+            Contains filtered events from the one-a-day filter. Keys are
+            (DATE, SOURCE, TARGET, EVENT) tuples, values are lists of
+            IDs, sources, and issues.
+    Returns
+    -------
+    events: Dictionary.
+            Same as in the parameter but with the addition of a value that is
+            a list of lon, lat, placeName, stateName, countryCode.
+    """
+    coll = utilities.make_conn(file_details.auth_db, file_details.auth_user,
+                               file_details.auth_pass)
+
+    for event in events:
+        print(event)
+        event_id, sentence_id = events[event]['ids'][0].split('_')
+       # print(event_id)
+        result = coll.find_one({'_id': ObjectId(event_id.split('_')[0])})
+        sents = utilities.sentence_segmenter(result['content'])
+
+        query_text = sents[int(sentence_id)]
+        geo_info = query_cliff(query_text, geo_details.cliff_host,
+                               geo_details.cliff_port)
         if geo_info:
             try:
                 if geo_info['countryCode'] != "":

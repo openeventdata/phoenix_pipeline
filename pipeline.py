@@ -13,7 +13,7 @@ import result_formatter
 import scraper_connection
 #from petrarch2 import petrarch2
 
-server_details, file_details, petrarch_version = utilities.parse_config('PHOX_config.ini')
+server_details, geo_details, file_details, petrarch_version = utilities.parse_config('PHOX_config.ini')
 if petrarch_version == '1':
     from petrarch import petrarch
     print("Using original Petrarch version")
@@ -25,7 +25,7 @@ else:
 
 
 
-def main(file_details, server_details, logger_file=None, run_filter=None,
+def main(file_details, geo_details, server_details, logger_file=None, run_filter=None,
          run_date='', version=''):
     """
     Main function to run all the things.
@@ -35,6 +35,9 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
 
     file_details: Named tuple.
                     All the other config information not in ``server_details``.
+
+    geo_details: Named tuple.
+                  Settings for geocoding.
 
     server_details: Named tuple.
                     Config information specifically related to the remote
@@ -77,7 +80,10 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
                                                   process_date.day)
         logger.info('Date string: {}'.format(date_string))
         print('Date string:', date_string)
-
+    print("process date:")
+    print(process_date)
+    print("file_details")
+    print(file_details)
     results, scraperfilename = scraper_connection.main(process_date,
                                                        file_details)
 
@@ -89,7 +95,6 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
     print("Running Mongo.formatter.py")
     formatted = formatter.main(results, file_details,
                                process_date, date_string)
-
     logger.info("Running PETRARCH")
     file_details.fullfile_stem + date_string
     if run_filter == 'False':
@@ -125,7 +130,7 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
     print("Running postprocess.py")
     if version:
         postprocess.main(formatted_results, date_string, version, file_details,
-                         server_details)
+                         server_details, geo_details)
     else:
         print("Please specify a data version number. Program ending.")
 
@@ -143,7 +148,7 @@ def main(file_details, server_details, logger_file=None, run_filter=None,
 
 
 def run():
-    main(file_details, server_details, file_details.log_file,
+    main(file_details, geo_details, server_details, file_details.log_file,
          run_filter=file_details.oneaday_filter, version='v0.0.0')
 
 
