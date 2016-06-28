@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import sys
 import logging
+import requests
 import datetime
 import dateutil
 import uploader
@@ -80,6 +81,18 @@ def main(file_details, geo_details, server_details, petrarch_version, logger_fil
         print('Date string:', date_string)
     results, scraperfilename = scraper_connection.main(process_date,
                                                        file_details)
+    if geo_details.geo_service == "Mordecai":
+        dest = "{0}:{1}/places".format(geo_details.mordecai_host, geo_details.mordecai_port)
+        try:
+            out = requests.get(dest)
+            assert out.status_code == 200
+        except (AssertionError, requests.exceptions.ConnectionError):
+            print("Mordecai geolocation service not responding. Continuing anyway...")
+    elif geo_details.geo_service == "CLIFF":
+        print("CLIFF")
+    else:
+        print("Invalid geo service name. Must be 'CLIFF' or 'Mordecai'. Continuing...")
+
 
     if scraperfilename:
         logger.info("Scraper file name: " + scraperfilename)

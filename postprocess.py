@@ -390,8 +390,6 @@ def main(event_dict, this_date, version, file_details, server_details, geo_detai
 
     logger.info('Geolocating.')
     print('Geolocating')
-    geo_details.geo_service == "Mordecai"
-    print(event_dict)
     if geo_details.geo_service == "CLIFF":
         updated_events = geolocation.cliff(event_dict, file_details, server_details, geo_details)
     elif geo_details.geo_service == "Mordecai":

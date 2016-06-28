@@ -239,6 +239,10 @@ def query_mordecai(sentence, host, port):
     ----------
     sentence: String.
                 Text from which an event was coded.
+    host: String
+               Host where Mordecai is running (taken from config)
+    port: String
+               Port that Mordecai service is listening on 
     Returns
     -------
     lat: String.
@@ -259,6 +263,14 @@ def query_mordecai(sentence, host, port):
     out = requests.post(dest, data=data, headers=headers)
     return json.loads(out.text)
 
+def test_mordecai(sentence, host, port):
+    """
+    Check if Mordecai service is up and responding on given host and port.
+    Parameters
+    ----------
+    sentence: String.
+                Text from which an event was coded.
+    """
 
 def mordecai(events, file_details, server_details, geo_details):
     """
@@ -288,17 +300,13 @@ def mordecai(events, file_details, server_details, geo_details):
         query_text = sents[int(sentence_id)]
         geo_info = query_mordecai(query_text, geo_details.mordecai_host,
                                geo_details.mordecai_port)
-        print(geo_info)
         try:
             # temporary hack: take the first location:
             geo_info = geo_info[0]
             # NA is for ADM1, which mord doesn't return. See issue #2
             events[event]['geo'] = (geo_info['lon'], geo_info['lat'],
                               geo_info['placename'], "NA", geo_info['countrycode'])
-            print("worked")
         except Exception as e:
-            print("error")
-            print(e)
             events[event]['geo'] = ("NA", "NA", "NA", "NA", "NA")
 
     return events
@@ -325,7 +333,6 @@ def cliff(events, file_details, server_details, geo_details):
                                file_details.auth_pass)
 
     for event in events:
-        print(event)
         event_id, sentence_id = events[event]['ids'][0].split('_')
        # print(event_id)
         result = coll.find_one({'_id': ObjectId(event_id.split('_')[0])})
