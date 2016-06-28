@@ -149,6 +149,5 @@ def run():
     main(file_details, geo_details, server_details, petrarch_version, file_details.log_file,
          run_filter=file_details.oneaday_filter, version='v0.0.0')
 
-
 if __name__ == '__main__':
     run()
