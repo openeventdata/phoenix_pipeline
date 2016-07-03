@@ -34,7 +34,7 @@ def query_cliff(sentence, host, port):
     place_info = {'lat': '', 'lon': '', 'placeName': '', 'countryCode': '',
                   'stateName': '', 'restype' : ''}
 
-    cliff_address = "http://{}:{}/CLIFF-2.0.0/parse/text".format(host, port)
+    cliff_address = "{}:{}/CLIFF-2.0.0/parse/text".format(host, port)
     try:
         located = requests.get(cliff_address, params=payload).json()
 
