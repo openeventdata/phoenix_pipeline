@@ -32,6 +32,9 @@ def parse_config(config_filename):
                     Config information specifically related to the remote
                     server for FTP uploading.
 
+    geo_list : Named tuple.
+                 Config information for geocoding.
+
     file_list: Named tuple.
                 All the other config information not in ``server_list``.
 
@@ -47,17 +50,31 @@ def parse_config(config_filename):
         username = parser.get('Server', 'username')
         password = parser.get('Server', 'password')
         server_dir = parser.get('Server', 'server_dir')
-        cliff_host = parser.get('Server', 'cliff_host')
-        cliff_port = parser.get('Server', 'cliff_port')
 
         server_attrs = namedtuple('ServerAttributes', ['serv_name',
                                                        'username',
                                                        'password',
-                                                       'server_dir',
-                                                       'cliff_host',
-                                                       'cliff_port'])
+                                                       'server_dir'])
         server_list = server_attrs(serv_name, username, password,
-                                   server_dir, cliff_host, cliff_port)
+                                   server_dir)
+
+        geo_service = parser.get('Geolocation', 'geo_service')
+        cliff_host = parser.get('Geolocation', 'cliff_host')
+        cliff_port = parser.get('Geolocation', 'cliff_port')
+        mordecai_host = parser.get('Geolocation', 'mordecai_host')
+        mordecai_port = parser.get('Geolocation', 'mordecai_port')
+
+
+        geo_attrs = namedtuple('GeolocationAttributes', ['geo_service',
+                                                         'cliff_host',
+                                                         'cliff_port',
+                                                         'mordecai_host',
+                                                         'mordecai_port'
+                                                       ])
+
+        geo_list = geo_attrs(geo_service, cliff_host, cliff_port,
+                                     mordecai_host, mordecai_port)
+
 
         # these are listed in the order generated
         scraper_stem = parser.get('Pipeline', 'scraper_stem')
@@ -102,7 +119,7 @@ def parse_config(config_filename):
                                oneaday_filter, log_file, auth_db, auth_user,
                                auth_pass, db_host)
 
-        return server_list, file_list, petrarch_version
+        return server_list, geo_list, file_list, petrarch_version
     except Exception as e:
         print('Problem parsing config file. {}'.format(e))
 

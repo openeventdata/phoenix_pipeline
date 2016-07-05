@@ -358,7 +358,7 @@ def process_actors(event):
     return actors
 
 
-def main(event_dict, this_date, version, file_details, server_details):
+def main(event_dict, this_date, version, file_details, server_details, geo_details):
     """
     Pulls in the coded results from PETRARCH dictionary in the
     {StoryID: [(record), (record)]} format and allows only one unique
@@ -381,12 +381,21 @@ def main(event_dict, this_date, version, file_details, server_details):
     file_details: NamedTuple.
                     Container generated from the config file specifying file
                     stems and other relevant options.
+    server_details: NamedTuple.
+                    Info for uploading to server.
+    geo_details: NamedTuple.
+                    Info about geo type and geo server details.
     """
     logger = logging.getLogger('pipeline_log')
 
     logger.info('Geolocating.')
     print('Geolocating')
-    updated_events = geolocation.main(event_dict, file_details, server_details)
+    if geo_details.geo_service == "CLIFF":
+        updated_events = geolocation.cliff(event_dict, file_details, server_details, geo_details)
+    elif geo_details.geo_service == "Mordecai":
+        updated_events = geolocation.mordecai(event_dict, file_details, server_details, geo_details)
+    else:
+        print("Invalid geo service name. Must be 'CLIFF' or 'Mordecai'.")
 
     logger.info('Formatting events for output.')
     event_write = create_strings(updated_events, version)

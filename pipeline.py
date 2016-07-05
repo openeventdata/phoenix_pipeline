@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import sys
 import logging
+import requests
 import datetime
 import dateutil
 import uploader
@@ -12,7 +13,8 @@ import oneaday_filter
 import result_formatter
 import scraper_connection
 
-def main(file_details, server_details, petrarch_version, logger_file=None, run_filter=None,
+
+def main(file_details, geo_details, server_details, petrarch_version, logger_file=None, run_filter=None,
          run_date='', version=''):
     """
     Main function to run all the things.
@@ -22,6 +24,9 @@ def main(file_details, server_details, petrarch_version, logger_file=None, run_f
 
     file_details: Named tuple.
                     All the other config information not in ``server_details``.
+
+    geo_details: Named tuple.
+                  Settings for geocoding.
 
     server_details: Named tuple.
                     Config information specifically related to the remote
@@ -74,9 +79,20 @@ def main(file_details, server_details, petrarch_version, logger_file=None, run_f
                                                   process_date.day)
         logger.info('Date string: {}'.format(date_string))
         print('Date string:', date_string)
-
     results, scraperfilename = scraper_connection.main(process_date,
                                                        file_details)
+    if geo_details.geo_service == "Mordecai":
+        dest = "{0}:{1}/places".format(geo_details.mordecai_host, geo_details.mordecai_port)
+        try:
+            out = requests.get(dest)
+            assert out.status_code == 200
+        except (AssertionError, requests.exceptions.ConnectionError):
+            print("Mordecai geolocation service not responding. Continuing anyway...")
+    elif geo_details.geo_service == "CLIFF":
+        print("CLIFF")
+    else:
+        print("Invalid geo service name. Must be 'CLIFF' or 'Mordecai'. Continuing...")
+
 
     if scraperfilename:
         logger.info("Scraper file name: " + scraperfilename)
@@ -86,7 +102,6 @@ def main(file_details, server_details, petrarch_version, logger_file=None, run_f
     print("Running Mongo.formatter.py")
     formatted = formatter.main(results, file_details,
                                process_date, date_string)
-
     logger.info("Running PETRARCH")
     file_details.fullfile_stem + date_string
     if run_filter == 'False':
@@ -122,7 +137,7 @@ def main(file_details, server_details, petrarch_version, logger_file=None, run_f
     print("Running postprocess.py")
     if version:
         postprocess.main(formatted_results, date_string, version, file_details,
-                         server_details)
+                         server_details, geo_details)
     else:
         print("Please specify a data version number. Program ending.")
 
@@ -140,10 +155,9 @@ def main(file_details, server_details, petrarch_version, logger_file=None, run_f
 
 
 def run():
-    server_details, file_details, petrarch_version = utilities.parse_config('PHOX_config.ini')
-    main(file_details, server_details, petrarch_version, file_details.log_file,
+    server_details, geo_details, file_details, petrarch_version = utilities.parse_config('PHOX_config.ini')
+    main(file_details, geo_details, server_details, petrarch_version, file_details.log_file,
          run_filter=file_details.oneaday_filter, version='v0.0.0')
-
 
 if __name__ == '__main__':
     run()
