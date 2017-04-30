@@ -6,6 +6,7 @@ Jinja2==2.7.2
 MarkupSafe==0.23
 numpydoc==0.4
 -e git+https://github.com/openeventdata/petrarch.git@5fe92b676e8b4fb9a1964e7da55e9c95e9a5745f#egg=petrarch-master
+-e git+https://github.com/openeventdata/petrarch2.git#egg=petrarch2-master
 pexpect==3.2
 Pygments==1.6
 pymongo==2.7
