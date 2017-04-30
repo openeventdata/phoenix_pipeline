@@ -288,7 +288,8 @@ def mordecai(events, file_details, server_details, geo_details):
             Same as in the parameter but with the addition of a value that is
             a list of lon, lat, placeName, stateName, countryCode.
     """
-    coll = utilities.make_conn(file_details.auth_db, file_details.auth_user,
+    coll = utilities.make_conn(file_details.db_db, file_details.db_collection,
+                               file_details.auth_db, file_details.auth_user,
                                file_details.auth_pass)
 
     for event in events:
@@ -329,7 +330,8 @@ def cliff(events, file_details, server_details, geo_details):
             Same as in the parameter but with the addition of a value that is
             a list of lon, lat, placeName, stateName, countryCode.
     """
-    coll = utilities.make_conn(file_details.auth_db, file_details.auth_user,
+    coll = utilities.make_conn(file_details.db_db, file_details.db_collection,
+                               file_details.auth_db, file_details.auth_user,
                                file_details.auth_pass)
 
     for event in events:
