@@ -14,7 +14,7 @@ import result_formatter
 import scraper_connection
 
 
-def main(file_details, geo_details, server_details, petrarch_version, logger_file=None, run_filter=None,
+def main(file_details, geo_details, server_details, petrarch_version, mongo_details, logger_file=None, run_filter=None,
          run_date='', version=''):
     """
     Main function to run all the things.
@@ -31,6 +31,9 @@ def main(file_details, geo_details, server_details, petrarch_version, logger_fil
     server_details: Named tuple.
                     Config information specifically related to the remote
                     server for FTP uploading.
+
+    petrarch_version: String.
+                       Which version of Petrarch to use. Must be '1' or '2'
 
     logger_file: String.
                     Path to a log file. Defaults to ``None`` and opens a

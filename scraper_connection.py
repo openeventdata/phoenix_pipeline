@@ -74,6 +74,7 @@ def query_all(collection, lt_date, gt_date, sources, write_file=False):
     posts = collection.find({"$and": [{"date_added": {"$lte": lt_date}},
                                       {"date_added": {"$gt": gt_date}},
                                       {"source": {"$in": sources}}]})
+    #posts = collection.find()
 
     print('Total number of stories: {}'.format(posts.count()))
     logger.info('Total number of stories: {}'.format(posts.count()))
@@ -145,7 +146,8 @@ def main(current_date, file_details, write_file=False, file_stem=None):
 
     """
     sources = _get_sources('source_keys.txt')
-    conn = utilities.make_conn(file_details.auth_db, file_details.auth_user,
+    conn = utilities.make_conn(file_details.db_db, file_details.db_collection,
+                               file_details.auth_db, file_details.auth_user,
                                file_details.auth_pass, file_details.db_host)
 
     less_than = datetime.datetime(current_date.year, current_date.month,
