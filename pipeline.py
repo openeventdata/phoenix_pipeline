@@ -111,12 +111,12 @@ def main(file_details, geo_details, server_details, petrarch_version, logger_fil
         #        petrarch.run_pipeline(formatted,
         #                              '{}{}.txt'.format(file_details.fullfile_stem,
         #                                                date_string), parsed=True)
-        petr_results = petrarch.run_pipeline(formatted, write_output=False,
+        petr_results = petrarch.run_pipeline(formatted, config = "petr_config.ini", write_output=False,
                                              parsed=True)
     elif run_filter == 'True':
         print('Running PETRARCH and returning output.')
         logger.info('Running PETRARCH and returning output.')
-        petr_results = petrarch.run_pipeline(formatted, write_output=False,
+        petr_results = petrarch.run_pipeline(formatted, config = "petr_config.ini", write_output=False,
                                              parsed=True)
     else:
         print("""Can't run with the options you've specified. You need to fix
