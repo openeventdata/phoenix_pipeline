@@ -101,6 +101,15 @@ def parse_config(config_filename):
 
         petrarch_version = parser.get('Petrarch', 'petrarch_version')
 
+        if 'Mongo' in parser.sections():
+            db_db = parser.get('Mongo', 'db')
+            db_collection = parser.get('Mongo', 'collection')
+        else:
+            db_db = 'event_scrape'
+            db_collection = 'stories'
+
+
+
         file_attrs = namedtuple('FileAttributes', ['scraper_stem',
                                                    'recordfile_stem',
                                                    'fullfile_stem',
@@ -112,12 +121,16 @@ def parse_config(config_filename):
                                                    'auth_db',
                                                    'auth_user',
                                                    'auth_pass',
-                                                   'db_host'])
+                                                   'db_host',
+                                                   'db_db',
+                                                   'db_collection'])
 
         file_list = file_attrs(scraper_stem, recordfile_stem, fullfile_stem,
                                eventfile_stem, dupfile_stem, outputfile_stem,
                                oneaday_filter, log_file, auth_db, auth_user,
-                               auth_pass, db_host)
+                               auth_pass, db_host, db_db, db_collection)
+
+
 
         return server_list, geo_list, file_list, petrarch_version
     except Exception as e:
@@ -161,7 +174,7 @@ def do_RuntimeError(st1, filename='', st2=''):
     raise RuntimeError(st1 + ' ' + filename + ' ' + st2)
 
 
-def make_conn(db_auth, db_user, db_pass, db_host=None):
+def make_conn(db_db, db_collection, db_auth, db_user, db_pass, db_host=None):
     """
     Function to establish a connection to a local MonoDB instance.
 
@@ -192,8 +205,8 @@ def make_conn(db_auth, db_user, db_pass, db_host=None):
         client = MongoClient()
     if db_auth:
         client[db_auth].authenticate(db_user, db_pass)
-    database = client.event_scrape
-    collection = database['stories']
+    database = client[db_db]
+    collection = database[db_collection]
     return collection
 
 

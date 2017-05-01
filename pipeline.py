@@ -14,7 +14,7 @@ import result_formatter
 import scraper_connection
 
 
-def main(file_details, geo_details, server_details, petrarch_version, logger_file=None, run_filter=None,
+def main(file_details, geo_details, server_details, petrarch_version, mongo_details, logger_file=None, run_filter=None,
          run_date='', version=''):
     """
     Main function to run all the things.
@@ -31,6 +31,9 @@ def main(file_details, geo_details, server_details, petrarch_version, logger_fil
     server_details: Named tuple.
                     Config information specifically related to the remote
                     server for FTP uploading.
+
+    petrarch_version: String.
+                       Which version of Petrarch to use. Must be '1' or '2'
 
     logger_file: String.
                     Path to a log file. Defaults to ``None`` and opens a
@@ -111,12 +114,12 @@ def main(file_details, geo_details, server_details, petrarch_version, logger_fil
         #        petrarch.run_pipeline(formatted,
         #                              '{}{}.txt'.format(file_details.fullfile_stem,
         #                                                date_string), parsed=True)
-        petr_results = petrarch.run_pipeline(formatted, write_output=False,
+        petr_results = petrarch.run_pipeline(formatted, config = "petr_config.ini", write_output=False,
                                              parsed=True)
     elif run_filter == 'True':
         print('Running PETRARCH and returning output.')
         logger.info('Running PETRARCH and returning output.')
-        petr_results = petrarch.run_pipeline(formatted, write_output=False,
+        petr_results = petrarch.run_pipeline(formatted, config = "petr_config.ini", write_output=False,
                                              parsed=True)
     else:
         print("""Can't run with the options you've specified. You need to fix
